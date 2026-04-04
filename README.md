@@ -151,6 +151,9 @@ Backend Service: Rust Axum/Actix-web.
 
 ### infra structure, build system, CI/CD, deployment, etc.
 
+GitHub for code hosting, issue tracking, project management, etc.
+Monorepo at first stages, may split later if needed, multilanguage support.
+
 Local first:
 
 - Local containers for backend services, storage, etc.
