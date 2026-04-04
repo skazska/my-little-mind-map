@@ -83,9 +83,9 @@ Start now, and keep improving it iteratively.
 
 Obsidian: writing markdown, linking notes, graph view, sync. Looks great.
 Google Keep: quick notes, checklists, reminders, upload images, audio, drawings.
-Notion: databases (- why might need this?), relations (- what this about?), views (- some details?), templates (- not sure, how to use?).
-Roam Research: bidirectional links (- interesting what & how?), daily notes (- useful?), query language (- powerful?).
-Logseq: outlining (- what is it?), backlinks (- like bidirectional?), block references (- what is it?), local-first sync (- what good?).
+Notion: relations (like for angles).
+Roam Research: bidirectional links, daily notes (- useful?), query language (- powerful?).
+Logseq: outlining (Nested hierarchical notes - bullets within bullets), backlinks (like bidirectional), block references (referencing parts), local-first sync.
 Miro: visual collaboration, mind mapping, whiteboarding.
 
 ## Key
@@ -94,12 +94,13 @@ Text centered, text is a keystone artifact, other artifacts must be referenced i
 Classification is required.
 Topics are items of classifications.
 Angles are perspectives on topics, they can be used to group topics and artifacts in different ways.
+Local first, sync to backend service, but can work without it.
 
 ## Plan
 
 ### POC
 
-Desktop App with basic features: write, upload, paste from clipboard, screen-part capture, classify, link, sync to Backend Service.
+Desktop App with basic features: write, upload, paste from clipboard, screen-part capture, classify, link(bidirectional), sync to Backend Service.
 Backend Service with basic features: store, sync, manage data.
 
 ### MVP1
@@ -112,7 +113,7 @@ Improoved features:
 
 Better UX:
 
-- More integrations for collecting data e.g. web clipper (- what is it?), email (-how?), calendar (-to gather?), etc.
+- More integrations for collecting data e.g. web clipper, email, calendar (to keep track on plans), etc.
 - Better visualisation of data and relations e.g. graph view, mind map view, (- why both?) etc.
 
 ### MVP3
@@ -147,7 +148,7 @@ Backend Service: Rust Axum/Actix-web.
 - docs: documentation, design, etc.
 - tests: integration tests, etc.
 
-## Development process:
+## Development process
 
 ### infra structure, build system, CI/CD, deployment, etc.
 
