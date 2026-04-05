@@ -11,18 +11,18 @@ Decisions: [POC-decisions.md](POC-decisions.md) — D-001 through D-012
 
 | # | Task | Depends on | Status | Definition |
 |---|------|-----------|--------|------------|
-| 1.1 | Design data model (Mermaid ER + types) | — | Not started | [1.1_design-data-model.md](POC-phase-1/1.1_design-data-model.md) |
-| 1.2 | Add data model to shared CRUX core | 1.1 | Not started | [1.2_add-data-model-to-crux.md](POC-phase-1/1.2_add-data-model-to-crux.md) |
-| 1.3 | File storage library (shared) | 1.1 | Not started | [1.3_file-storage-library.md](POC-phase-1/1.3_file-storage-library.md) |
-| 1.4 | Desktop local storage integration | 1.2, 1.3 | Not started | [1.4_desktop-local-storage.md](POC-phase-1/1.4_desktop-local-storage.md) |
-| 1.5 | Backend API: CRUD endpoints | 1.2, 1.3 | Not started | [1.5_backend-api-crud.md](POC-phase-1/1.5_backend-api-crud.md) |
-| 1.6 | Backend file storage integration | 1.3, 1.5 | Not started | [1.6_backend-file-storage.md](POC-phase-1/1.6_backend-file-storage.md) |
+| 1.1 | Design data model (Mermaid ER + types) | — | Done | [1.1_design-data-model.md](POC-phase-1/1.1_design-data-model.md) |
+| 1.2 | Add data model to shared CRUX core | 1.1 | Done | [1.2_add-data-model-to-crux.md](POC-phase-1/1.2_add-data-model-to-crux.md) |
+| 1.3 | File storage library (shared) | 1.1 | Done | [1.3_file-storage-library.md](POC-phase-1/1.3_file-storage-library.md) |
+| 1.4 | Desktop local storage integration | 1.2, 1.3 | Done | [1.4_desktop-local-storage.md](POC-phase-1/1.4_desktop-local-storage.md) |
+| 1.5 | Backend API: CRUD endpoints | 1.2, 1.3 | Done | [1.5_backend-api-crud.md](POC-phase-1/1.5_backend-api-crud.md) |
+| 1.6 | Backend file storage integration | 1.3, 1.5 | Done | [1.6_backend-file-storage.md](POC-phase-1/1.6_backend-file-storage.md) |
 
 ---
 
 ## Phase Status
 
-**Status: Not started**
+**Status: Complete**
 
 ### Dependency Graph
 
