@@ -95,6 +95,7 @@ Classification is required.
 Topics are items of classifications.
 Angles are perspectives on topics, they can be used to group topics and artifacts in different ways.
 Local first, sync to backend service, but can work without it.
+Single-user data ownership.
 
 ## Plan
 
@@ -135,7 +136,7 @@ Rust first.
 Mobile Apps: Swift on iOS, kotlin on Android, FFI to rust lib that implements the biz logic and client for the API.
 Desktop App: Tauri, FFI to rust lib that implements the biz logic and client for the API.
 Web App: React, FFI to rust lib that implements the biz logic and client for the API.
-[CRUX](https://github.com/redbadger/crux) 
+[CRUX](https://github.com/redbadger/crux)
 Backend Service: Rust Axum/Actix-web.
 
 ## File structure
@@ -150,7 +151,7 @@ Backend Service: Rust Axum/Actix-web.
 
 ## Development process
 
-### infra structure, build system, CI/CD, deployment, etc.
+### infra structure, build system, CI/CD, deployment, etc
 
 GitHub for code hosting, issue tracking, project management, etc.
 Monorepo at first stages, may split later if needed, multilanguage support.
@@ -167,4 +168,3 @@ CI/CD:
 - Deploy mobile apps to App Store and Google Play.
 - Deploy desktop app to GitHub Releases.
 - Deploy web app to VPS.
-
