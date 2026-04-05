@@ -1,0 +1,18 @@
+[package]
+name = "desktop-app"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+name = "desktop_app_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+serde.workspace = true
+shared = { path = "../../shared" }
+crux_core.workspace = true

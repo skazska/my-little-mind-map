@@ -1,0 +1,53 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Node / pnpm
+node_modules/
+dist/
+.pnpm-store/
+*.tsbuildinfo
+
+# Tauri
+desktop-app/src-tauri/target/
+
+# WASM
+pkg/
+wasm-pack.log
+
+# iOS
+mobile-apps/ios/build/
+mobile-apps/ios/*.xcworkspace
+mobile-apps/ios/Pods/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+*.moved-aside
+DerivedData/
+
+# Android
+mobile-apps/android/.gradle/
+mobile-apps/android/build/
+mobile-apps/android/app/build/
+mobile-apps/android/local.properties
+*.apk
+*.aab
+
+# IDE
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Docker
+docker-data/
