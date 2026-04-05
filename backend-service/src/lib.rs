@@ -1,6 +1,9 @@
 pub mod handlers;
 
-use axum::{Json, Router, routing::{delete, get, post, put}};
+use axum::{
+    Json, Router,
+    routing::{delete, get, post, put},
+};
 use serde::Serialize;
 use storage::StorageHandle;
 
@@ -52,10 +55,7 @@ fn api_router() -> Router<AppState> {
             get(handlers::classifications::get_topic_notes),
         )
         // References
-        .route(
-            "/api/references",
-            post(handlers::references::add_reference),
-        )
+        .route("/api/references", post(handlers::references::add_reference))
         .route(
             "/api/references",
             delete(handlers::references::remove_reference),

@@ -1,5 +1,5 @@
-use shared::model::{Asset, Note, SourceType};
 use serde::{Deserialize, Serialize};
+use shared::model::{Asset, Note, SourceType};
 use uuid::Uuid;
 
 use crate::{Result, StorageError, StorageHandle};

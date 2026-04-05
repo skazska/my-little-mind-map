@@ -178,11 +178,7 @@ mod api_tests {
         // Get note
         let resp = app
             .clone()
-            .oneshot(json_request(
-                "GET",
-                &format!("/api/notes/{note_id}"),
-                None,
-            ))
+            .oneshot(json_request("GET", &format!("/api/notes/{note_id}"), None))
             .await
             .unwrap();
         assert_eq!(resp.status(), StatusCode::OK);
@@ -415,11 +411,7 @@ mod api_tests {
         let (app, _dir) = setup_app();
         let fake_id = uuid::Uuid::new_v4();
         let resp = app
-            .oneshot(json_request(
-                "GET",
-                &format!("/api/notes/{fake_id}"),
-                None,
-            ))
+            .oneshot(json_request("GET", &format!("/api/notes/{fake_id}"), None))
             .await
             .unwrap();
         assert_eq!(resp.status(), StatusCode::NOT_FOUND);
@@ -430,11 +422,7 @@ mod api_tests {
         let (app, _dir) = setup_app();
         let fake_id = uuid::Uuid::new_v4();
         let resp = app
-            .oneshot(json_request(
-                "GET",
-                &format!("/api/topics/{fake_id}"),
-                None,
-            ))
+            .oneshot(json_request("GET", &format!("/api/topics/{fake_id}"), None))
             .await
             .unwrap();
         assert_eq!(resp.status(), StatusCode::NOT_FOUND);

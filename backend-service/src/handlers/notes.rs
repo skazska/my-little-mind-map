@@ -70,7 +70,11 @@ pub async fn create_note(
         }
     }
 
-    (StatusCode::CREATED, Json(serde_json::to_value(&note).unwrap())).into_response()
+    (
+        StatusCode::CREATED,
+        Json(serde_json::to_value(&note).unwrap()),
+    )
+        .into_response()
 }
 
 pub async fn list_notes(State(state): State<AppState>) -> impl IntoResponse {
@@ -84,15 +88,14 @@ pub async fn list_notes(State(state): State<AppState>) -> impl IntoResponse {
     }
 }
 
-pub async fn get_note(
-    State(state): State<AppState>,
-    Path(id): Path<Uuid>,
-) -> impl IntoResponse {
+pub async fn get_note(State(state): State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
     match storage::notes::read_note(&state.storage, &id) {
         Ok(note) => (StatusCode::OK, Json(serde_json::to_value(&note).unwrap())).into_response(),
-        Err(storage::StorageError::NotFound(_)) => {
-            (StatusCode::NOT_FOUND, Json(serde_json::json!({"error": "Note not found"}))).into_response()
-        }
+        Err(storage::StorageError::NotFound(_)) => (
+            StatusCode::NOT_FOUND,
+            Json(serde_json::json!({"error": "Note not found"})),
+        )
+            .into_response(),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(serde_json::json!({"error": e.to_string()})),
@@ -136,10 +139,7 @@ pub async fn update_note(
     }
 }
 
-pub async fn delete_note(
-    State(state): State<AppState>,
-    Path(id): Path<Uuid>,
-) -> impl IntoResponse {
+pub async fn delete_note(State(state): State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
     // Clean up classifications and references
     let _ = storage::relations::remove_note_classifications(&state.storage, id);
     let _ = storage::relations::remove_note_references(&state.storage, id);

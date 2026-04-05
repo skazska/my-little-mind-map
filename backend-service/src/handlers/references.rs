@@ -26,8 +26,11 @@ pub async fn add_reference(
     State(state): State<AppState>,
     Json(body): Json<ReferenceRequest>,
 ) -> impl IntoResponse {
-    let reference =
-        NoteReference::new(body.source_note_id, body.target_note_id, body.reference_type);
+    let reference = NoteReference::new(
+        body.source_note_id,
+        body.target_note_id,
+        body.reference_type,
+    );
     match storage::relations::add_reference(&state.storage, &reference) {
         Ok(()) => StatusCode::CREATED.into_response(),
         Err(storage::StorageError::AlreadyExists(msg)) => (
@@ -77,9 +80,7 @@ pub async fn get_backlinks(
     Path(note_id): Path<Uuid>,
 ) -> impl IntoResponse {
     match storage::relations::get_backlinks(&state.storage, note_id) {
-        Ok(refs) => {
-            (StatusCode::OK, Json(serde_json::to_value(&refs).unwrap())).into_response()
-        }
+        Ok(refs) => (StatusCode::OK, Json(serde_json::to_value(&refs).unwrap())).into_response(),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(serde_json::json!({"error": e.to_string()})),

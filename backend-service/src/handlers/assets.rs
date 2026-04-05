@@ -28,9 +28,11 @@ pub async fn upload_asset(
         SourceType::Uploaded,
         &body,
     ) {
-        Ok(asset) => {
-            (StatusCode::CREATED, Json(serde_json::to_value(&asset).unwrap())).into_response()
-        }
+        Ok(asset) => (
+            StatusCode::CREATED,
+            Json(serde_json::to_value(&asset).unwrap()),
+        )
+            .into_response(),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(serde_json::json!({"error": e.to_string()})),

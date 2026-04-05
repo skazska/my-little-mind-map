@@ -21,7 +21,11 @@ pub async fn add_topic_relation(
     State(state): State<AppState>,
     Json(body): Json<TopicRelationRequest>,
 ) -> impl IntoResponse {
-    let rel = TopicRelation::new(body.source_topic_id, body.target_topic_id, body.relation_type);
+    let rel = TopicRelation::new(
+        body.source_topic_id,
+        body.target_topic_id,
+        body.relation_type,
+    );
     match storage::relations::add_topic_relation(&state.storage, &rel) {
         Ok(()) => StatusCode::CREATED.into_response(),
         Err(storage::StorageError::AlreadyExists(msg)) => (
@@ -71,9 +75,7 @@ pub async fn get_topic_relations(
     Path(topic_id): Path<Uuid>,
 ) -> impl IntoResponse {
     match storage::relations::get_topic_relations(&state.storage, topic_id) {
-        Ok(rels) => {
-            (StatusCode::OK, Json(serde_json::to_value(&rels).unwrap())).into_response()
-        }
+        Ok(rels) => (StatusCode::OK, Json(serde_json::to_value(&rels).unwrap())).into_response(),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(serde_json::json!({"error": e.to_string()})),

@@ -165,7 +165,11 @@ mod storage_notes {
         let handle = init_storage(dir.path()).unwrap();
 
         // Create
-        let note = Note::new("My Note".into(), "# Hello\nContent here".into(), SourceType::Typed);
+        let note = Note::new(
+            "My Note".into(),
+            "# Hello\nContent here".into(),
+            SourceType::Typed,
+        );
         let note_id = note.id;
         notes::create_note(&handle, &note).unwrap();
 

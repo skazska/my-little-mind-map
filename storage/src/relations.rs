@@ -1,5 +1,5 @@
-use shared::model::{Classification, NoteReference, TopicRelation};
 use serde::{Deserialize, Serialize};
+use shared::model::{Classification, NoteReference, TopicRelation};
 use uuid::Uuid;
 
 use crate::notes::NoteSummary;
@@ -120,10 +120,7 @@ pub fn get_topic_note_ids(handle: &StorageHandle, topic_id: Uuid) -> Result<Vec<
         .collect())
 }
 
-pub fn get_note_topics(
-    handle: &StorageHandle,
-    note_id: Uuid,
-) -> Result<Vec<shared::model::Topic>> {
+pub fn get_note_topics(handle: &StorageHandle, note_id: Uuid) -> Result<Vec<shared::model::Topic>> {
     let topic_ids = get_note_topic_ids(handle, note_id)?;
     let all_topics = crate::topics::list_topics(handle)?;
     Ok(all_topics
@@ -164,8 +161,7 @@ pub fn remove_topic_classifications(handle: &StorageHandle, topic_id: Uuid) -> R
 pub fn add_reference(handle: &StorageHandle, reference: &NoteReference) -> Result<()> {
     let mut idx = read_references(handle)?;
     if idx.references.iter().any(|r| {
-        r.source_note_id == reference.source_note_id
-            && r.target_note_id == reference.target_note_id
+        r.source_note_id == reference.source_note_id && r.target_note_id == reference.target_note_id
     }) {
         return Err(StorageError::AlreadyExists(format!(
             "Reference ({}, {}) already exists",
@@ -183,9 +179,8 @@ pub fn remove_reference(
 ) -> Result<()> {
     let mut idx = read_references(handle)?;
     let len_before = idx.references.len();
-    idx.references.retain(|r| {
-        !(r.source_note_id == source_note_id && r.target_note_id == target_note_id)
-    });
+    idx.references
+        .retain(|r| !(r.source_note_id == source_note_id && r.target_note_id == target_note_id));
     if idx.references.len() == len_before {
         return Err(StorageError::NotFound(format!(
             "Reference ({source_note_id}, {target_note_id}) not found"
@@ -245,10 +240,7 @@ pub fn remove_topic_relation(
     write_topic_relations(handle, &idx)
 }
 
-pub fn get_topic_relations(
-    handle: &StorageHandle,
-    topic_id: Uuid,
-) -> Result<Vec<TopicRelation>> {
+pub fn get_topic_relations(handle: &StorageHandle, topic_id: Uuid) -> Result<Vec<TopicRelation>> {
     let idx = read_topic_relations(handle)?;
     Ok(idx
         .relations

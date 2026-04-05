@@ -1,5 +1,5 @@
-use shared::model::Topic;
 use serde::{Deserialize, Serialize};
+use shared::model::Topic;
 use uuid::Uuid;
 
 use crate::{Result, StorageError, StorageHandle};

@@ -28,9 +28,11 @@ pub async fn create_topic(
 ) -> impl IntoResponse {
     let topic = Topic::new(body.name, body.description);
     match storage::topics::create_topic(&state.storage, &topic) {
-        Ok(()) => {
-            (StatusCode::CREATED, Json(serde_json::to_value(&topic).unwrap())).into_response()
-        }
+        Ok(()) => (
+            StatusCode::CREATED,
+            Json(serde_json::to_value(&topic).unwrap()),
+        )
+            .into_response(),
         Err(storage::StorageError::AlreadyExists(msg)) => (
             StatusCode::CONFLICT,
             Json(serde_json::json!({"error": msg})),
@@ -57,14 +59,9 @@ pub async fn list_topics(State(state): State<AppState>) -> impl IntoResponse {
     }
 }
 
-pub async fn get_topic(
-    State(state): State<AppState>,
-    Path(id): Path<Uuid>,
-) -> impl IntoResponse {
+pub async fn get_topic(State(state): State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
     match storage::topics::read_topic(&state.storage, &id) {
-        Ok(topic) => {
-            (StatusCode::OK, Json(serde_json::to_value(&topic).unwrap())).into_response()
-        }
+        Ok(topic) => (StatusCode::OK, Json(serde_json::to_value(&topic).unwrap())).into_response(),
         Err(storage::StorageError::NotFound(_)) => (
             StatusCode::NOT_FOUND,
             Json(serde_json::json!({"error": "Topic not found"})),

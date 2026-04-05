@@ -70,9 +70,7 @@ pub fn init_storage(root: &Path) -> Result<StorageHandle> {
     if !references_path.exists() {
         serde_json::to_writer_pretty(
             std::fs::File::create(&references_path)?,
-            &relations::ReferencesIndex {
-                references: vec![],
-            },
+            &relations::ReferencesIndex { references: vec![] },
         )?;
     }
 
@@ -80,9 +78,7 @@ pub fn init_storage(root: &Path) -> Result<StorageHandle> {
     if !relations_path.exists() {
         serde_json::to_writer_pretty(
             std::fs::File::create(&relations_path)?,
-            &relations::TopicRelationsIndex {
-                relations: vec![],
-            },
+            &relations::TopicRelationsIndex { relations: vec![] },
         )?;
     }
 

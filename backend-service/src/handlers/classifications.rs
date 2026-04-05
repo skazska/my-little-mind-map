@@ -74,9 +74,7 @@ pub async fn get_topic_notes(
     Path(topic_id): Path<Uuid>,
 ) -> impl IntoResponse {
     match storage::relations::get_topic_notes(&state.storage, topic_id) {
-        Ok(notes) => {
-            (StatusCode::OK, Json(serde_json::to_value(&notes).unwrap())).into_response()
-        }
+        Ok(notes) => (StatusCode::OK, Json(serde_json::to_value(&notes).unwrap())).into_response(),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(serde_json::json!({"error": e.to_string()})),
