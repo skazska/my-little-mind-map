@@ -1,4 +1,4 @@
-use axum::{routing::get, Json, Router};
+use axum::{Json, Router, routing::get};
 use serde::Serialize;
 use tracing_subscriber::EnvFilter;
 
@@ -27,7 +27,5 @@ async fn main() {
 
     tracing::info!("Backend service listening on http://0.0.0.0:3000");
 
-    axum::serve(listener, app)
-        .await
-        .expect("Server error");
+    axum::serve(listener, app).await.expect("Server error");
 }

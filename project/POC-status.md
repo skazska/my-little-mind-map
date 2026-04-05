@@ -46,7 +46,7 @@
 | I9 | Docker setup (backend Dockerfile, docker-compose) | Done |
 | I10 | Developer documentation | Done |
 | I11 | Release & publish documentation | Done |
-| I12 | Tauri system deps installed & full workspace builds | Blocked — needs `sudo apt-get install` on dev machine |
+| I12 | Tauri system deps installed & full workspace builds | Done |
 
 ---
 

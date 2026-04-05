@@ -22,7 +22,7 @@ sudo apt-get install -y \
   pkg-config \
   libwebkit2gtk-4.1-dev \
   #libappindicator3-dev \
-  libayatana-appindicator-dev \
+  libayatana-appindicator3-dev \
   librsvg2-dev \
   patchelf \
   libgtk-3-dev \

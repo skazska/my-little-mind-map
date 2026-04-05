@@ -1,7 +1,7 @@
 use crux_core::{
+    Command,
     macros::effect,
     render::{self, RenderOperation},
-    Command,
 };
 use serde::{Deserialize, Serialize};
 
