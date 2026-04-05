@@ -119,9 +119,21 @@ pub async fn delete_topic(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
-    // Clean up classifications and relations
-    let _ = storage::relations::remove_topic_classifications(&state.storage, id);
-    let _ = storage::relations::remove_topic_all_relations(&state.storage, id);
+    // Clean up classifications and relations before deleting the topic
+    if let Err(e) = storage::relations::remove_topic_classifications(&state.storage, id) {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e.to_string()})),
+        )
+            .into_response();
+    }
+    if let Err(e) = storage::relations::remove_topic_all_relations(&state.storage, id) {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e.to_string()})),
+        )
+            .into_response();
+    }
 
     match storage::topics::delete_topic(&state.storage, &id) {
         Ok(()) => StatusCode::NO_CONTENT.into_response(),

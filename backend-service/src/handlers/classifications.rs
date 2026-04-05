@@ -19,6 +19,36 @@ pub async fn classify_note(
     State(state): State<AppState>,
     Json(body): Json<ClassificationRequest>,
 ) -> impl IntoResponse {
+    // Validate that both note and topic exist
+    if let Err(e) = storage::notes::read_note(&state.storage, &body.note_id) {
+        return match e {
+            storage::StorageError::NotFound(_) => (
+                StatusCode::NOT_FOUND,
+                Json(serde_json::json!({"error": format!("Note {} not found", body.note_id)})),
+            )
+                .into_response(),
+            _ => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({"error": e.to_string()})),
+            )
+                .into_response(),
+        };
+    }
+    if let Err(e) = storage::topics::read_topic(&state.storage, &body.topic_id) {
+        return match e {
+            storage::StorageError::NotFound(_) => (
+                StatusCode::NOT_FOUND,
+                Json(serde_json::json!({"error": format!("Topic {} not found", body.topic_id)})),
+            )
+                .into_response(),
+            _ => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({"error": e.to_string()})),
+            )
+                .into_response(),
+        };
+    }
+
     match storage::relations::classify_note(&state.storage, body.note_id, body.topic_id) {
         Ok(()) => StatusCode::CREATED.into_response(),
         Err(storage::StorageError::AlreadyExists(msg)) => (

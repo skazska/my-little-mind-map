@@ -2,7 +2,7 @@ use axum::{
     Json,
     body::Bytes,
     extract::{Path, State},
-    http::StatusCode,
+    http::{StatusCode, header},
     response::IntoResponse,
 };
 use shared::model::SourceType;
@@ -45,8 +45,19 @@ pub async fn get_asset(
     State(state): State<AppState>,
     Path((note_id, asset_id)): Path<(Uuid, Uuid)>,
 ) -> impl IntoResponse {
+    // Look up asset metadata for the Content-Type header
+    let mime_type = storage::assets::list_assets(&state.storage, note_id)
+        .ok()
+        .and_then(|assets| {
+            assets
+                .into_iter()
+                .find(|a| a.id == asset_id)
+                .map(|a| a.mime_type)
+        })
+        .unwrap_or_else(|| "application/octet-stream".to_string());
+
     match storage::assets::read_asset(&state.storage, note_id, asset_id) {
-        Ok(data) => (StatusCode::OK, data).into_response(),
+        Ok(data) => (StatusCode::OK, [(header::CONTENT_TYPE, mime_type)], data).into_response(),
         Err(storage::StorageError::NotFound(_)) => (
             StatusCode::NOT_FOUND,
             Json(serde_json::json!({"error": "Asset not found"})),

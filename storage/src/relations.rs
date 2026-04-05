@@ -42,8 +42,11 @@ fn read_classifications(handle: &StorageHandle) -> Result<ClassificationsIndex> 
 }
 
 fn write_classifications(handle: &StorageHandle, idx: &ClassificationsIndex) -> Result<()> {
-    let file = std::fs::File::create(classifications_path(handle))?;
+    let path = classifications_path(handle);
+    let tmp = path.with_extension("json.tmp");
+    let file = std::fs::File::create(&tmp)?;
     serde_json::to_writer_pretty(file, idx)?;
+    std::fs::rename(&tmp, &path)?;
     Ok(())
 }
 
@@ -53,8 +56,11 @@ fn read_references(handle: &StorageHandle) -> Result<ReferencesIndex> {
 }
 
 fn write_references(handle: &StorageHandle, idx: &ReferencesIndex) -> Result<()> {
-    let file = std::fs::File::create(references_path(handle))?;
+    let path = references_path(handle);
+    let tmp = path.with_extension("json.tmp");
+    let file = std::fs::File::create(&tmp)?;
     serde_json::to_writer_pretty(file, idx)?;
+    std::fs::rename(&tmp, &path)?;
     Ok(())
 }
 
@@ -64,8 +70,11 @@ fn read_topic_relations(handle: &StorageHandle) -> Result<TopicRelationsIndex> {
 }
 
 fn write_topic_relations(handle: &StorageHandle, idx: &TopicRelationsIndex) -> Result<()> {
-    let file = std::fs::File::create(topic_relations_path(handle))?;
+    let path = topic_relations_path(handle);
+    let tmp = path.with_extension("json.tmp");
+    let file = std::fs::File::create(&tmp)?;
     serde_json::to_writer_pretty(file, idx)?;
+    std::fs::rename(&tmp, &path)?;
     Ok(())
 }
 
@@ -121,7 +130,8 @@ pub fn get_topic_note_ids(handle: &StorageHandle, topic_id: Uuid) -> Result<Vec<
 }
 
 pub fn get_note_topics(handle: &StorageHandle, note_id: Uuid) -> Result<Vec<shared::model::Topic>> {
-    let topic_ids = get_note_topic_ids(handle, note_id)?;
+    let topic_ids: std::collections::HashSet<Uuid> =
+        get_note_topic_ids(handle, note_id)?.into_iter().collect();
     let all_topics = crate::topics::list_topics(handle)?;
     Ok(all_topics
         .into_iter()

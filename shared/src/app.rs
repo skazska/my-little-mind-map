@@ -135,17 +135,34 @@ impl crux_core::App for MindMap {
     }
 
     fn view(&self, model: &Self::Model) -> Self::ViewModel {
+        use std::collections::HashMap;
+
+        // Pre-index topics by id for O(1) lookup
+        let topics_by_id: HashMap<Uuid, &Topic> = model.topics.iter().map(|t| (t.id, t)).collect();
+
+        // Pre-index classifications: note_id -> list of topic_ids, topic_id -> count
+        let mut note_topic_ids: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
+        let mut topic_note_count: HashMap<Uuid, usize> = HashMap::new();
+        for c in &model.classifications {
+            note_topic_ids
+                .entry(c.note_id)
+                .or_default()
+                .push(c.topic_id);
+            *topic_note_count.entry(c.topic_id).or_default() += 1;
+        }
+
         let notes = model
             .notes
             .iter()
             .map(|n| {
-                let topic_names: Vec<String> = model
-                    .classifications
-                    .iter()
-                    .filter(|c| c.note_id == n.id)
-                    .filter_map(|c| model.topics.iter().find(|t| t.id == c.topic_id))
-                    .map(|t| t.name.clone())
-                    .collect();
+                let topic_names: Vec<String> = note_topic_ids
+                    .get(&n.id)
+                    .map(|tids| {
+                        tids.iter()
+                            .filter_map(|tid| topics_by_id.get(tid).map(|t| t.name.clone()))
+                            .collect()
+                    })
+                    .unwrap_or_default();
                 NoteView {
                     id: n.id,
                     title: n.title.clone(),
@@ -161,11 +178,7 @@ impl crux_core::App for MindMap {
             .topics
             .iter()
             .map(|t| {
-                let note_count = model
-                    .classifications
-                    .iter()
-                    .filter(|c| c.topic_id == t.id)
-                    .count();
+                let note_count = topic_note_count.get(&t.id).copied().unwrap_or(0);
                 TopicView {
                     id: t.id,
                     name: t.name.clone(),

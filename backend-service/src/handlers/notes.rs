@@ -59,9 +59,10 @@ pub async fn create_note(
             .into_response();
     }
 
-    // Create classifications
+    // Create classifications. Roll back the note if any classification fails.
     for tid in &body.topic_ids {
         if let Err(e) = storage::relations::classify_note(&state.storage, note_id, *tid) {
+            let _ = storage::notes::delete_note(&state.storage, &note_id);
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(serde_json::json!({"error": e.to_string()})),
@@ -140,9 +141,25 @@ pub async fn update_note(
 }
 
 pub async fn delete_note(State(state): State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
-    // Clean up classifications and references
-    let _ = storage::relations::remove_note_classifications(&state.storage, id);
-    let _ = storage::relations::remove_note_references(&state.storage, id);
+    // Clean up classifications and references before deleting the note
+    if let Err(e) = storage::relations::remove_note_classifications(&state.storage, id)
+        && !matches!(e, storage::StorageError::NotFound(_))
+    {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e.to_string()})),
+        )
+            .into_response();
+    }
+    if let Err(e) = storage::relations::remove_note_references(&state.storage, id)
+        && !matches!(e, storage::StorageError::NotFound(_))
+    {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e.to_string()})),
+        )
+            .into_response();
+    }
 
     match storage::notes::delete_note(&state.storage, &id) {
         Ok(()) => StatusCode::NO_CONTENT.into_response(),

@@ -26,6 +26,27 @@ pub async fn add_reference(
     State(state): State<AppState>,
     Json(body): Json<ReferenceRequest>,
 ) -> impl IntoResponse {
+    // Validate that both notes exist
+    for (label, id) in [
+        ("Source note", body.source_note_id),
+        ("Target note", body.target_note_id),
+    ] {
+        if let Err(e) = storage::notes::read_note(&state.storage, &id) {
+            return match e {
+                storage::StorageError::NotFound(_) => (
+                    StatusCode::NOT_FOUND,
+                    Json(serde_json::json!({"error": format!("{label} {id} not found")})),
+                )
+                    .into_response(),
+                _ => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(serde_json::json!({"error": e.to_string()})),
+                )
+                    .into_response(),
+            };
+        }
+    }
+
     let reference = NoteReference::new(
         body.source_note_id,
         body.target_note_id,

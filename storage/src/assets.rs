@@ -37,12 +37,34 @@ pub fn save_asset(
     } else {
         format!("{}.{}", asset.id, ext)
     };
-    std::fs::write(dir.join(&stored_name), data)?;
+    let final_path = dir.join(&stored_name);
+    let temp_name = format!("{}.tmp", uuid::Uuid::new_v4());
+    let temp_path = dir.join(&temp_name);
 
-    // Update note meta to track this asset
-    let mut meta = read_note_meta(handle, &note_id)?;
+    std::fs::write(&temp_path, data)?;
+
+    // Update note meta to track this asset. If that fails, remove the temp file
+    // so we do not leave an orphaned asset on disk.
+    let mut meta = match read_note_meta(handle, &note_id) {
+        Ok(meta) => meta,
+        Err(err) => {
+            let _ = std::fs::remove_file(&temp_path);
+            return Err(err);
+        }
+    };
     meta.assets.push(asset.clone());
-    update_note_meta(handle, &meta)?;
+    if let Err(err) = update_note_meta(handle, &meta) {
+        let _ = std::fs::remove_file(&temp_path);
+        return Err(err);
+    }
+
+    // Move the file into its final location after metadata is updated.
+    if let Err(err) = std::fs::rename(&temp_path, &final_path) {
+        meta.assets.retain(|a| a.id != asset.id);
+        let _ = update_note_meta(handle, &meta);
+        let _ = std::fs::remove_file(&temp_path);
+        return Err(err.into());
+    }
 
     Ok(asset)
 }

@@ -20,8 +20,11 @@ fn read_topics_file(handle: &StorageHandle) -> Result<TopicsFile> {
 }
 
 fn write_topics_file(handle: &StorageHandle, tf: &TopicsFile) -> Result<()> {
-    let file = std::fs::File::create(topics_path(handle))?;
+    let path = topics_path(handle);
+    let tmp = path.with_extension("json.tmp");
+    let file = std::fs::File::create(&tmp)?;
     serde_json::to_writer_pretty(file, tf)?;
+    std::fs::rename(&tmp, &path)?;
     Ok(())
 }
 

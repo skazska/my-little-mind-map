@@ -21,6 +21,27 @@ pub async fn add_topic_relation(
     State(state): State<AppState>,
     Json(body): Json<TopicRelationRequest>,
 ) -> impl IntoResponse {
+    // Validate that both topics exist
+    for (label, id) in [
+        ("Source topic", body.source_topic_id),
+        ("Target topic", body.target_topic_id),
+    ] {
+        if let Err(e) = storage::topics::read_topic(&state.storage, &id) {
+            return match e {
+                storage::StorageError::NotFound(_) => (
+                    StatusCode::NOT_FOUND,
+                    Json(serde_json::json!({"error": format!("{label} {id} not found")})),
+                )
+                    .into_response(),
+                _ => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(serde_json::json!({"error": e.to_string()})),
+                )
+                    .into_response(),
+            };
+        }
+    }
+
     let rel = TopicRelation::new(
         body.source_topic_id,
         body.target_topic_id,
