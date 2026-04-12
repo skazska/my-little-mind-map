@@ -86,10 +86,12 @@ pub struct Model {
 pub struct NoteView {
     pub id: Uuid,
     pub title: String,
+    pub content_raw: String,
     pub source_type: SourceType,
     pub created_at: String,
     pub updated_at: String,
     pub topic_names: Vec<String>,
+    pub topic_ids: Vec<Uuid>,
 }
 
 /// Summary view of a topic for the UI.
@@ -272,13 +274,17 @@ impl crux_core::App for MindMap {
                             .collect()
                     })
                     .unwrap_or_default();
+                let topic_id_list: Vec<Uuid> =
+                    note_topic_ids.get(&n.id).cloned().unwrap_or_default();
                 NoteView {
                     id: n.id,
                     title: n.title.clone(),
+                    content_raw: n.content_raw.clone(),
                     source_type: n.source_type.clone(),
                     created_at: n.created_at.to_rfc3339(),
                     updated_at: n.updated_at.to_rfc3339(),
                     topic_names,
+                    topic_ids: topic_id_list,
                 }
             })
             .collect();

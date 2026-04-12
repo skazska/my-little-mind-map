@@ -82,14 +82,15 @@ export function NoteEditor({
                     id: editNoteId,
                     title: title.trim(),
                     content: contentRaw,
-                    contentAst: JSON.stringify(contentAst),
+                    content_ast: JSON.stringify(contentAst),
+                    topic_ids: selectedTopics,
                 });
             } else {
                 view = await invoke<ViewModel>("create_note", {
                     title: title.trim(),
                     content: contentRaw,
-                    contentAst: JSON.stringify(contentAst),
-                    topicIds: selectedTopics,
+                    content_ast: JSON.stringify(contentAst),
+                    topic_ids: selectedTopics,
                 });
             }
             if (view.error) {

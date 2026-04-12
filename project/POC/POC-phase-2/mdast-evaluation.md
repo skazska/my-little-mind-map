@@ -77,9 +77,9 @@ JS `remark-parse` uses `{ start: { line, column, offset }, end: { ... } }` JSON.
 
 Both parsers treat `[[uuid|text]]` as plain text within a `Text` node. This is expected — it's not standard markdown syntax.
 
-**Solution:** Extract references via regex on the raw markdown string, not from the AST.
-- Rust: `\[\[([0-9a-f-]+)\|([^\]]+)\]\]` regex in `shared/src/references.rs`
-- JS: Same regex for preview rendering (convert to clickable links)
+**Solution:** Extract references via pattern matching on the raw markdown string, not from the AST.
+- Rust: Manual string scanning for `[[uuid|text]]` patterns in `shared/src/references.rs` (no regex crate dependency)
+- JS: Regex `\[\[([0-9a-f-]+)\|([^\]]+)\]\]` for preview rendering (convert to clickable links)
 
 ### Round-Trip Fidelity
 

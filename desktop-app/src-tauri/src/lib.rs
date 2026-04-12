@@ -70,7 +70,8 @@ fn create_note(
 
     // Create note with AST
     let mut note = Note::new(title, content, SourceType::Typed);
-    note.content_ast = serde_json::from_str(&content_ast).unwrap_or(serde_json::Value::Null);
+    note.content_ast =
+        serde_json::from_str(&content_ast).map_err(|e| format!("Invalid content_ast JSON: {e}"))?;
 
     let note_id = note.id;
 
@@ -86,9 +87,15 @@ fn create_note(
     // Extract and persist references from content
     let refs = shared::references::extract_references(&note.content_raw);
     for (target_id, _text) in &refs {
+        if *target_id == note_id {
+            continue; // skip self-links
+        }
         let reference = NoteReference::new(note_id, *target_id, ReferenceType::LinksTo);
-        // Ignore errors for references to non-existent notes
-        let _ = storage::relations::add_reference(&state.storage, &reference);
+        match storage::relations::add_reference(&state.storage, &reference) {
+            Ok(()) => {}
+            Err(storage::StorageError::AlreadyExists(_)) => {} // duplicate ref in content, ignore
+            Err(e) => return Err(e.to_string()),
+        }
     }
 
     // Sync CRUX model
@@ -101,27 +108,50 @@ fn update_note(
     title: String,
     content: String,
     content_ast: String,
+    topic_ids: Vec<String>,
     state: State<'_, AppState>,
 ) -> Result<ViewModel, String> {
     let note_id = Uuid::parse_str(&id).map_err(|e| e.to_string())?;
+    let topic_uuids = parse_uuids(&topic_ids)?;
+
+    if topic_uuids.is_empty() {
+        return Err("At least one topic is required".into());
+    }
 
     let mut note =
         storage::notes::read_note(&state.storage, &note_id).map_err(|e| e.to_string())?;
 
     note.title = title;
     note.content_raw = content;
-    note.content_ast = serde_json::from_str(&content_ast).unwrap_or(serde_json::Value::Null);
+    note.content_ast =
+        serde_json::from_str(&content_ast).map_err(|e| format!("Invalid content_ast JSON: {e}"))?;
     note.updated_at = chrono::Utc::now();
     note.version += 1;
 
     storage::notes::update_note(&state.storage, &note).map_err(|e| e.to_string())?;
 
-    // Update references: remove old, add new
-    let _ = storage::relations::remove_note_references(&state.storage, note_id);
+    // Update classifications: remove old, add new
+    storage::relations::remove_note_classifications(&state.storage, note_id)
+        .map_err(|e| e.to_string())?;
+    for tid in &topic_uuids {
+        storage::relations::classify_note(&state.storage, note_id, *tid)
+            .map_err(|e| e.to_string())?;
+    }
+
+    // Update references: remove only outbound refs, then re-add
+    storage::relations::remove_outbound_references(&state.storage, note_id)
+        .map_err(|e| e.to_string())?;
     let refs = shared::references::extract_references(&note.content_raw);
     for (target_id, _text) in &refs {
+        if *target_id == note_id {
+            continue; // skip self-links
+        }
         let reference = NoteReference::new(note_id, *target_id, ReferenceType::LinksTo);
-        let _ = storage::relations::add_reference(&state.storage, &reference);
+        match storage::relations::add_reference(&state.storage, &reference) {
+            Ok(()) => {}
+            Err(storage::StorageError::AlreadyExists(_)) => {} // duplicate, ignore
+            Err(e) => return Err(e.to_string()),
+        }
     }
 
     // Sync CRUX model

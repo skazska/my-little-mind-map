@@ -221,6 +221,13 @@ pub fn remove_note_references(handle: &StorageHandle, note_id: Uuid) -> Result<(
     write_references(handle, &idx)
 }
 
+/// Remove only outbound references from a note (used when updating a note's content).
+pub fn remove_outbound_references(handle: &StorageHandle, note_id: Uuid) -> Result<()> {
+    let mut idx = read_references(handle)?;
+    idx.references.retain(|r| r.source_note_id != note_id);
+    write_references(handle, &idx)
+}
+
 // ---- Topic relation operations ----
 
 pub fn add_topic_relation(handle: &StorageHandle, rel: &TopicRelation) -> Result<()> {

@@ -44,8 +44,8 @@ function App() {
             setEditState({
                 id: note.id,
                 title: note.title,
-                content: "",
-                topicIds: [],
+                content: note.content_raw,
+                topicIds: note.topic_ids,
             });
             setCurrentView("edit");
         } else {

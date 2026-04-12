@@ -10,10 +10,12 @@ export interface ViewModel {
 export interface NoteView {
     id: string;
     title: string;
+    content_raw: string;
     source_type: SourceType;
     created_at: string;
     updated_at: string;
     topic_names: string[];
+    topic_ids: string[];
 }
 
 export interface TopicView {
