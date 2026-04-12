@@ -125,7 +125,8 @@ classDiagram
 
 ## Notes
 
-- **Status:** Placeholder — to be finalized during task 1.1 implementation
+- **Status:** Finalized
 - **Version field:** On Note and Topic for sync conflict detection (D-006)
 - **content_hash:** On Asset for future content addressing (D-002)
 - **broken:** On NoteReference for detecting stale links (D-009, NFR-4.3)
+- **content_ast:** Stored as opaque JSON (`serde_json::Value`) in Phase 1; real mdast evaluation deferred to Phase 2 task 2.1
