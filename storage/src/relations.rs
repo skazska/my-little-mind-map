@@ -276,3 +276,20 @@ pub fn remove_topic_all_relations(handle: &StorageHandle, topic_id: Uuid) -> Res
         .retain(|r| r.source_topic_id != topic_id && r.target_topic_id != topic_id);
     write_topic_relations(handle, &idx)
 }
+
+// ---- Bulk load operations (for syncing model from storage) ----
+
+/// Load all classifications from storage.
+pub fn load_all_classifications(handle: &StorageHandle) -> Result<Vec<Classification>> {
+    Ok(read_classifications(handle)?.classifications)
+}
+
+/// Load all note references from storage.
+pub fn load_all_references(handle: &StorageHandle) -> Result<Vec<NoteReference>> {
+    Ok(read_references(handle)?.references)
+}
+
+/// Load all topic relations from storage.
+pub fn load_all_topic_relations(handle: &StorageHandle) -> Result<Vec<TopicRelation>> {
+    Ok(read_topic_relations(handle)?.relations)
+}
