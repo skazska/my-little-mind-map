@@ -46,7 +46,7 @@ fn write_classifications(handle: &StorageHandle, idx: &ClassificationsIndex) -> 
     let tmp = path.with_extension("json.tmp");
     let file = std::fs::File::create(&tmp)?;
     serde_json::to_writer_pretty(file, idx)?;
-    std::fs::rename(&tmp, &path)?;
+    crate::atomic_replace(&tmp, &path)?;
     Ok(())
 }
 
@@ -60,7 +60,7 @@ fn write_references(handle: &StorageHandle, idx: &ReferencesIndex) -> Result<()>
     let tmp = path.with_extension("json.tmp");
     let file = std::fs::File::create(&tmp)?;
     serde_json::to_writer_pretty(file, idx)?;
-    std::fs::rename(&tmp, &path)?;
+    crate::atomic_replace(&tmp, &path)?;
     Ok(())
 }
 
@@ -74,7 +74,7 @@ fn write_topic_relations(handle: &StorageHandle, idx: &TopicRelationsIndex) -> R
     let tmp = path.with_extension("json.tmp");
     let file = std::fs::File::create(&tmp)?;
     serde_json::to_writer_pretty(file, idx)?;
-    std::fs::rename(&tmp, &path)?;
+    crate::atomic_replace(&tmp, &path)?;
     Ok(())
 }
 
@@ -169,6 +169,11 @@ pub fn remove_topic_classifications(handle: &StorageHandle, topic_id: Uuid) -> R
 // ---- Note reference operations ----
 
 pub fn add_reference(handle: &StorageHandle, reference: &NoteReference) -> Result<()> {
+    if reference.source_note_id == reference.target_note_id {
+        return Err(StorageError::InvalidData(
+            "Source and target note must be different".to_string(),
+        ));
+    }
     let mut idx = read_references(handle)?;
     if idx.references.iter().any(|r| {
         r.source_note_id == reference.source_note_id && r.target_note_id == reference.target_note_id
@@ -219,6 +224,11 @@ pub fn remove_note_references(handle: &StorageHandle, note_id: Uuid) -> Result<(
 // ---- Topic relation operations ----
 
 pub fn add_topic_relation(handle: &StorageHandle, rel: &TopicRelation) -> Result<()> {
+    if rel.source_topic_id == rel.target_topic_id {
+        return Err(StorageError::InvalidData(
+            "Source and target topic must be different".to_string(),
+        ));
+    }
     let mut idx = read_topic_relations(handle)?;
     if idx.relations.iter().any(|r| {
         r.source_topic_id == rel.source_topic_id && r.target_topic_id == rel.target_topic_id

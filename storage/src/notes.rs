@@ -13,6 +13,9 @@ pub struct NoteMeta {
     pub updated_at: String,
     pub source_type: SourceType,
     pub version: u64,
+    /// Opaque AST (Phase 1); real mdast in Phase 2.
+    #[serde(default)]
+    pub content_ast: serde_json::Value,
     #[serde(default)]
     pub assets: Vec<Asset>,
 }
@@ -70,6 +73,7 @@ pub fn create_note(handle: &StorageHandle, note: &Note) -> Result<()> {
         updated_at: note.updated_at.to_rfc3339(),
         source_type: note.source_type.clone(),
         version: note.version,
+        content_ast: note.content_ast.clone(),
         assets: vec![],
     };
     let file = std::fs::File::create(meta_path(handle, &note.id))?;
@@ -91,7 +95,7 @@ pub fn read_note(handle: &StorageHandle, id: &Uuid) -> Result<Note> {
     Ok(Note {
         id: meta.id,
         title: meta.title,
-        content_ast: serde_json::Value::Null,
+        content_ast: meta.content_ast,
         content_raw,
         created_at: meta
             .created_at
@@ -122,6 +126,7 @@ pub fn update_note(handle: &StorageHandle, note: &Note) -> Result<()> {
         updated_at: note.updated_at.to_rfc3339(),
         source_type: note.source_type.clone(),
         version: note.version,
+        content_ast: note.content_ast.clone(),
         assets: {
             // Preserve existing assets
             let existing: NoteMeta = serde_json::from_reader(std::fs::File::open(&mp)?)?;

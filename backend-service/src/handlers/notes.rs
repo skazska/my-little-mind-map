@@ -39,12 +39,22 @@ pub async fn create_note(
 
     // Verify all topics exist
     for tid in &body.topic_ids {
-        if storage::topics::read_topic(&state.storage, tid).is_err() {
-            return (
-                StatusCode::BAD_REQUEST,
-                Json(serde_json::json!({"error": format!("Topic {tid} not found")})),
-            )
-                .into_response();
+        match storage::topics::read_topic(&state.storage, tid) {
+            Ok(_) => {}
+            Err(storage::StorageError::NotFound(_)) => {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(serde_json::json!({"error": format!("Topic {tid} not found")})),
+                )
+                    .into_response();
+            }
+            Err(e) => {
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(serde_json::json!({"error": e.to_string()})),
+                )
+                    .into_response();
+            }
         }
     }
 

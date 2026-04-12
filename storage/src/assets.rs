@@ -16,6 +16,9 @@ pub fn save_asset(
     source_type: SourceType,
     data: &[u8],
 ) -> Result<Asset> {
+    // Verify the note exists before creating directories
+    read_note_meta(handle, &note_id)?;
+
     let dir = assets_dir(handle, &note_id);
     std::fs::create_dir_all(&dir)?;
 

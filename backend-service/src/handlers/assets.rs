@@ -33,6 +33,11 @@ pub async fn upload_asset(
             Json(serde_json::to_value(&asset).unwrap()),
         )
             .into_response(),
+        Err(storage::StorageError::NotFound(msg)) => (
+            StatusCode::NOT_FOUND,
+            Json(serde_json::json!({"error": msg})),
+        )
+            .into_response(),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(serde_json::json!({"error": e.to_string()})),
@@ -58,9 +63,9 @@ pub async fn get_asset(
 
     match storage::assets::read_asset(&state.storage, note_id, asset_id) {
         Ok(data) => (StatusCode::OK, [(header::CONTENT_TYPE, mime_type)], data).into_response(),
-        Err(storage::StorageError::NotFound(_)) => (
+        Err(storage::StorageError::NotFound(msg)) => (
             StatusCode::NOT_FOUND,
-            Json(serde_json::json!({"error": "Asset not found"})),
+            Json(serde_json::json!({"error": msg})),
         )
             .into_response(),
         Err(e) => (
@@ -77,9 +82,9 @@ pub async fn delete_asset(
 ) -> impl IntoResponse {
     match storage::assets::delete_asset(&state.storage, note_id, asset_id) {
         Ok(()) => StatusCode::NO_CONTENT.into_response(),
-        Err(storage::StorageError::NotFound(_)) => (
+        Err(storage::StorageError::NotFound(msg)) => (
             StatusCode::NOT_FOUND,
-            Json(serde_json::json!({"error": "Asset not found"})),
+            Json(serde_json::json!({"error": msg})),
         )
             .into_response(),
         Err(e) => (

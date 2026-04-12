@@ -21,6 +21,14 @@ pub async fn add_topic_relation(
     State(state): State<AppState>,
     Json(body): Json<TopicRelationRequest>,
 ) -> impl IntoResponse {
+    if body.source_topic_id == body.target_topic_id {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error": "Source and target topic must be different"})),
+        )
+            .into_response();
+    }
+
     // Validate that both topics exist
     for (label, id) in [
         ("Source topic", body.source_topic_id),

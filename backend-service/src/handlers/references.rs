@@ -26,6 +26,14 @@ pub async fn add_reference(
     State(state): State<AppState>,
     Json(body): Json<ReferenceRequest>,
 ) -> impl IntoResponse {
+    if body.source_note_id == body.target_note_id {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error": "Source and target note must be different"})),
+        )
+            .into_response();
+    }
+
     // Validate that both notes exist
     for (label, id) in [
         ("Source note", body.source_note_id),

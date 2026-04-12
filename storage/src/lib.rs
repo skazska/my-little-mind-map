@@ -11,6 +11,18 @@ pub use error::StorageError;
 
 pub type Result<T> = std::result::Result<T, StorageError>;
 
+/// Atomically replace `dest` by renaming `src` over it.
+/// On Unix, `std::fs::rename` overwrites by default.
+/// On Windows, `std::fs::rename` fails if dest exists, so we remove it first.
+pub(crate) fn atomic_replace(src: &Path, dest: &Path) -> std::io::Result<()> {
+    #[cfg(windows)]
+    {
+        // Best-effort remove; ignore error if dest doesn't exist yet.
+        let _ = std::fs::remove_file(dest);
+    }
+    std::fs::rename(src, dest)
+}
+
 /// Handle to an initialized storage root directory.
 #[derive(Clone, Debug)]
 pub struct StorageHandle {
