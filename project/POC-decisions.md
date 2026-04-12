@@ -2,7 +2,7 @@
 
 This document records key decisions made for the POC scope. Each decision includes context, options considered, the chosen approach, and rationale.
 
-> References use the format `README##Section` for README.md sections and `REQ-XXX` for requirements in [POC-requirements.md](POC-requirements.md).
+> References use the format `README##Section` for README.md sections, `REQ-XXX` for requirements in [POC-requirements.md](POC-requirements.md) and `PLAN##Section` for [PLAN](PLAN.md) sections.
 
 ---
 
@@ -168,7 +168,7 @@ data/
 
 ## D-007: Graph View
 
-**Context:** Visual graph of notes and topics. See `README##Like What`: "Obsidian: graph view" and `README##MVP2`: "Better visualisation of data and relations e.g. graph view, mind map view."
+**Context:** Visual graph of notes and topics. See `README##Like What`: "Obsidian: graph view" and `PLAN##MVP2`: "Better visualisation of data and relations e.g. graph view, mind map view."
 
 **Decision:** Defer to MVP2.
 
