@@ -29,11 +29,11 @@
 
 | # | Feature | Description | Status |
 |---|---------|-------------|--------|
-| D1 | **Write** | Create and edit text artifacts (markdown) | Not started |
+| D1 | **Write** | Create and edit text artifacts (markdown) | In progress |
 | D2 | **Upload** | Upload files (images, documents) as artifacts | Not started |
 | D3 | **Paste from clipboard** | Paste text, images from system clipboard | Not started |
 | D4 | **Screen-part capture** | Capture a region of the screen as an artifact | Not started |
-| D5 | **Classify** | Assign topics to artifacts | Not started |
+| D5 | **Classify** | Assign topics to artifacts | In progress |
 | D6 | **Link (bidirectional)** | Create bidirectional links between artifacts and topics | Not started |
 | D7 | **Sync to Backend** | Push/pull data to/from backend service | Not started |
 
@@ -97,12 +97,12 @@ Define the core data model and implement file-based storage for desktop and back
 
 | # | Task | Depends on | Status | Definition |
 |---|------|-----------|--------|------------|
-| 1.1 | Design data model (Mermaid ER + types) | — | Not started | [task](POC-phase-1/1.1_design-data-model.md) |
-| 1.2 | Add data model to shared CRUX core | 1.1 | Not started | [task](POC-phase-1/1.2_add-data-model-to-crux.md) |
-| 1.3 | File storage library (shared) | 1.1 | Not started | [task](POC-phase-1/1.3_file-storage-library.md) |
-| 1.4 | Desktop local storage integration | 1.2, 1.3 | Not started | [task](POC-phase-1/1.4_desktop-local-storage.md) |
-| 1.5 | Backend API: CRUD endpoints | 1.2, 1.3 | Not started | [task](POC-phase-1/1.5_backend-api-crud.md) |
-| 1.6 | Backend file storage integration | 1.3, 1.5 | Not started | [task](POC-phase-1/1.6_backend-file-storage.md) |
+| 1.1 | Design data model (Mermaid ER + types) | — | Done | [task](POC-phase-1/1.1_design-data-model.md) |
+| 1.2 | Add data model to shared CRUX core | 1.1 | Done | [task](POC-phase-1/1.2_add-data-model-to-crux.md) |
+| 1.3 | File storage library (shared) | 1.1 | Done | [task](POC-phase-1/1.3_file-storage-library.md) |
+| 1.4 | Desktop local storage integration | 1.2, 1.3 | Done | [task](POC-phase-1/1.4_desktop-local-storage.md) |
+| 1.5 | Backend API: CRUD endpoints | 1.2, 1.3 | Done | [task](POC-phase-1/1.5_backend-api-crud.md) |
+| 1.6 | Backend file storage integration | 1.3, 1.5 | Done | [task](POC-phase-1/1.6_backend-file-storage.md) |
 
 ### Phase 2: Desktop App — Write & Classify — [detailed status](POC-phase-2-status.md) | [requirements](POC-phase-2-requirements.md)
 
@@ -110,8 +110,8 @@ Build the core writing and classification experience in the desktop app.
 
 | # | Task | Depends on | Status | Definition |
 |---|------|-----------|--------|------------|
-| 2.1 | Markdown editor with AST support (+ mdast spike) | Phase 1 | Not started | [task](POC-phase-2/2.1_markdown-editor-ast.md) |
-| 2.2 | Create/save note via CRUX → local storage | 2.1, Phase 1 | Not started | [task](POC-phase-2/2.2_create-save-note.md) |
+| 2.1 | Markdown editor with AST support (+ mdast spike) | Phase 1 | Done | [task](POC-phase-2/2.1_markdown-editor-ast.md) |
+| 2.2 | Create/save note via CRUX → local storage | 2.1, Phase 1 | Done | [task](POC-phase-2/2.2_create-save-note.md) |
 | 2.3 | Topic management (CRUD + typed relations) | Phase 1 | Not started | [task](POC-phase-2/2.3_topic-management.md) |
 | 2.4 | Note list/browse view | 2.2 | Not started | [task](POC-phase-2/2.4_note-list-browse.md) |
 | 2.5 | Topic filter/browse view | 2.3 | Not started | [task](POC-phase-2/2.5_topic-filter-browse.md) |

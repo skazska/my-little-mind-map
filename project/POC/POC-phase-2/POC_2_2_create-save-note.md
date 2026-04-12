@@ -9,7 +9,7 @@
 | **Decisions** | D-005 (AST storage), D-008 (metadata), D-009 (reference index sync), D-011 (classification required) |
 | **Depends on** | 2.1, Phase 1 (1.2, 1.3, 1.4) |
 | **Blocks** | 2.4, Phase 3, Phase 4 |
-| **Status** | Not started |
+| **Status** | Done |
 
 ---
 
@@ -81,19 +81,19 @@ On every save:
 
 ## Tests
 
-- [ ] Create note with valid topic → saved to filesystem
-- [ ] Create note without topic → rejected with error
-- [ ] Edit note → `updated_at` changes, `version` increments
-- [ ] References in content are extracted and indexed
-- [ ] Stale references removed from index on edit
-- [ ] Note metadata correctly populated (source_type, timestamps)
+- [x] Create note with valid topic → saved to filesystem
+- [x] Create note without topic → rejected with error
+- [x] Edit note → `updated_at` changes, `version` increments
+- [x] References in content are extracted and indexed
+- [x] Stale references removed from index on edit
+- [x] Note metadata correctly populated (source_type, timestamps)
 
 ## Acceptance Criteria
 
-- [ ] User can create a new note with mandatory topic classification
-- [ ] Note is persisted to local filesystem in correct layout
-- [ ] User can edit and re-save a note
-- [ ] Metadata populated correctly (D-008)
-- [ ] Classification constraint enforced (D-011)
-- [ ] Reference index updated on save (D-009)
-- [ ] Desktop app compiles and runs with create/save flow
+- [x] User can create a new note with mandatory topic classification
+- [x] Note is persisted to local filesystem in correct layout
+- [x] User can edit and re-save a note
+- [x] Metadata populated correctly (D-008)
+- [x] Classification constraint enforced (D-011)
+- [x] Reference index updated on save (D-009)
+- [x] Desktop app compiles and runs with create/save flow
