@@ -15,10 +15,15 @@
         "@tauri-apps/api": "^2.0.0",
         "@tauri-apps/plugin-shell": "^2.0.0",
         "react": "^19.0.0",
-        "react-dom": "^19.0.0"
+        "react-dom": "^19.0.0",
+        "react-markdown": "^10.1.0",
+        "remark-parse": "^11.0.0",
+        "remark-stringify": "^11.0.0",
+        "unified": "^11.0.5"
     },
     "devDependencies": {
         "@tauri-apps/cli": "^2.0.0",
+        "@types/mdast": "^4.0.4",
         "@types/react": "^19.0.0",
         "@types/react-dom": "^19.0.0",
         "@vitejs/plugin-react": "^4.0.0",

@@ -170,6 +170,29 @@ pub fn list_notes(handle: &StorageHandle) -> Result<Vec<NoteSummary>> {
     Ok(summaries)
 }
 
+/// Load all notes with full content (for syncing model from storage).
+pub fn list_full_notes(handle: &StorageHandle) -> Result<Vec<Note>> {
+    let notes_dir = handle.notes_dir();
+    if !notes_dir.exists() {
+        return Ok(vec![]);
+    }
+    let mut notes = Vec::new();
+    for entry in std::fs::read_dir(notes_dir)? {
+        let entry = entry?;
+        if entry.file_type()?.is_dir()
+            && let Ok(id) = entry.file_name().to_string_lossy().parse::<Uuid>()
+        {
+            match read_note(handle, &id) {
+                Ok(note) => notes.push(note),
+                Err(StorageError::NotFound(_)) => {} // skip orphaned dirs
+                Err(e) => return Err(e),
+            }
+        }
+    }
+    notes.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+    Ok(notes)
+}
+
 pub fn read_note_meta(handle: &StorageHandle, id: &Uuid) -> Result<NoteMeta> {
     let mp = meta_path(handle, id);
     if !mp.exists() {

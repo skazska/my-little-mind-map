@@ -221,6 +221,13 @@ pub fn remove_note_references(handle: &StorageHandle, note_id: Uuid) -> Result<(
     write_references(handle, &idx)
 }
 
+/// Remove only outbound references from a note (used when updating a note's content).
+pub fn remove_outbound_references(handle: &StorageHandle, note_id: Uuid) -> Result<()> {
+    let mut idx = read_references(handle)?;
+    idx.references.retain(|r| r.source_note_id != note_id);
+    write_references(handle, &idx)
+}
+
 // ---- Topic relation operations ----
 
 pub fn add_topic_relation(handle: &StorageHandle, rel: &TopicRelation) -> Result<()> {
@@ -275,4 +282,21 @@ pub fn remove_topic_all_relations(handle: &StorageHandle, topic_id: Uuid) -> Res
     idx.relations
         .retain(|r| r.source_topic_id != topic_id && r.target_topic_id != topic_id);
     write_topic_relations(handle, &idx)
+}
+
+// ---- Bulk load operations (for syncing model from storage) ----
+
+/// Load all classifications from storage.
+pub fn load_all_classifications(handle: &StorageHandle) -> Result<Vec<Classification>> {
+    Ok(read_classifications(handle)?.classifications)
+}
+
+/// Load all note references from storage.
+pub fn load_all_references(handle: &StorageHandle) -> Result<Vec<NoteReference>> {
+    Ok(read_references(handle)?.references)
+}
+
+/// Load all topic relations from storage.
+pub fn load_all_topic_relations(handle: &StorageHandle) -> Result<Vec<TopicRelation>> {
+    Ok(read_topic_relations(handle)?.relations)
 }

@@ -9,7 +9,7 @@
 | **Decisions** | D-005 (structured AST, mdast preferred) |
 | **Depends on** | Phase 1 |
 | **Blocks** | 2.2, Phase 4 (4.4), Phase 6 (6.2) |
-| **Status** | Not started |
+| **Status** | Done |
 
 ---
 
@@ -73,17 +73,17 @@ Before building the editor, validate D-005:
 
 ## Tests
 
-- [ ] Editor renders and accepts text input
-- [ ] Basic markdown formats correctly in preview
-- [ ] Internal reference syntax `[[...]]` is parsed
-- [ ] AST output matches expected structure
-- [ ] Round-trip: type markdown → get AST → render back to markdown → same content
+- [x] Editor renders and accepts text input
+- [x] Basic markdown formats correctly in preview
+- [x] Internal reference syntax `[[...]]` is parsed
+- [x] AST output matches expected structure
+- [x] Round-trip: type markdown → get AST → render back to markdown → same content
 
 ## Acceptance Criteria
 
-- [ ] mdast evaluation spike completed and documented
-- [ ] Editor component renders in desktop app
-- [ ] All required markdown features work
-- [ ] Internal reference syntax supported
-- [ ] Editor outputs structured AST
-- [ ] AST is compatible between Rust and JS (or fallback documented)
+- [x] mdast evaluation spike completed and documented
+- [x] Editor component renders in desktop app
+- [x] All required markdown features work
+- [x] Internal reference syntax supported
+- [x] Editor outputs structured AST
+- [x] AST is compatible between Rust and JS (or fallback documented)

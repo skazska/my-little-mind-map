@@ -137,6 +137,14 @@ data/
 
 **Fallback:** If mdast doesn't work cross-platform, define a custom AST spec in the `shared` crate, with serialization for both Rust and TypeScript consumption.
 
+**Spike Result (Task 2.1):** Cross-platform compatibility validated. See [mdast-evaluation.md](POC-phase-2/mdast-evaluation.md).
+
+- JS `remark-parse` produces authoritative mdast JSON stored as `serde_json::Value` in Rust
+- Rust `markdown` crate (v1.0) produces correct mdast but lacks serde support — not needed since JS handles AST serialization
+- `[[uuid|text]]` references extracted via string scanning in Rust (`shared/src/references.rs`) and regex in JS
+- Editor: split-pane textarea + `react-markdown` preview
+- Fallback not needed — mdast works cross-platform
+
 ---
 
 ## D-006: Sync Strategy
