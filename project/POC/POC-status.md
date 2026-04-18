@@ -164,7 +164,7 @@ Sync local data with the backend service.
 
 ## Current Status
 
-**Phase: Infrastructure & planning complete. Ready to start Phase 1.**
+**Phase: Phase 2 in progress.**
 
 ### What's done
 
@@ -181,12 +181,14 @@ Sync local data with the backend service.
 - **POC requirements defined** — functional, non-functional, use cases ([POC-requirements.md](POC-requirements.md))
 - **Architectural decisions made** — 13 decisions documented ([POC-decisions.md](POC-decisions.md))
 - **Detailed development plan** — 6 phases, 29 tasks, each with task definition files
+- **Phase 1 complete** — data model, shared core integration, file storage library, desktop local storage, backend CRUD and backend file storage are implemented
+- **Phase 2 started** — markdown editor + mdast spike complete, create/save note flow complete, topic management and note browsing implementation now in progress
 
 ### What's next
 
-**→ Phase 1.1: Design the data model** — [task definition](POC-phase-1/1.1_design-data-model.md)
+**→ Continue Phase 2** — Topic Management (2.3) and Note List/Browse (2.4), then Topic Filter/Browse (2.5)
 
-Finalize the Mermaid ER diagram and entity descriptions based on decisions D-001 through D-012. Preliminary diagram available in [data-model.md](POC-phase-1/1.1_design-data-model/data-model.md).
+Current implementation is on a feature branch and covers the first Task 2.3 and 2.4 slices in the desktop app. The next concrete target is to complete acceptance criteria for topic CRUD + relations and finish dedicated topic-based browsing.
 
 ---
 

@@ -103,12 +103,23 @@ pub struct TopicView {
     pub note_count: usize,
 }
 
+/// Summary view of a relation between two topics.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct TopicRelationView {
+    pub source_topic_id: Uuid,
+    pub source_topic_name: String,
+    pub target_topic_id: Uuid,
+    pub target_topic_name: String,
+    pub relation_type: TopicRelationType,
+}
+
 /// The view model sent to the UI for rendering
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub struct ViewModel {
     pub text: String,
     pub notes: Vec<NoteView>,
     pub topics: Vec<TopicView>,
+    pub topic_relations: Vec<TopicRelationView>,
     pub error: Option<String>,
 }
 
@@ -303,10 +314,27 @@ impl crux_core::App for MindMap {
             })
             .collect();
 
+        let topic_relations = model
+            .topic_relations
+            .iter()
+            .filter_map(|r| {
+                let source = topics_by_id.get(&r.source_topic_id)?;
+                let target = topics_by_id.get(&r.target_topic_id)?;
+                Some(TopicRelationView {
+                    source_topic_id: r.source_topic_id,
+                    source_topic_name: source.name.clone(),
+                    target_topic_id: r.target_topic_id,
+                    target_topic_name: target.name.clone(),
+                    relation_type: r.relation_type.clone(),
+                })
+            })
+            .collect();
+
         ViewModel {
             text: "My Little Mind Map".to_string(),
             notes,
             topics,
+            topic_relations,
             error: None,
         }
     }

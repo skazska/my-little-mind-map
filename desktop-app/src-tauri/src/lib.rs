@@ -5,6 +5,17 @@ use storage::StorageHandle;
 use tauri::{Manager, State};
 use uuid::Uuid;
 
+fn parse_topic_relation_type(value: &str) -> Result<shared::model::TopicRelationType, String> {
+    match value {
+        "subtopic-of" => Ok(shared::model::TopicRelationType::SubtopicOf),
+        "related-to" => Ok(shared::model::TopicRelationType::RelatedTo),
+        "classifies" => Ok(shared::model::TopicRelationType::Classifies),
+        _ => Err(format!(
+            "Invalid relation type '{value}'. Allowed: subtopic-of, related-to, classifies"
+        )),
+    }
+}
+
 struct AppState {
     core: Core<MindMap>,
     storage: StorageHandle,
@@ -177,8 +188,100 @@ fn create_topic(
     description: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<ViewModel, String> {
-    let topic = Topic::new(name, description);
+    let trimmed = name.trim();
+    if trimmed.is_empty() {
+        return Err("Topic name is required".into());
+    }
+    let topic = Topic::new(trimmed.to_string(), description);
     storage::topics::create_topic(&state.storage, &topic).map_err(|e| e.to_string())?;
+    reload_data(&state)
+}
+
+#[tauri::command]
+fn update_topic(
+    id: String,
+    name: String,
+    description: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<ViewModel, String> {
+    let topic_id = Uuid::parse_str(&id).map_err(|e| e.to_string())?;
+    let trimmed = name.trim();
+    if trimmed.is_empty() {
+        return Err("Topic name is required".into());
+    }
+
+    let mut topic =
+        storage::topics::read_topic(&state.storage, &topic_id).map_err(|e| e.to_string())?;
+    topic.name = trimmed.to_string();
+    topic.description = description;
+    topic.updated_at = chrono::Utc::now();
+    topic.version += 1;
+
+    storage::topics::update_topic(&state.storage, &topic).map_err(|e| e.to_string())?;
+    reload_data(&state)
+}
+
+#[tauri::command]
+fn delete_topic(id: String, state: State<'_, AppState>) -> Result<ViewModel, String> {
+    let topic_id = Uuid::parse_str(&id).map_err(|e| e.to_string())?;
+
+    // D-011 guard: deleting a topic must not leave any note unclassified.
+    let all_classifications =
+        storage::relations::load_all_classifications(&state.storage).map_err(|e| e.to_string())?;
+    let affected_note_ids: std::collections::HashSet<Uuid> = all_classifications
+        .iter()
+        .filter(|c| c.topic_id == topic_id)
+        .map(|c| c.note_id)
+        .collect();
+
+    for note_id in affected_note_ids {
+        let has_other_topic = all_classifications
+            .iter()
+            .any(|c| c.note_id == note_id && c.topic_id != topic_id);
+        if !has_other_topic {
+            return Err(
+                "Cannot delete topic because at least one note would have no topics assigned"
+                    .into(),
+            );
+        }
+    }
+
+    storage::relations::remove_topic_classifications(&state.storage, topic_id)
+        .map_err(|e| e.to_string())?;
+    storage::relations::remove_topic_all_relations(&state.storage, topic_id)
+        .map_err(|e| e.to_string())?;
+    storage::topics::delete_topic(&state.storage, &topic_id).map_err(|e| e.to_string())?;
+
+    reload_data(&state)
+}
+
+#[tauri::command]
+fn add_topic_relation(
+    source_topic_id: String,
+    target_topic_id: String,
+    relation_type: String,
+    state: State<'_, AppState>,
+) -> Result<ViewModel, String> {
+    let source_id = Uuid::parse_str(&source_topic_id).map_err(|e| e.to_string())?;
+    let target_id = Uuid::parse_str(&target_topic_id).map_err(|e| e.to_string())?;
+    let parsed_type = parse_topic_relation_type(&relation_type)?;
+    let rel = shared::model::TopicRelation::new(source_id, target_id, parsed_type);
+
+    storage::relations::add_topic_relation(&state.storage, &rel).map_err(|e| e.to_string())?;
+    reload_data(&state)
+}
+
+#[tauri::command]
+fn remove_topic_relation(
+    source_topic_id: String,
+    target_topic_id: String,
+    state: State<'_, AppState>,
+) -> Result<ViewModel, String> {
+    let source_id = Uuid::parse_str(&source_topic_id).map_err(|e| e.to_string())?;
+    let target_id = Uuid::parse_str(&target_topic_id).map_err(|e| e.to_string())?;
+
+    storage::relations::remove_topic_relation(&state.storage, source_id, target_id)
+        .map_err(|e| e.to_string())?;
     reload_data(&state)
 }
 
@@ -209,6 +312,10 @@ pub fn run() {
             update_note,
             delete_note,
             create_topic,
+            update_topic,
+            delete_topic,
+            add_topic_relation,
+            remove_topic_relation,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

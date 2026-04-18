@@ -4,6 +4,7 @@ export interface ViewModel {
     text: string;
     notes: NoteView[];
     topics: TopicView[];
+    topic_relations: TopicRelationView[];
     error: string | null;
 }
 
@@ -24,6 +25,16 @@ export interface TopicView {
     description: string | null;
     note_count: number;
 }
+
+export interface TopicRelationView {
+    source_topic_id: string;
+    source_topic_name: string;
+    target_topic_id: string;
+    target_topic_name: string;
+    relation_type: TopicRelationType;
+}
+
+export type TopicRelationType = "subtopic-of" | "related-to" | "classifies";
 
 export type SourceType = "typed" | "pasted" | "uploaded" | "captured";
 
