@@ -115,7 +115,7 @@ Build the core writing and classification experience in the desktop app.
 | 2.2 | Create/save note via CRUX → local storage | 2.1, Phase 1 | Done | [task](POC-phase-2/2.2_create-save-note.md) |
 | 2.3 | Topic management (CRUD + typed relations) | Phase 1 | Done | [task](POC-phase-2/2.3_topic-management.md) |
 | 2.4 | Note list/browse view | 2.2 | Done | [task](POC-phase-2/2.4_note-list-browse.md) |
-| 2.5 | Topic filter/browse view | 2.3 | In progress | [task](POC-phase-2/2.5_topic-filter-browse.md) |
+| 2.5 | Topic filter/browse view | 2.3 | Done | [task](POC-phase-2/2.5_topic-filter-browse.md) |
 
 ### Phase 3: Desktop App — Collect (Upload, Paste, Capture) — [detailed status](POC-phase-3-status.md) | [requirements](POC-phase-3-requirements.md)
 
@@ -166,7 +166,7 @@ Sync local data with the backend service.
 
 ## Current Status
 
-**Phase: Phase 2 in progress.**
+**Phase: Phase 2 complete. Phase 3/4 ready to start.**
 
 ### What's done
 
@@ -184,14 +184,14 @@ Sync local data with the backend service.
 - **Architectural decisions made** — 14 decisions documented ([POC-decisions.md](POC-decisions.md))
 - **Detailed development plan** — 6 phases, 29 tasks, each with task definition files
 - **Phase 1 complete** — data model, shared core integration, file storage library, desktop local storage, backend CRUD and backend file storage are implemented
-- **Phase 2 nearing completion** — markdown editor, create/save note, topic management (CRUD + relations), note list/browse all done; topic filter/browse view (2.5) implemented on feature branch
+- **Phase 2 complete** — markdown editor, create/save note, topic management (CRUD + relations), note list/browse, topic filter/browse all done
 - **Status bar (6.6)** — desktop status bar with storage path, note/topic counts, and app version
 
 ### What's next
 
-**→ Complete Phase 2** — merge Topic Filter/Browse (2.5), then move to Phase 3 or Phase 4
+**→ Start Phase 3 (Collect) or Phase 4 (Linking)** — both are unblocked by Phase 2 completion
 
-Task 2.5 is implemented on `feature/poc-phase-2-topic-browser` and ready for review. Once merged, Phase 2 is complete and unblocks Phase 3 (Collect) and Phase 4 (Linking).
+Phase 3 adds file upload, clipboard paste, and screen capture. Phase 4 adds bidirectional linking between notes and topics. Both can proceed in parallel.
 
 ---
 

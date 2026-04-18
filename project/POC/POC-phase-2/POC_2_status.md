@@ -15,13 +15,13 @@ Decisions: [POC-decisions.md](POC-decisions.md) — D-004, D-005, D-009, D-010, 
 | 2.2 | Create/save note via CRUX → local storage | 2.1, Phase 1 | Done | [POC_2_2_create-save-note.md](POC_2_2_create-save-note.md) |
 | 2.3 | Topic management (CRUD + relations) | Phase 1 | Done | [POC_2_3_topic-management.md](POC_2_3_topic-management.md) |
 | 2.4 | Note list/browse view | 2.2 | Done | [POC_2_4_note-list-browse.md](POC_2_4_note-list-browse.md) |
-| 2.5 | Topic filter/browse view | 2.3 | In progress | [POC_2_5_topic-filter-browse.md](POC_2_5_topic-filter-browse.md) |
+| 2.5 | Topic filter/browse view | 2.3 | Done | [POC_2_5_topic-filter-browse.md](POC_2_5_topic-filter-browse.md) |
 
 ---
 
 ## Phase Status
 
-**Status: In progress** — Tasks 2.1–2.4 complete. Task 2.5 (Topic filter/browse) is actively being implemented on `feature/poc-phase-2-topic-browser`.
+**Status: Done** — All tasks complete. Phase 2 merged via PR #8 (tasks 2.3/2.4) and PR #10 (task 2.5).
 
 ### Dependency Graph
 
@@ -40,4 +40,4 @@ Phase 1 (complete)
 - Tasks 2.1 and 2.3 can proceed in parallel after Phase 1
 - Classification enforcement (D-011) implemented in task 2.2 save flow
 - Tasks 2.3 and 2.4 completed: topic CRUD, relations, searchable/sortable note list, relation-aware ViewModel
-- Task 2.5 in progress: TopicBrowser component with topic selection, filtered notes, relation navigation (subtopics, parents, related, classifying)
+- Task 2.5 complete: TopicBrowser component with topic selection, filtered notes, relation navigation (subtopics, parents, related, classifying), topic existence validation, and related-topic deduplication
