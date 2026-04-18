@@ -16,18 +16,27 @@ const barStyle: React.CSSProperties = {
     color: "#666",
     fontFamily: "system-ui, sans-serif",
     flexShrink: 0,
+    gap: "1rem",
+};
+
+const pathStyle: React.CSSProperties = {
+    flex: 1,
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
 };
 
 export function StatusBar({ storagePath, noteCount, topicCount, appVersion }: StatusBarProps) {
     return (
         <footer style={barStyle}>
-            <span title={storagePath ?? undefined}>
+            <span style={pathStyle} title={storagePath ?? undefined}>
                 Storage: {storagePath ?? "…"}
             </span>
-            <span>
+            <span style={{ flexShrink: 0 }}>
                 {noteCount} note{noteCount !== 1 ? "s" : ""} · {topicCount} topic{topicCount !== 1 ? "s" : ""}
             </span>
-            <span>v{appVersion ?? "…"}</span>
+            <span style={{ flexShrink: 0 }}>v{appVersion ?? "…"}</span>
         </footer>
     );
 }

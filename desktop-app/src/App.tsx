@@ -117,116 +117,103 @@ function App() {
         ? vm.topics.find((topic) => topic.id === selectedTopicId) ?? null
         : null;
 
+    let content;
+
     if (loading) {
-        return (
-            <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: "system-ui, sans-serif" }}>
-                <main style={{ flex: 1, minHeight: 0, padding: "2rem" }}>Loading...</main>
-                <StatusBar storagePath={storagePath} noteCount={0} topicCount={0} appVersion={appVersion} />
-            </div>
+        content = (
+            <main style={{ flex: 1, minHeight: 0, padding: "2rem" }}>Loading...</main>
         );
-    }
-
-    if (currentView === "create" || currentView === "edit") {
-        return (
-            <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: "system-ui, sans-serif" }}>
-                <main style={{ flex: 1, minHeight: 0, padding: "1rem", overflow: "auto" }}>
-                    <NoteEditor
-                        topics={vm.topics}
-                        editNoteId={editState?.id}
-                        editTitle={editState?.title}
-                        editContent={editState?.content}
-                        editTopicIds={editState?.topicIds}
-                        onSaved={handleSaved}
-                        onCancel={() => { setCurrentView("list"); setEditState(null); }}
-                        onCreateTopic={handleCreateTopic}
-                    />
-                </main>
-                <StatusBar storagePath={storagePath} noteCount={vm.notes.length} topicCount={vm.topics.length} appVersion={appVersion} />
-            </div>
+    } else if (currentView === "create" || currentView === "edit") {
+        content = (
+            <main style={{ flex: 1, minHeight: 0, padding: "1rem", overflow: "auto" }}>
+                <NoteEditor
+                    topics={vm.topics}
+                    editNoteId={editState?.id}
+                    editTitle={editState?.title}
+                    editContent={editState?.content}
+                    editTopicIds={editState?.topicIds}
+                    onSaved={handleSaved}
+                    onCancel={() => { setCurrentView("list"); setEditState(null); }}
+                    onCreateTopic={handleCreateTopic}
+                />
+            </main>
         );
-    }
+    } else if (currentView === "topics") {
+        content = (
+            <main style={{ flex: 1, minHeight: 0, padding: "1.5rem", overflow: "auto" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                    <h1 style={{ margin: 0 }}>Topic Management</h1>
+                    <button onClick={() => setCurrentView("list")}>Back to Notes</button>
+                </div>
 
-    if (currentView === "topics") {
-        return (
-            <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: "system-ui, sans-serif" }}>
-                <main style={{ flex: 1, minHeight: 0, padding: "1.5rem", overflow: "auto" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                        <h1 style={{ margin: 0 }}>Topic Management</h1>
-                        <button onClick={() => setCurrentView("list")}>Back to Notes</button>
+                {(vm.error || commandError) && (
+                    <div style={{ color: "red", padding: "0.5rem", background: "#fee", borderRadius: 4, marginBottom: "1rem" }}>
+                        {commandError ?? vm.error}
                     </div>
+                )}
 
-                    {(vm.error || commandError) && (
-                        <div style={{ color: "red", padding: "0.5rem", background: "#fee", borderRadius: 4, marginBottom: "1rem" }}>
-                            {commandError ?? vm.error}
-                        </div>
-                    )}
+                <div style={{ display: "grid", gridTemplateColumns: "minmax(260px, 320px) 1fr", gap: "1rem", alignItems: "start" }}>
+                    <TopicList
+                        topics={vm.topics}
+                        selectedId={selectedTopicId}
+                        onSelect={(topicId) => setSelectedTopicId(topicId)}
+                        onDelete={async (topicId) => {
+                            try {
+                                await handleDeleteTopic(topicId);
+                            } catch (e) {
+                                setCommandError(String(e));
+                            }
+                        }}
+                    />
 
-                    <div style={{ display: "grid", gridTemplateColumns: "minmax(260px, 320px) 1fr", gap: "1rem", alignItems: "start" }}>
-                        <TopicList
-                            topics={vm.topics}
-                            selectedId={selectedTopicId}
-                            onSelect={(topicId) => setSelectedTopicId(topicId)}
-                            onDelete={async (topicId) => {
+                    <div style={{ display: "grid", gap: "1rem" }}>
+                        <TopicEditor
+                            selectedTopic={selectedTopic}
+                            onCreate={async (name, description) => {
                                 try {
-                                    await handleDeleteTopic(topicId);
+                                    await handleCreateTopic({ name, description });
                                 } catch (e) {
                                     setCommandError(String(e));
+                                    throw e;
+                                }
+                            }}
+                            onUpdate={async (id, name, description) => {
+                                try {
+                                    await handleUpdateTopic(id, name, description);
+                                } catch (e) {
+                                    setCommandError(String(e));
+                                    throw e;
                                 }
                             }}
                         />
 
-                        <div style={{ display: "grid", gap: "1rem" }}>
-                            <TopicEditor
-                                selectedTopic={selectedTopic}
-                                onCreate={async (name, description) => {
-                                    try {
-                                        await handleCreateTopic({ name, description });
-                                    } catch (e) {
-                                        setCommandError(String(e));
-                                        throw e;
-                                    }
-                                }}
-                                onUpdate={async (id, name, description) => {
-                                    try {
-                                        await handleUpdateTopic(id, name, description);
-                                    } catch (e) {
-                                        setCommandError(String(e));
-                                        throw e;
-                                    }
-                                }}
-                            />
-
-                            <TopicRelationManager
-                                topics={vm.topics}
-                                relations={vm.topic_relations}
-                                selectedTopicId={selectedTopicId}
-                                onAddRelation={async (sourceTopicId, targetTopicId, relationType) => {
-                                    try {
-                                        await handleAddTopicRelation(sourceTopicId, targetTopicId, relationType);
-                                    } catch (e) {
-                                        setCommandError(String(e));
-                                        throw e;
-                                    }
-                                }}
-                                onRemoveRelation={async (sourceTopicId, targetTopicId) => {
-                                    try {
-                                        await handleRemoveTopicRelation(sourceTopicId, targetTopicId);
-                                    } catch (e) {
-                                        setCommandError(String(e));
-                                        throw e;
-                                    }
-                                }}
-                            />
-                        </div>
+                        <TopicRelationManager
+                            topics={vm.topics}
+                            relations={vm.topic_relations}
+                            selectedTopicId={selectedTopicId}
+                            onAddRelation={async (sourceTopicId, targetTopicId, relationType) => {
+                                try {
+                                    await handleAddTopicRelation(sourceTopicId, targetTopicId, relationType);
+                                } catch (e) {
+                                    setCommandError(String(e));
+                                    throw e;
+                                }
+                            }}
+                            onRemoveRelation={async (sourceTopicId, targetTopicId) => {
+                                try {
+                                    await handleRemoveTopicRelation(sourceTopicId, targetTopicId);
+                                } catch (e) {
+                                    setCommandError(String(e));
+                                    throw e;
+                                }
+                            }}
+                        />
                     </div>
-                </main>
-                <StatusBar storagePath={storagePath} noteCount={vm.notes.length} topicCount={vm.topics.length} appVersion={appVersion} />
-            </div>
+                </div>
+            </main>
         );
-    }
-
-    return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: "system-ui, sans-serif" }}>
+    } else {
+        content = (
             <main style={{ flex: 1, minHeight: 0, padding: "2rem", overflow: "auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                     <h1 style={{ margin: 0 }}>{vm.text || "My Little Mind Map"}</h1>
@@ -267,6 +254,12 @@ function App() {
                     )}
                 </section>
             </main>
+        );
+    }
+
+    return (
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: "system-ui, sans-serif" }}>
+            {content}
             <StatusBar storagePath={storagePath} noteCount={vm.notes.length} topicCount={vm.topics.length} appVersion={appVersion} />
         </div>
     );
