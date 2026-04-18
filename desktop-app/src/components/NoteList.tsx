@@ -80,9 +80,20 @@ export function NoteList({ notes, onOpen, onDelete }: NoteListProps) {
                             }}
                         >
                             <div>
-                                <strong style={{ cursor: "pointer" }} onClick={() => onOpen(n)}>
+                                <button
+                                    type="button"
+                                    onClick={() => onOpen(n)}
+                                    aria-label={`Open note ${n.title}`}
+                                    style={{
+                                        cursor: "pointer",
+                                        background: "none",
+                                        border: "none",
+                                        padding: 0,
+                                        fontWeight: "bold",
+                                    }}
+                                >
                                     {n.title}
-                                </strong>
+                                </button>
                                 {n.topic_names.length > 0 && (
                                     <span style={{ marginLeft: "0.5rem", color: "#666", fontSize: "0.85rem" }}>
                                         [{n.topic_names.join(", ")}]

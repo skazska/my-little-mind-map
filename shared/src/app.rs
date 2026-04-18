@@ -536,4 +536,51 @@ mod tests {
         let view = core.view();
         assert!(view.error.is_none());
     }
+
+    #[test]
+    fn topic_relations_in_view() {
+        let core: Core<MindMap> = Core::new();
+        let topic_a = make_topic("Rust");
+        let topic_b = make_topic("Programming");
+        let relation = TopicRelation::new(topic_a.id, topic_b.id, TopicRelationType::SubtopicOf);
+
+        core.process_event(Event::DataLoaded {
+            notes: vec![],
+            topics: vec![topic_a.clone(), topic_b.clone()],
+            classifications: vec![],
+            note_references: vec![],
+            topic_relations: vec![relation],
+        });
+
+        let view = core.view();
+        assert_eq!(view.topic_relations.len(), 1);
+        let rel = &view.topic_relations[0];
+        assert_eq!(rel.source_topic_id, topic_a.id);
+        assert_eq!(rel.source_topic_name, "Rust");
+        assert_eq!(rel.target_topic_id, topic_b.id);
+        assert_eq!(rel.target_topic_name, "Programming");
+        assert_eq!(rel.relation_type, TopicRelationType::SubtopicOf);
+    }
+
+    #[test]
+    fn topic_relations_drops_unresolved() {
+        let core: Core<MindMap> = Core::new();
+        let topic_a = make_topic("Rust");
+        let orphan_id = Uuid::new_v4();
+        let relation = TopicRelation::new(topic_a.id, orphan_id, TopicRelationType::RelatedTo);
+
+        core.process_event(Event::DataLoaded {
+            notes: vec![],
+            topics: vec![topic_a.clone()],
+            classifications: vec![],
+            note_references: vec![],
+            topic_relations: vec![relation],
+        });
+
+        let view = core.view();
+        assert!(
+            view.topic_relations.is_empty(),
+            "Unresolved relations should be dropped"
+        );
+    }
 }

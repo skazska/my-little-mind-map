@@ -6,14 +6,10 @@ use tauri::{Manager, State};
 use uuid::Uuid;
 
 fn parse_topic_relation_type(value: &str) -> Result<shared::model::TopicRelationType, String> {
-    match value {
-        "subtopic-of" => Ok(shared::model::TopicRelationType::SubtopicOf),
-        "related-to" => Ok(shared::model::TopicRelationType::RelatedTo),
-        "classifies" => Ok(shared::model::TopicRelationType::Classifies),
-        _ => Err(format!(
-            "Invalid relation type '{value}'. Allowed: subtopic-of, related-to, classifies"
-        )),
-    }
+    let json_value = serde_json::to_string(value)
+        .map_err(|e| format!("Failed to prepare relation type '{value}' for parsing: {e}"))?;
+    serde_json::from_str::<shared::model::TopicRelationType>(&json_value)
+        .map_err(|e| format!("Invalid relation type '{value}': {e}"))
 }
 
 struct AppState {
@@ -228,16 +224,22 @@ fn delete_topic(id: String, state: State<'_, AppState>) -> Result<ViewModel, Str
     // D-011 guard: deleting a topic must not leave any note unclassified.
     let all_classifications =
         storage::relations::load_all_classifications(&state.storage).map_err(|e| e.to_string())?;
-    let affected_note_ids: std::collections::HashSet<Uuid> = all_classifications
-        .iter()
-        .filter(|c| c.topic_id == topic_id)
-        .map(|c| c.note_id)
-        .collect();
+
+    // Precompute per-note topic sets for O(n) instead of O(n*m)
+    let mut note_topics: std::collections::HashMap<Uuid, std::collections::HashSet<Uuid>> =
+        std::collections::HashMap::new();
+    let mut affected_note_ids: Vec<Uuid> = Vec::new();
+    for c in &all_classifications {
+        note_topics.entry(c.note_id).or_default().insert(c.topic_id);
+        if c.topic_id == topic_id {
+            affected_note_ids.push(c.note_id);
+        }
+    }
 
     for note_id in affected_note_ids {
-        let has_other_topic = all_classifications
-            .iter()
-            .any(|c| c.note_id == note_id && c.topic_id != topic_id);
+        let has_other_topic = note_topics
+            .get(&note_id)
+            .is_some_and(|topics| topics.iter().any(|tid| *tid != topic_id));
         if !has_other_topic {
             return Err(
                 "Cannot delete topic because at least one note would have no topics assigned"
@@ -265,6 +267,13 @@ fn add_topic_relation(
     let source_id = Uuid::parse_str(&source_topic_id).map_err(|e| e.to_string())?;
     let target_id = Uuid::parse_str(&target_topic_id).map_err(|e| e.to_string())?;
     let parsed_type = parse_topic_relation_type(&relation_type)?;
+
+    // Validate both topics exist before creating relation
+    storage::topics::read_topic(&state.storage, &source_id)
+        .map_err(|_| format!("Source topic not found: {source_topic_id}"))?;
+    storage::topics::read_topic(&state.storage, &target_id)
+        .map_err(|_| format!("Target topic not found: {target_topic_id}"))?;
+
     let rel = shared::model::TopicRelation::new(source_id, target_id, parsed_type);
 
     storage::relations::add_topic_relation(&state.storage, &rel).map_err(|e| e.to_string())?;
