@@ -294,6 +294,11 @@ fn remove_topic_relation(
     reload_data(&state)
 }
 
+#[tauri::command]
+fn get_storage_path(state: State<'_, AppState>) -> String {
+    state.storage.root().display().to_string()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -325,6 +330,7 @@ pub fn run() {
             delete_topic,
             add_topic_relation,
             remove_topic_relation,
+            get_storage_path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
