@@ -1,27 +1,10 @@
 # Developer Guide
 
+## Infrastructure
+
 [prerequisites](development/prerequisites.md)
 [setup](development/setup.md)
 [cli](development/cli.md)
-[git flow](development/git-flow.md)
-[code standards](development/code-standards.md)
-
-## Code
-
-[shared core (CRUX)](development/shared-core-crux.md)
-[backend service](development/backend-service.md)
-[desktop app](development/desktop-app.md)
-[web app](development/web-app.md)
-[android app](development/android-app.md)
-[iOS app](development/ios-app.md)
-
-## Design
-
-[code design](development/code-design.md)
-
-## Local Infrastructure
-
-Docker Compose for backend service, database (future), etc. See [cli](development/cli.md) for commands.
 
 ### Future: Database
 
@@ -46,7 +29,7 @@ DATABASE_URL=postgres://mindmap:mindmap_dev@localhost:5432/mindmap cargo run -p 
 
 ---
 
-## Environment Variables
+### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -60,6 +43,22 @@ Create a `.env` file in the project root for local overrides (loaded by `justfil
 # .env
 RUST_LOG=debug
 ```
+
+
+## code process
+
+[git flow](development/git-flow.md)
+[code standards](development/code-standards.md)
+[documentation](development/documentation.md)
+
+## Code
+
+[shared core (CRUX)](development/shared-core-crux.md)
+[backend service](development/backend-service.md)
+[desktop app](development/desktop-app.md)
+[web app](development/web-app.md)
+[android app](development/android-app.md)
+[iOS app](development/ios-app.md)
 
 ---
 
