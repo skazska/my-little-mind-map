@@ -190,7 +190,7 @@ pub fn list_full_notes(handle: &StorageHandle) -> Result<Vec<Note>> {
             }
         }
     }
-    notes.sort_by_key(|note| Reverse(&note.updated_at));
+    notes.sort_by_key(|note| Reverse(note.updated_at));
     Ok(notes)
 }
 
