@@ -286,6 +286,38 @@ data/
 
 ---
 
+## D-014: Status Bar
+
+**Context:** During development and testing it is difficult to determine where the app stores data, which version is running, or how much data exists. Users and developers need visibility into runtime state.
+
+**Options:**
+
+| Option | Pros | Cons |
+|--------|------|------|
+| Log to console only | No UI work | Not visible to non-developer users |
+| Settings/about page | Standard pattern | Requires navigation, not always visible |
+| Persistent status bar | Always visible, low cognitive cost | Uses screen space |
+
+**Decision:** Persistent status bar at the bottom of all client apps (desktop, web, mobile).
+
+**Content:**
+
+- **Storage path** — absolute path to the data directory (platform-specific)
+- **Counts** — current number of notes and topics (derived from ViewModel)
+- **App version** — from platform API (e.g., Tauri `getVersion()`)
+
+**Rationale:** A persistent status bar provides at-a-glance runtime info without requiring navigation. Storage path visibility is critical for testing and debugging (knowing which data directory is in use). Counts give a quick sanity check that data is loaded. Version helps with issue reporting.
+
+**Implementation Notes:**
+
+- Storage path is a shell-specific concern — exposed via platform command (e.g., Tauri `get_storage_path`), not via the shared CRUX ViewModel
+- Counts are derived from existing ViewModel arrays (`notes.length`, `topics.length`)
+- Version is obtained from the platform API (Tauri, browser, mobile OS)
+- Status bar must truncate long paths with ellipsis to stay single-line
+- Each platform shell implements its own StatusBar component following platform conventions
+
+---
+
 ## Decisions Index
 
 | ID | Topic | Decision Summary |
@@ -303,3 +335,4 @@ data/
 | D-011 | Classification required | Every note needs ≥1 topic |
 | D-012 | Single-user ownership | One user owns all data, no multi-user in POC |
 | D-013 | Screen capture | Defer to task 3.3; prefer Tauri/native APIs |
+| D-014 | Status bar | Persistent status bar in all apps showing storage path, counts, version |

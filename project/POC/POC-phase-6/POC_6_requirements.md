@@ -29,6 +29,7 @@ References: [POC-requirements.md](POC-requirements.md), [POC-decisions.md](POC-d
 | P6-R8 | Desktop app packages for Linux (.deb, .AppImage), macOS (.dmg), Windows (.msi) | `README##Development process/CI/CD` |
 | P6-R9 | Backend deployable as Docker container or standalone binary | `README##Development process/CI/CD` |
 | P6-R10 | Performance meets NFR-6 baselines | NFR-6.1–6.3 |
+| P6-R11 | All client apps display a persistent status bar showing storage path, counts, and version (D-014) | NFR-7.1–7.5 |
 
 ---
 
@@ -41,3 +42,4 @@ References: [POC-requirements.md](POC-requirements.md), [POC-decisions.md](POC-d
 - [ ] Desktop app builds produce installable packages for target OS
 - [ ] Backend Docker image builds and runs successfully
 - [ ] Performance baselines met (note save < 500ms, list < 1s for 1000 notes)
+- [ ] All client apps show status bar with storage path, note/topic counts, and version (D-014)

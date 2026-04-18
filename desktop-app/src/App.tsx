@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { getVersion } from "@tauri-apps/api/app";
 import { NoteEditor } from "./components/NoteEditor";
 import { NoteList } from "./components/NoteList";
 import { TopicList } from "./components/TopicList";
 import { TopicEditor } from "./components/TopicEditor";
 import { TopicRelationManager } from "./components/TopicRelationManager";
+import { StatusBar } from "./components/StatusBar";
 import type {
     ViewModel,
     NoteView,
@@ -28,11 +30,15 @@ function App() {
     const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
     const [commandError, setCommandError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [storagePath, setStoragePath] = useState<string | null>(null);
+    const [appVersion, setAppVersion] = useState<string | null>(null);
 
     useEffect(() => {
         invoke<ViewModel>("initialize")
             .then((v) => { setVm(v); setLoading(false); })
             .catch((e) => { console.error("init failed:", e); setLoading(false); });
+        invoke<string>("get_storage_path").then(setStoragePath).catch(console.error);
+        getVersion().then(setAppVersion).catch(console.error);
     }, []);
 
     const handleSaved = useCallback((view: ViewModel) => {
@@ -111,13 +117,15 @@ function App() {
         ? vm.topics.find((topic) => topic.id === selectedTopicId) ?? null
         : null;
 
-    if (loading) {
-        return <main style={{ padding: "2rem", fontFamily: "system-ui, sans-serif" }}>Loading...</main>;
-    }
+    let content;
 
-    if (currentView === "create" || currentView === "edit") {
-        return (
-            <main style={{ padding: "1rem", fontFamily: "system-ui, sans-serif", height: "100vh", boxSizing: "border-box" }}>
+    if (loading) {
+        content = (
+            <main style={{ flex: 1, minHeight: 0, padding: "2rem" }}>Loading...</main>
+        );
+    } else if (currentView === "create" || currentView === "edit") {
+        content = (
+            <main style={{ flex: 1, minHeight: 0, padding: "1rem", overflow: "auto" }}>
                 <NoteEditor
                     topics={vm.topics}
                     editNoteId={editState?.id}
@@ -130,11 +138,9 @@ function App() {
                 />
             </main>
         );
-    }
-
-    if (currentView === "topics") {
-        return (
-            <main style={{ padding: "1.5rem", fontFamily: "system-ui, sans-serif" }}>
+    } else if (currentView === "topics") {
+        content = (
+            <main style={{ flex: 1, minHeight: 0, padding: "1.5rem", overflow: "auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                     <h1 style={{ margin: 0 }}>Topic Management</h1>
                     <button onClick={() => setCurrentView("list")}>Back to Notes</button>
@@ -206,49 +212,56 @@ function App() {
                 </div>
             </main>
         );
+    } else {
+        content = (
+            <main style={{ flex: 1, minHeight: 0, padding: "2rem", overflow: "auto" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                    <h1 style={{ margin: 0 }}>{vm.text || "My Little Mind Map"}</h1>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <button onClick={() => setCurrentView("topics")}>Manage Topics</button>
+                        <button onClick={() => openEditor()}>+ New Note</button>
+                    </div>
+                </div>
+
+                {(vm.error || commandError) && (
+                    <div style={{ color: "red", padding: "0.5rem", background: "#fee", borderRadius: 4, marginBottom: "1rem" }}>
+                        {commandError ?? vm.error}
+                    </div>
+                )}
+
+                <NoteList notes={vm.notes} onOpen={openEditor} onDelete={handleDelete} />
+
+                <section>
+                    <h2>Topics ({vm.topics.length})</h2>
+                    {vm.topics.length === 0 ? (
+                        <p style={{ color: "#888" }}>No topics yet. Create one when adding a note.</p>
+                    ) : (
+                        <ul style={{ listStyle: "none", padding: 0, display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                            {vm.topics.map((t) => (
+                                <li
+                                    key={t.id}
+                                    style={{
+                                        padding: "0.25rem 0.75rem",
+                                        background: "#eef",
+                                        borderRadius: 12,
+                                        fontSize: "0.9rem",
+                                    }}
+                                >
+                                    {t.name} <span style={{ color: "#888" }}>({t.note_count})</span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+            </main>
+        );
     }
 
     return (
-        <main style={{ padding: "2rem", fontFamily: "system-ui, sans-serif" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                <h1 style={{ margin: 0 }}>{vm.text || "My Little Mind Map"}</h1>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <button onClick={() => setCurrentView("topics")}>Manage Topics</button>
-                    <button onClick={() => openEditor()}>+ New Note</button>
-                </div>
-            </div>
-
-            {(vm.error || commandError) && (
-                <div style={{ color: "red", padding: "0.5rem", background: "#fee", borderRadius: 4, marginBottom: "1rem" }}>
-                    {commandError ?? vm.error}
-                </div>
-            )}
-
-            <NoteList notes={vm.notes} onOpen={openEditor} onDelete={handleDelete} />
-
-            <section>
-                <h2>Topics ({vm.topics.length})</h2>
-                {vm.topics.length === 0 ? (
-                    <p style={{ color: "#888" }}>No topics yet. Create one when adding a note.</p>
-                ) : (
-                    <ul style={{ listStyle: "none", padding: 0, display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                        {vm.topics.map((t) => (
-                            <li
-                                key={t.id}
-                                style={{
-                                    padding: "0.25rem 0.75rem",
-                                    background: "#eef",
-                                    borderRadius: 12,
-                                    fontSize: "0.9rem",
-                                }}
-                            >
-                                {t.name} <span style={{ color: "#888" }}>({t.note_count})</span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </section>
-        </main>
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: "system-ui, sans-serif" }}>
+            {content}
+            <StatusBar storagePath={storagePath} noteCount={vm.notes.length} topicCount={vm.topics.length} appVersion={appVersion} />
+        </div>
     );
 }
 

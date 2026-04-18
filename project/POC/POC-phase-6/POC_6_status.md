@@ -16,6 +16,7 @@ Decisions: [POC-decisions.md](POC-decisions.md)
 | 6.3 | App settings (backend URL, sync interval, etc.) | Phase 5 (5.2) | Not started | [6.3_app-settings.md](POC-phase-6/6.3_app-settings.md) |
 | 6.4 | Desktop app packaging and release | 6.1 | Not started | [6.4_desktop-packaging.md](POC-phase-6/6.4_desktop-packaging.md) |
 | 6.5 | Backend deployment | 6.1 | Not started | [6.5_backend-deployment.md](POC-phase-6/6.5_backend-deployment.md) |
+| 6.6 | Status bar across all apps | Phase 2 | Desktop done | [6.6_status-bar.md](POC-phase-6/6.6_status-bar.md) |
 
 ---
 
@@ -34,6 +35,8 @@ Phase 2 (2.1)
  └──→ 6.2 (keyboard shortcuts)
 Phase 5 (5.2)
  └──→ 6.3 (app settings)
+Phase 2
+ └──→ 6.6 (status bar — desktop done, web/mobile pending)
 ```
 
 ### Notes

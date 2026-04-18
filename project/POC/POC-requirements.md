@@ -194,6 +194,18 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 | NFR-6.2 | Note list loads in < 1s for up to 1000 notes |
 | NFR-6.3 | Topic list loads in < 500ms for up to 100 topics |
 
+### NFR-7: Status Bar
+
+> Source: Testability and user awareness — users and developers need visibility into app runtime state.
+
+| ID | Requirement |
+|----|-------------|
+| NFR-7.1 | All client apps (desktop, web, mobile) display a persistent status bar |
+| NFR-7.2 | Status bar shows the storage directory path (D-014) |
+| NFR-7.3 | Status bar shows current note and topic counts |
+| NFR-7.4 | Status bar shows the app version |
+| NFR-7.5 | Status bar is visible across all views without obstructing content |
+
 ---
 
 ## Use Cases & Scenarios
