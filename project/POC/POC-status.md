@@ -33,7 +33,7 @@
 | D2 | **Upload** | Upload files (images, documents) as artifacts | Not started |
 | D3 | **Paste from clipboard** | Paste text, images from system clipboard | Not started |
 | D4 | **Screen-part capture** | Capture a region of the screen as an artifact | Not started |
-| D5 | **Classify** | Assign topics to artifacts | In progress |
+| D5 | **Classify** | Assign topics to artifacts | Done |
 | D6 | **Link (bidirectional)** | Create bidirectional links between artifacts and topics | Not started |
 | D7 | **Sync to Backend** | Push/pull data to/from backend service | Not started |
 
@@ -86,6 +86,7 @@
 | D-011 | Classification required | Every note needs ≥1 topic |
 | D-012 | Single-user ownership | One user owns all data; no multi-user in POC |
 | D-013 | Screen capture | Defer detailed decision to task 3.3; prefer Tauri/native APIs |
+| D-014 | Status bar | Persistent status bar in all apps showing storage path, counts, version |
 
 ---
 
@@ -112,9 +113,9 @@ Build the core writing and classification experience in the desktop app.
 |---|------|-----------|--------|------------|
 | 2.1 | Markdown editor with AST support (+ mdast spike) | Phase 1 | Done | [task](POC-phase-2/2.1_markdown-editor-ast.md) |
 | 2.2 | Create/save note via CRUX → local storage | 2.1, Phase 1 | Done | [task](POC-phase-2/2.2_create-save-note.md) |
-| 2.3 | Topic management (CRUD + typed relations) | Phase 1 | Not started | [task](POC-phase-2/2.3_topic-management.md) |
-| 2.4 | Note list/browse view | 2.2 | Not started | [task](POC-phase-2/2.4_note-list-browse.md) |
-| 2.5 | Topic filter/browse view | 2.3 | Not started | [task](POC-phase-2/2.5_topic-filter-browse.md) |
+| 2.3 | Topic management (CRUD + typed relations) | Phase 1 | Done | [task](POC-phase-2/2.3_topic-management.md) |
+| 2.4 | Note list/browse view | 2.2 | Done | [task](POC-phase-2/2.4_note-list-browse.md) |
+| 2.5 | Topic filter/browse view | 2.3 | In progress | [task](POC-phase-2/2.5_topic-filter-browse.md) |
 
 ### Phase 3: Desktop App — Collect (Upload, Paste, Capture) — [detailed status](POC-phase-3-status.md) | [requirements](POC-phase-3-requirements.md)
 
@@ -180,16 +181,17 @@ Sync local data with the backend service.
 - Docker setup for backend
 - Developer and release documentation
 - **POC requirements defined** — functional, non-functional, use cases ([POC-requirements.md](POC-requirements.md))
-- **Architectural decisions made** — 13 decisions documented ([POC-decisions.md](POC-decisions.md))
+- **Architectural decisions made** — 14 decisions documented ([POC-decisions.md](POC-decisions.md))
 - **Detailed development plan** — 6 phases, 29 tasks, each with task definition files
 - **Phase 1 complete** — data model, shared core integration, file storage library, desktop local storage, backend CRUD and backend file storage are implemented
-- **Phase 2 started** — markdown editor + mdast spike complete, create/save note flow complete, topic management and note browsing implementation now in progress
+- **Phase 2 nearing completion** — markdown editor, create/save note, topic management (CRUD + relations), note list/browse all done; topic filter/browse view (2.5) implemented on feature branch
+- **Status bar (6.6)** — desktop status bar with storage path, note/topic counts, and app version
 
 ### What's next
 
-**→ Continue Phase 2** — Topic Management (2.3) and Note List/Browse (2.4), then Topic Filter/Browse (2.5)
+**→ Complete Phase 2** — merge Topic Filter/Browse (2.5), then move to Phase 3 or Phase 4
 
-Current implementation is on a feature branch and covers the first Task 2.3 and 2.4 slices in the desktop app. The next concrete target is to complete acceptance criteria for topic CRUD + relations and finish dedicated topic-based browsing.
+Task 2.5 is implemented on `feature/poc-phase-2-topic-browser` and ready for review. Once merged, Phase 2 is complete and unblocks Phase 3 (Collect) and Phase 4 (Linking).
 
 ---
 
