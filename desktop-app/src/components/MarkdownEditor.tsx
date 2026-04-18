@@ -45,9 +45,10 @@ export function MarkdownEditor({
 
             for (const item of items) {
                 if (item.type.startsWith("image/")) {
-                    e.preventDefault();
                     const blob = item.getAsFile();
-                    if (!blob) return;
+                    if (!blob) continue;
+
+                    e.preventDefault();
 
                     const buffer = await blob.arrayBuffer();
                     const data = Array.from(new Uint8Array(buffer));
@@ -94,12 +95,14 @@ export function MarkdownEditor({
         ) {
             const href = props.href ?? "";
             if (href.startsWith("assets/") && !href.match(/\.(png|jpg|jpeg|gif|webp|svg)$/i)) {
-                const filename = href.split("/").pop() ?? href;
                 return (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+                    <a
+                        {...props}
+                        style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", textDecoration: "none" }}
+                    >
                         <span style={{ fontSize: "1.1rem" }}>📎</span>
-                        <span>{props.children ?? filename}</span>
-                    </span>
+                        <span style={{ textDecoration: "underline" }}>{props.children}</span>
+                    </a>
                 );
             }
             return <a {...props}>{props.children}</a>;
@@ -176,6 +179,8 @@ function AssetImageLoader({
 
     useEffect(() => {
         let cancelled = false;
+        setDataUrl(null);
+        setError(false);
 
         // Extract the asset ID from the path: assets/{uuid}.{ext}
         const filename = assetPath.replace(/^assets\//, "");

@@ -122,6 +122,15 @@ export function NoteEditor({
         }
         setError(null);
         try {
+            // Save current draft before uploading to avoid losing unsaved edits
+            await invoke<ViewModel>("update_note", {
+                id: editNoteId,
+                title: title.trim(),
+                content: contentRaw,
+                contentAst: JSON.stringify(contentAst),
+                topicIds: selectedTopics,
+            });
+
             const selected = await open({
                 multiple: false,
                 filters: [
@@ -140,7 +149,6 @@ export function NoteEditor({
                 setError(view.error);
             } else {
                 refreshContent(view);
-                onSaved(view);
             }
         } catch (e) {
             setError(String(e));
@@ -154,6 +162,15 @@ export function NoteEditor({
         }
         setError(null);
         try {
+            // Save current draft before capturing to avoid losing unsaved edits
+            await invoke<ViewModel>("update_note", {
+                id: editNoteId,
+                title: title.trim(),
+                content: contentRaw,
+                contentAst: JSON.stringify(contentAst),
+                topicIds: selectedTopics,
+            });
+
             const view = await invoke<ViewModel>("capture_screen", {
                 noteId: editNoteId,
             });
@@ -161,7 +178,6 @@ export function NoteEditor({
                 setError(view.error);
             } else {
                 refreshContent(view);
-                onSaved(view);
             }
         } catch (e) {
             setError(String(e));
@@ -171,9 +187,8 @@ export function NoteEditor({
     const handleAssetAdded = useCallback(
         (view: ViewModel) => {
             refreshContent(view);
-            onSaved(view);
         },
-        [refreshContent, onSaved],
+        [refreshContent],
     );
 
     return (

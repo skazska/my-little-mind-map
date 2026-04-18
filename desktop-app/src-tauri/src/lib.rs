@@ -333,6 +333,16 @@ fn get_storage_path(state: State<'_, AppState>) -> String {
     state.storage.root().display().to_string()
 }
 
+/// Sanitize a display name for use inside markdown link/image syntax.
+/// Escapes characters that would break `[text](url)` or `![alt](url)` patterns.
+fn sanitize_markdown_link_text(text: &str) -> String {
+    text.replace('\\', "\\\\")
+        .replace('[', "\\[")
+        .replace(']', "\\]")
+        .replace('\n', " ")
+        .replace('\r', "")
+}
+
 /// Append an asset markdown reference at the end of the note content and persist.
 fn insert_asset_reference_and_save(
     state: &AppState,
@@ -344,10 +354,11 @@ fn insert_asset_reference_and_save(
     let mut note =
         storage::notes::read_note(&state.storage, &note_id).map_err(|e| e.to_string())?;
 
+    let safe_name = sanitize_markdown_link_text(display_name);
     let reference_line = if is_image_mime(mime_type) {
-        format!("\n![{display_name}](assets/{stored_name})")
+        format!("\n![{safe_name}](assets/{stored_name})")
     } else {
-        format!("\n[{display_name}](assets/{stored_name})")
+        format!("\n[{safe_name}](assets/{stored_name})")
     };
 
     note.content_raw.push_str(&reference_line);
@@ -398,6 +409,23 @@ fn upload_asset(
         .unwrap_or("upload.bin")
         .to_string();
     let mime = mime_type_from_extension(&path);
+
+    // Enforce supported format allowlist (dialog filters are not a hard boundary)
+    const ALLOWED_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "gif", "webp", "pdf", "txt"];
+    let ext_lower = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_lowercase());
+    if !ext_lower
+        .as_deref()
+        .is_some_and(|e| ALLOWED_EXTENSIONS.contains(&e))
+    {
+        return Err(format!(
+            "Unsupported file format. Allowed: {}",
+            ALLOWED_EXTENSIONS.join(", ")
+        ));
+    }
+
     let data = std::fs::read(&path).map_err(|e| e.to_string())?;
 
     let asset = storage::assets::save_asset(
@@ -430,6 +458,16 @@ fn paste_asset(
     }
     if data.len() as u64 > MAX_UPLOAD_SIZE {
         return Err("Pasted data too large".into());
+    }
+
+    // Validate MIME type against allowed image types
+    const ALLOWED_PASTE_MIMES: &[&str] = &["image/png", "image/jpeg", "image/gif", "image/webp"];
+    if !ALLOWED_PASTE_MIMES.contains(&mime_type.as_str()) {
+        return Err(format!(
+            "Unsupported paste format '{}'. Allowed: {}",
+            mime_type,
+            ALLOWED_PASTE_MIMES.join(", ")
+        ));
     }
 
     let ext = extension_from_mime(&mime_type);
