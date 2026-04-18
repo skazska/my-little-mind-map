@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use shared::model::{Asset, Note, SourceType};
+use std::cmp::Reverse;
 use uuid::Uuid;
 
 use crate::{Result, StorageError, StorageHandle};
@@ -189,7 +190,7 @@ pub fn list_full_notes(handle: &StorageHandle) -> Result<Vec<Note>> {
             }
         }
     }
-    notes.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+    notes.sort_by_key(|note| Reverse(note.updated_at));
     Ok(notes)
 }
 
