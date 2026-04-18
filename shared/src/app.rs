@@ -103,12 +103,23 @@ pub struct TopicView {
     pub note_count: usize,
 }
 
+/// Summary view of a relation between two topics.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct TopicRelationView {
+    pub source_topic_id: Uuid,
+    pub source_topic_name: String,
+    pub target_topic_id: Uuid,
+    pub target_topic_name: String,
+    pub relation_type: TopicRelationType,
+}
+
 /// The view model sent to the UI for rendering
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub struct ViewModel {
     pub text: String,
     pub notes: Vec<NoteView>,
     pub topics: Vec<TopicView>,
+    pub topic_relations: Vec<TopicRelationView>,
     pub error: Option<String>,
 }
 
@@ -303,10 +314,27 @@ impl crux_core::App for MindMap {
             })
             .collect();
 
+        let topic_relations = model
+            .topic_relations
+            .iter()
+            .filter_map(|r| {
+                let source = topics_by_id.get(&r.source_topic_id)?;
+                let target = topics_by_id.get(&r.target_topic_id)?;
+                Some(TopicRelationView {
+                    source_topic_id: r.source_topic_id,
+                    source_topic_name: source.name.clone(),
+                    target_topic_id: r.target_topic_id,
+                    target_topic_name: target.name.clone(),
+                    relation_type: r.relation_type.clone(),
+                })
+            })
+            .collect();
+
         ViewModel {
             text: "My Little Mind Map".to_string(),
             notes,
             topics,
+            topic_relations,
             error: None,
         }
     }
@@ -507,5 +535,52 @@ mod tests {
         let core: Core<MindMap> = Core::new();
         let view = core.view();
         assert!(view.error.is_none());
+    }
+
+    #[test]
+    fn topic_relations_in_view() {
+        let core: Core<MindMap> = Core::new();
+        let topic_a = make_topic("Rust");
+        let topic_b = make_topic("Programming");
+        let relation = TopicRelation::new(topic_a.id, topic_b.id, TopicRelationType::SubtopicOf);
+
+        core.process_event(Event::DataLoaded {
+            notes: vec![],
+            topics: vec![topic_a.clone(), topic_b.clone()],
+            classifications: vec![],
+            note_references: vec![],
+            topic_relations: vec![relation],
+        });
+
+        let view = core.view();
+        assert_eq!(view.topic_relations.len(), 1);
+        let rel = &view.topic_relations[0];
+        assert_eq!(rel.source_topic_id, topic_a.id);
+        assert_eq!(rel.source_topic_name, "Rust");
+        assert_eq!(rel.target_topic_id, topic_b.id);
+        assert_eq!(rel.target_topic_name, "Programming");
+        assert_eq!(rel.relation_type, TopicRelationType::SubtopicOf);
+    }
+
+    #[test]
+    fn topic_relations_drops_unresolved() {
+        let core: Core<MindMap> = Core::new();
+        let topic_a = make_topic("Rust");
+        let orphan_id = Uuid::new_v4();
+        let relation = TopicRelation::new(topic_a.id, orphan_id, TopicRelationType::RelatedTo);
+
+        core.process_event(Event::DataLoaded {
+            notes: vec![],
+            topics: vec![topic_a.clone()],
+            classifications: vec![],
+            note_references: vec![],
+            topic_relations: vec![relation],
+        });
+
+        let view = core.view();
+        assert!(
+            view.topic_relations.is_empty(),
+            "Unresolved relations should be dropped"
+        );
     }
 }

@@ -11,17 +11,17 @@ Decisions: [POC-decisions.md](POC-decisions.md) — D-004, D-005, D-009, D-010, 
 
 | # | Task | Depends on | Status | Definition |
 |---|------|-----------|--------|------------|
-| 2.1 | Markdown editor with AST support | Phase 1 | Done | [2.1_markdown-editor-ast.md](POC-phase-2/2.1_markdown-editor-ast.md) |
-| 2.2 | Create/save note via CRUX → local storage | 2.1, Phase 1 | Done | [2.2_create-save-note.md](POC-phase-2/2.2_create-save-note.md) |
-| 2.3 | Topic management (CRUD + relations) | Phase 1 | Not started | [2.3_topic-management.md](POC-phase-2/2.3_topic-management.md) |
-| 2.4 | Note list/browse view | 2.2 | Not started | [2.4_note-list-browse.md](POC-phase-2/2.4_note-list-browse.md) |
-| 2.5 | Topic filter/browse view | 2.3 | Not started | [2.5_topic-filter-browse.md](POC-phase-2/2.5_topic-filter-browse.md) |
+| 2.1 | Markdown editor with AST support | Phase 1 | Done | [POC_2_1_markdown-editor-ast.md](POC_2_1_markdown-editor-ast.md) |
+| 2.2 | Create/save note via CRUX → local storage | 2.1, Phase 1 | Done | [POC_2_2_create-save-note.md](POC_2_2_create-save-note.md) |
+| 2.3 | Topic management (CRUD + relations) | Phase 1 | In progress | [POC_2_3_topic-management.md](POC_2_3_topic-management.md) |
+| 2.4 | Note list/browse view | 2.2 | In progress | [POC_2_4_note-list-browse.md](POC_2_4_note-list-browse.md) |
+| 2.5 | Topic filter/browse view | 2.3 | Not started | [POC_2_5_topic-filter-browse.md](POC_2_5_topic-filter-browse.md) |
 
 ---
 
 ## Phase Status
 
-**Status: In progress** — Tasks 2.1 and 2.2 complete. Tasks 2.3–2.5 not started.
+**Status: In progress** — Tasks 2.1 and 2.2 complete. Tasks 2.3 and 2.4 are actively being implemented on a feature branch. Task 2.5 has not started.
 
 ### Dependency Graph
 
@@ -39,3 +39,4 @@ Phase 1 (complete)
 - Task 2.1 includes a spike to evaluate mdast cross-platform compatibility (D-005)
 - Tasks 2.1 and 2.3 can proceed in parallel after Phase 1
 - Classification enforcement (D-011) implemented in task 2.2 save flow
+- Current implementation branch includes the first Topic Management and Note List slices: topic update/delete/relation commands, relation-aware ViewModel data, and desktop UI components for topic management and searchable/sortable note listing

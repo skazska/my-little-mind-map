@@ -1,9 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { NoteEditor } from "./components/NoteEditor";
-import type { ViewModel, NoteView, CreateTopicRequest } from "./types";
+import { NoteList } from "./components/NoteList";
+import { TopicList } from "./components/TopicList";
+import { TopicEditor } from "./components/TopicEditor";
+import { TopicRelationManager } from "./components/TopicRelationManager";
+import type {
+    ViewModel,
+    NoteView,
+    CreateTopicRequest,
+    TopicRelationType,
+} from "./types";
 
-type View = "list" | "create" | "edit";
+type View = "list" | "create" | "edit" | "topics";
 
 interface EditState {
     id: string;
@@ -13,9 +22,11 @@ interface EditState {
 }
 
 function App() {
-    const [vm, setVm] = useState<ViewModel>({ text: "", notes: [], topics: [], error: null });
+    const [vm, setVm] = useState<ViewModel>({ text: "", notes: [], topics: [], topic_relations: [], error: null });
     const [currentView, setCurrentView] = useState<View>("list");
     const [editState, setEditState] = useState<EditState | null>(null);
+    const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
+    const [commandError, setCommandError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -28,6 +39,7 @@ function App() {
         setVm(view);
         setCurrentView("list");
         setEditState(null);
+        setCommandError(null);
     }, []);
 
     const handleCreateTopic = useCallback(async (req: CreateTopicRequest): Promise<ViewModel> => {
@@ -36,7 +48,42 @@ function App() {
             description: req.description,
         });
         setVm(view);
+        setCommandError(null);
         return view;
+    }, []);
+
+    const handleUpdateTopic = useCallback(async (id: string, name: string, description: string | null) => {
+        const view = await invoke<ViewModel>("update_topic", { id, name, description });
+        setVm(view);
+        setCommandError(null);
+    }, []);
+
+    const handleDeleteTopic = useCallback(async (id: string) => {
+        const view = await invoke<ViewModel>("delete_topic", { id });
+        setVm(view);
+        setCommandError(null);
+        if (selectedTopicId === id) {
+            setSelectedTopicId(null);
+        }
+    }, [selectedTopicId]);
+
+    const handleAddTopicRelation = useCallback(async (sourceTopicId: string, targetTopicId: string, relationType: TopicRelationType) => {
+        const view = await invoke<ViewModel>("add_topic_relation", {
+            sourceTopicId,
+            targetTopicId,
+            relationType,
+        });
+        setVm(view);
+        setCommandError(null);
+    }, []);
+
+    const handleRemoveTopicRelation = useCallback(async (sourceTopicId: string, targetTopicId: string) => {
+        const view = await invoke<ViewModel>("remove_topic_relation", {
+            sourceTopicId,
+            targetTopicId,
+        });
+        setVm(view);
+        setCommandError(null);
     }, []);
 
     const openEditor = useCallback((note?: NoteView) => {
@@ -57,7 +104,12 @@ function App() {
     const handleDelete = useCallback(async (id: string) => {
         const view = await invoke<ViewModel>("delete_note", { id });
         setVm(view);
+        setCommandError(null);
     }, []);
+
+    const selectedTopic = selectedTopicId
+        ? vm.topics.find((topic) => topic.id === selectedTopicId) ?? null
+        : null;
 
     if (loading) {
         return <main style={{ padding: "2rem", fontFamily: "system-ui, sans-serif" }}>Loading...</main>;
@@ -80,62 +132,99 @@ function App() {
         );
     }
 
+    if (currentView === "topics") {
+        return (
+            <main style={{ padding: "1.5rem", fontFamily: "system-ui, sans-serif" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                    <h1 style={{ margin: 0 }}>Topic Management</h1>
+                    <button onClick={() => setCurrentView("list")}>Back to Notes</button>
+                </div>
+
+                {(vm.error || commandError) && (
+                    <div style={{ color: "red", padding: "0.5rem", background: "#fee", borderRadius: 4, marginBottom: "1rem" }}>
+                        {commandError ?? vm.error}
+                    </div>
+                )}
+
+                <div style={{ display: "grid", gridTemplateColumns: "minmax(260px, 320px) 1fr", gap: "1rem", alignItems: "start" }}>
+                    <TopicList
+                        topics={vm.topics}
+                        selectedId={selectedTopicId}
+                        onSelect={(topicId) => setSelectedTopicId(topicId)}
+                        onDelete={async (topicId) => {
+                            try {
+                                await handleDeleteTopic(topicId);
+                            } catch (e) {
+                                setCommandError(String(e));
+                            }
+                        }}
+                    />
+
+                    <div style={{ display: "grid", gap: "1rem" }}>
+                        <TopicEditor
+                            selectedTopic={selectedTopic}
+                            onCreate={async (name, description) => {
+                                try {
+                                    await handleCreateTopic({ name, description });
+                                } catch (e) {
+                                    setCommandError(String(e));
+                                    throw e;
+                                }
+                            }}
+                            onUpdate={async (id, name, description) => {
+                                try {
+                                    await handleUpdateTopic(id, name, description);
+                                } catch (e) {
+                                    setCommandError(String(e));
+                                    throw e;
+                                }
+                            }}
+                        />
+
+                        <TopicRelationManager
+                            topics={vm.topics}
+                            relations={vm.topic_relations}
+                            selectedTopicId={selectedTopicId}
+                            onAddRelation={async (sourceTopicId, targetTopicId, relationType) => {
+                                try {
+                                    await handleAddTopicRelation(sourceTopicId, targetTopicId, relationType);
+                                } catch (e) {
+                                    setCommandError(String(e));
+                                    throw e;
+                                }
+                            }}
+                            onRemoveRelation={async (sourceTopicId, targetTopicId) => {
+                                try {
+                                    await handleRemoveTopicRelation(sourceTopicId, targetTopicId);
+                                } catch (e) {
+                                    setCommandError(String(e));
+                                    throw e;
+                                }
+                            }}
+                        />
+                    </div>
+                </div>
+            </main>
+        );
+    }
+
     return (
         <main style={{ padding: "2rem", fontFamily: "system-ui, sans-serif" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                 <h1 style={{ margin: 0 }}>{vm.text || "My Little Mind Map"}</h1>
-                <button onClick={() => openEditor()}>+ New Note</button>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button onClick={() => setCurrentView("topics")}>Manage Topics</button>
+                    <button onClick={() => openEditor()}>+ New Note</button>
+                </div>
             </div>
 
-            {vm.error && (
+            {(vm.error || commandError) && (
                 <div style={{ color: "red", padding: "0.5rem", background: "#fee", borderRadius: 4, marginBottom: "1rem" }}>
-                    {vm.error}
+                    {commandError ?? vm.error}
                 </div>
             )}
 
-            <section style={{ marginBottom: "2rem" }}>
-                <h2>Notes ({vm.notes.length})</h2>
-                {vm.notes.length === 0 ? (
-                    <p style={{ color: "#888" }}>No notes yet. Create one to get started.</p>
-                ) : (
-                    <ul style={{ listStyle: "none", padding: 0 }}>
-                        {vm.notes.map((n) => (
-                            <li
-                                key={n.id}
-                                style={{
-                                    padding: "0.75rem",
-                                    border: "1px solid #ddd",
-                                    borderRadius: 4,
-                                    marginBottom: "0.5rem",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                }}
-                            >
-                                <div>
-                                    <strong style={{ cursor: "pointer" }} onClick={() => openEditor(n)}>
-                                        {n.title}
-                                    </strong>
-                                    {n.topic_names.length > 0 && (
-                                        <span style={{ marginLeft: "0.5rem", color: "#666", fontSize: "0.85rem" }}>
-                                            [{n.topic_names.join(", ")}]
-                                        </span>
-                                    )}
-                                    <div style={{ fontSize: "0.8rem", color: "#999" }}>
-                                        {new Date(n.updated_at).toLocaleString()}
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => handleDelete(n.id)}
-                                    style={{ color: "red", background: "none", border: "1px solid red", borderRadius: 4, cursor: "pointer", padding: "0.25rem 0.5rem" }}
-                                >
-                                    Delete
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </section>
+            <NoteList notes={vm.notes} onOpen={openEditor} onDelete={handleDelete} />
 
             <section>
                 <h2>Topics ({vm.topics.length})</h2>
