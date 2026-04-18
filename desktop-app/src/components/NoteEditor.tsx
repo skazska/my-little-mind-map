@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
 import { MarkdownEditor } from "./MarkdownEditor";
 import { TopicSelector } from "./TopicSelector";
 import { parseMarkdown } from "../lib/markdown";
@@ -36,6 +37,15 @@ export function NoteEditor({
     const [topicError, setTopicError] = useState<string | null>(null);
 
     const isEdit = !!editNoteId;
+
+    const refreshContent = useCallback((view: ViewModel) => {
+        if (!editNoteId) return;
+        const updated = view.notes.find((n) => n.id === editNoteId);
+        if (updated) {
+            setContentRaw(updated.content_raw);
+            setContentAst(parseMarkdown(updated.content_raw));
+        }
+    }, [editNoteId]);
 
     const handleEditorChange = useCallback((_raw: string, ast: Root) => {
         setContentRaw(_raw);
@@ -105,11 +115,97 @@ export function NoteEditor({
         }
     };
 
+    const handleUpload = async () => {
+        if (!isEdit) {
+            setError("Please save the note before uploading files.");
+            return;
+        }
+        setError(null);
+        try {
+            // Save current draft before uploading to avoid losing unsaved edits
+            await invoke<ViewModel>("update_note", {
+                id: editNoteId,
+                title: title.trim(),
+                content: contentRaw,
+                contentAst: JSON.stringify(contentAst),
+                topicIds: selectedTopics,
+            });
+
+            const selected = await open({
+                multiple: false,
+                filters: [
+                    {
+                        name: "Supported files",
+                        extensions: ["png", "jpg", "jpeg", "gif", "webp", "pdf", "txt"],
+                    },
+                ],
+            });
+            if (!selected) return; // user cancelled
+            const view = await invoke<ViewModel>("upload_asset", {
+                noteId: editNoteId,
+                filePath: selected,
+            });
+            if (view.error) {
+                setError(view.error);
+            } else {
+                refreshContent(view);
+            }
+        } catch (e) {
+            setError(String(e));
+        }
+    };
+
+    const handleCapture = async () => {
+        if (!isEdit) {
+            setError("Please save the note before capturing screen.");
+            return;
+        }
+        setError(null);
+        try {
+            // Save current draft before capturing to avoid losing unsaved edits
+            await invoke<ViewModel>("update_note", {
+                id: editNoteId,
+                title: title.trim(),
+                content: contentRaw,
+                contentAst: JSON.stringify(contentAst),
+                topicIds: selectedTopics,
+            });
+
+            const view = await invoke<ViewModel>("capture_screen", {
+                noteId: editNoteId,
+            });
+            if (view.error) {
+                setError(view.error);
+            } else {
+                refreshContent(view);
+            }
+        } catch (e) {
+            setError(String(e));
+        }
+    };
+
+    const handleAssetAdded = useCallback(
+        (view: ViewModel) => {
+            refreshContent(view);
+        },
+        [refreshContent],
+    );
+
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: "0.5rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h2 style={{ margin: 0 }}>{isEdit ? "Edit Note" : "New Note"}</h2>
                 <div style={{ display: "flex", gap: "0.5rem" }}>
+                    {isEdit && (
+                        <>
+                            <button onClick={handleUpload} title="Upload a file to this note">
+                                Upload File
+                            </button>
+                            <button onClick={handleCapture} title="Capture a screen region">
+                                Capture Screen
+                            </button>
+                        </>
+                    )}
                     <button onClick={onCancel}>Cancel</button>
                     <button onClick={handleSave} disabled={saving}>
                         {saving ? "Saving..." : "Save"}
@@ -136,7 +232,12 @@ export function NoteEditor({
             />
 
             <div style={{ flex: 1, minHeight: 0 }}>
-                <MarkdownEditor initialContent={contentRaw} onChange={handleEditorChange} />
+                <MarkdownEditor
+                    initialContent={contentRaw}
+                    onChange={handleEditorChange}
+                    noteId={isEdit ? editNoteId : undefined}
+                    onAssetAdded={handleAssetAdded}
+                />
             </div>
         </div>
     );

@@ -5,6 +5,40 @@ use storage::StorageHandle;
 use tauri::{Manager, State};
 use uuid::Uuid;
 
+const MAX_UPLOAD_SIZE: u64 = 50 * 1024 * 1024; // 50 MB
+
+fn mime_type_from_extension(path: &std::path::Path) -> &'static str {
+    match path
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_lowercase())
+        .as_deref()
+    {
+        Some("png") => "image/png",
+        Some("jpg" | "jpeg") => "image/jpeg",
+        Some("gif") => "image/gif",
+        Some("webp") => "image/webp",
+        Some("pdf") => "application/pdf",
+        Some("txt") => "text/plain",
+        Some("svg") => "image/svg+xml",
+        _ => "application/octet-stream",
+    }
+}
+
+fn is_image_mime(mime: &str) -> bool {
+    mime.starts_with("image/")
+}
+
+fn extension_from_mime(mime: &str) -> &'static str {
+    match mime {
+        "image/png" => "png",
+        "image/jpeg" => "jpg",
+        "image/gif" => "gif",
+        "image/webp" => "webp",
+        _ => "bin",
+    }
+}
+
 fn parse_topic_relation_type(value: &str) -> Result<shared::model::TopicRelationType, String> {
     let json_value = serde_json::to_string(value)
         .map_err(|e| format!("Failed to prepare relation type '{value}' for parsing: {e}"))?;
@@ -299,6 +333,258 @@ fn get_storage_path(state: State<'_, AppState>) -> String {
     state.storage.root().display().to_string()
 }
 
+/// Sanitize a display name for use inside markdown link/image syntax.
+/// Escapes characters that would break `[text](url)` or `![alt](url)` patterns.
+fn sanitize_markdown_link_text(text: &str) -> String {
+    text.replace('\\', "\\\\")
+        .replace('[', "\\[")
+        .replace(']', "\\]")
+        .replace('\n', " ")
+        .replace('\r', "")
+}
+
+/// Append an asset markdown reference at the end of the note content and persist.
+fn insert_asset_reference_and_save(
+    state: &AppState,
+    note_id: Uuid,
+    stored_name: &str,
+    display_name: &str,
+    mime_type: &str,
+) -> Result<(), String> {
+    let mut note =
+        storage::notes::read_note(&state.storage, &note_id).map_err(|e| e.to_string())?;
+
+    let safe_name = sanitize_markdown_link_text(display_name);
+    let reference_line = if is_image_mime(mime_type) {
+        format!("\n![{safe_name}](assets/{stored_name})")
+    } else {
+        format!("\n[{safe_name}](assets/{stored_name})")
+    };
+
+    note.content_raw.push_str(&reference_line);
+    note.updated_at = chrono::Utc::now();
+    note.version += 1;
+    storage::notes::update_note(&state.storage, &note).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+/// Compute the stored filename that the storage layer uses for a given asset.
+fn asset_stored_name(asset_id: Uuid, original_filename: &str) -> String {
+    let ext = std::path::Path::new(original_filename)
+        .extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or("");
+    if ext.is_empty() {
+        asset_id.to_string()
+    } else {
+        format!("{asset_id}.{ext}")
+    }
+}
+
+#[tauri::command]
+fn upload_asset(
+    note_id: String,
+    file_path: String,
+    state: State<'_, AppState>,
+) -> Result<ViewModel, String> {
+    let nid = Uuid::parse_str(&note_id).map_err(|e| e.to_string())?;
+    let path = std::path::PathBuf::from(&file_path);
+
+    if !path.exists() {
+        return Err(format!("File not found: {file_path}"));
+    }
+
+    let metadata = std::fs::metadata(&path).map_err(|e| e.to_string())?;
+    if metadata.len() > MAX_UPLOAD_SIZE {
+        return Err(format!(
+            "File too large ({} MB). Maximum is {} MB.",
+            metadata.len() / (1024 * 1024),
+            MAX_UPLOAD_SIZE / (1024 * 1024)
+        ));
+    }
+
+    let filename = path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("upload.bin")
+        .to_string();
+    let mime = mime_type_from_extension(&path);
+
+    // Enforce supported format allowlist (dialog filters are not a hard boundary)
+    const ALLOWED_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "gif", "webp", "pdf", "txt"];
+    let ext_lower = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_lowercase());
+    if !ext_lower
+        .as_deref()
+        .is_some_and(|e| ALLOWED_EXTENSIONS.contains(&e))
+    {
+        return Err(format!(
+            "Unsupported file format. Allowed: {}",
+            ALLOWED_EXTENSIONS.join(", ")
+        ));
+    }
+
+    let data = std::fs::read(&path).map_err(|e| e.to_string())?;
+
+    let asset = storage::assets::save_asset(
+        &state.storage,
+        nid,
+        &filename,
+        mime,
+        SourceType::Uploaded,
+        &data,
+    )
+    .map_err(|e| e.to_string())?;
+
+    let stored_name = asset_stored_name(asset.id, &filename);
+    insert_asset_reference_and_save(&state, nid, &stored_name, &filename, mime)?;
+
+    reload_data(&state)
+}
+
+#[tauri::command]
+fn paste_asset(
+    note_id: String,
+    data: Vec<u8>,
+    mime_type: String,
+    state: State<'_, AppState>,
+) -> Result<ViewModel, String> {
+    let nid = Uuid::parse_str(&note_id).map_err(|e| e.to_string())?;
+
+    if data.is_empty() {
+        return Err("No data to paste".into());
+    }
+    if data.len() as u64 > MAX_UPLOAD_SIZE {
+        return Err("Pasted data too large".into());
+    }
+
+    // Validate MIME type against allowed image types
+    const ALLOWED_PASTE_MIMES: &[&str] = &["image/png", "image/jpeg", "image/gif", "image/webp"];
+    if !ALLOWED_PASTE_MIMES.contains(&mime_type.as_str()) {
+        return Err(format!(
+            "Unsupported paste format '{}'. Allowed: {}",
+            mime_type,
+            ALLOWED_PASTE_MIMES.join(", ")
+        ));
+    }
+
+    let ext = extension_from_mime(&mime_type);
+    let timestamp = chrono::Utc::now().format("%Y%m%d-%H%M%S");
+    let filename = format!("paste-{timestamp}.{ext}");
+
+    let asset = storage::assets::save_asset(
+        &state.storage,
+        nid,
+        &filename,
+        &mime_type,
+        SourceType::Pasted,
+        &data,
+    )
+    .map_err(|e| e.to_string())?;
+
+    let stored_name = asset_stored_name(asset.id, &filename);
+    insert_asset_reference_and_save(&state, nid, &stored_name, "pasted image", &mime_type)?;
+
+    reload_data(&state)
+}
+
+#[tauri::command]
+fn capture_screen(
+    note_id: String,
+    window: tauri::Window,
+    state: State<'_, AppState>,
+) -> Result<ViewModel, String> {
+    let nid = Uuid::parse_str(&note_id).map_err(|e| e.to_string())?;
+
+    // Verify note exists
+    storage::notes::read_note(&state.storage, &nid).map_err(|e| e.to_string())?;
+
+    let temp_path = std::env::temp_dir().join(format!("mlmm-capture-{}.png", Uuid::new_v4()));
+    let temp_str = temp_path
+        .to_str()
+        .ok_or_else(|| "Invalid temp path".to_string())?
+        .to_string();
+
+    // Minimise window before capture
+    let _ = window.minimize();
+    // Small delay to let the window minimise
+    std::thread::sleep(std::time::Duration::from_millis(400));
+
+    let output = std::process::Command::new("gnome-screenshot")
+        .args(["-a", "-f", &temp_str])
+        .output()
+        .map_err(|e| format!("Failed to launch gnome-screenshot: {e}"))?;
+
+    // Restore window
+    let _ = window.unminimize();
+    let _ = window.set_focus();
+
+    if !output.status.success() || !temp_path.exists() {
+        // User cancelled the capture or tool failed — not an error
+        let _ = std::fs::remove_file(&temp_path);
+        return reload_data(&state);
+    }
+
+    let data = std::fs::read(&temp_path).map_err(|e| e.to_string())?;
+    let _ = std::fs::remove_file(&temp_path);
+
+    if data.is_empty() {
+        return reload_data(&state);
+    }
+
+    let timestamp = chrono::Utc::now().format("%Y%m%d-%H%M%S");
+    let filename = format!("capture-{timestamp}.png");
+
+    let asset = storage::assets::save_asset(
+        &state.storage,
+        nid,
+        &filename,
+        "image/png",
+        SourceType::Captured,
+        &data,
+    )
+    .map_err(|e| e.to_string())?;
+
+    let stored_name = asset_stored_name(asset.id, &filename);
+    insert_asset_reference_and_save(&state, nid, &stored_name, "screen capture", "image/png")?;
+
+    reload_data(&state)
+}
+
+#[tauri::command]
+fn read_asset_base64(
+    note_id: String,
+    asset_id: String,
+    state: State<'_, AppState>,
+) -> Result<String, String> {
+    use base64::Engine;
+
+    let nid = Uuid::parse_str(&note_id).map_err(|e| e.to_string())?;
+    let aid = Uuid::parse_str(&asset_id).map_err(|e| e.to_string())?;
+
+    let assets = storage::assets::list_assets(&state.storage, nid).map_err(|e| e.to_string())?;
+    let asset = assets
+        .iter()
+        .find(|a| a.id == aid)
+        .ok_or_else(|| format!("Asset {aid} not found"))?;
+
+    let data = storage::assets::read_asset(&state.storage, nid, aid).map_err(|e| e.to_string())?;
+    let b64 = base64::engine::general_purpose::STANDARD.encode(&data);
+
+    Ok(format!("data:{};base64,{}", asset.mime_type, b64))
+}
+
+#[tauri::command]
+fn list_note_assets(
+    note_id: String,
+    state: State<'_, AppState>,
+) -> Result<Vec<shared::model::Asset>, String> {
+    let nid = Uuid::parse_str(&note_id).map_err(|e| e.to_string())?;
+    storage::assets::list_assets(&state.storage, nid).map_err(|e| e.to_string())
+}
+
 #[tauri::command]
 fn select_topic(id: String, state: State<'_, AppState>) -> Result<ViewModel, String> {
     let topic_id = Uuid::parse_str(&id).map_err(|e| e.to_string())?;
@@ -322,6 +608,7 @@ fn clear_topic_filter(state: State<'_, AppState>) -> ViewModel {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let data_dir = app
                 .path()
@@ -352,6 +639,11 @@ pub fn run() {
             select_topic,
             clear_topic_filter,
             get_storage_path,
+            upload_asset,
+            paste_asset,
+            capture_screen,
+            read_asset_base64,
+            list_note_assets,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
