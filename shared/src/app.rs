@@ -261,7 +261,11 @@ impl crux_core::App for MindMap {
             }
 
             Event::SelectTopic { id } => {
-                model.selected_topic_id = Some(id);
+                model.selected_topic_id = model
+                    .topics
+                    .iter()
+                    .any(|topic| topic.id == id)
+                    .then_some(id);
             }
 
             Event::ClearTopicFilter => {
@@ -623,6 +627,29 @@ mod tests {
         core.process_event(Event::SelectTopic { id: topic_id });
         let view = core.view();
         assert_eq!(view.selected_topic_id, Some(topic_id));
+    }
+
+    #[test]
+    fn select_nonexistent_topic_is_ignored() {
+        let core: Core<MindMap> = Core::new();
+        let topic = make_topic("Rust");
+
+        core.process_event(Event::DataLoaded {
+            notes: vec![],
+            topics: vec![topic],
+            classifications: vec![],
+            note_references: vec![],
+            topic_relations: vec![],
+        });
+
+        // Selecting a nonexistent topic should not set selected_topic_id
+        let fake_id = Uuid::new_v4();
+        core.process_event(Event::SelectTopic { id: fake_id });
+        let view = core.view();
+        assert!(
+            view.selected_topic_id.is_none(),
+            "Selecting a nonexistent topic should be ignored"
+        );
     }
 
     #[test]

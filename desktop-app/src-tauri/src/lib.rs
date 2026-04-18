@@ -302,6 +302,10 @@ fn get_storage_path(state: State<'_, AppState>) -> String {
 #[tauri::command]
 fn select_topic(id: String, state: State<'_, AppState>) -> Result<ViewModel, String> {
     let topic_id = Uuid::parse_str(&id).map_err(|e| e.to_string())?;
+    let view = state.core.view();
+    if !view.topics.iter().any(|t| t.id == topic_id) {
+        return Err(format!("Topic '{id}' not found"));
+    }
     let _ = state
         .core
         .process_event(Event::SelectTopic { id: topic_id });

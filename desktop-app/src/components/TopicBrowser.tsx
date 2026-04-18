@@ -40,10 +40,13 @@ export function TopicBrowser({
         [topics, selectedTopicId],
     );
 
+    // Treat unknown selectedTopicId as no selection to avoid inconsistent state
+    const effectiveTopicId = selectedTopic ? selectedTopicId : null;
+
     const filteredNotes = useMemo(() => {
-        if (!selectedTopicId) return notes;
-        return notes.filter((n) => n.topic_ids.includes(selectedTopicId));
-    }, [notes, selectedTopicId]);
+        if (!effectiveTopicId) return notes;
+        return notes.filter((n) => n.topic_ids.includes(effectiveTopicId));
+    }, [notes, effectiveTopicId]);
 
     const topicById = useMemo(() => {
         const map = new Map<string, TopicView>();
@@ -52,7 +55,7 @@ export function TopicBrowser({
     }, [topics]);
 
     const { subtopics, parentTopics, relatedTopics, classifyingTopics } = useMemo(() => {
-        if (!selectedTopicId) {
+        if (!effectiveTopicId) {
             return { subtopics: [], parentTopics: [], relatedTopics: [], classifyingTopics: [] };
         }
 
@@ -60,28 +63,35 @@ export function TopicBrowser({
         const parents: RelatedTopicItem[] = [];
         const related: RelatedTopicItem[] = [];
         const classifying: RelatedTopicItem[] = [];
+        const seenRelated = new Set<string>();
 
         for (const r of relations) {
             if (r.relation_type === "subtopic-of") {
                 // source is subtopic-of target
-                if (r.target_topic_id === selectedTopicId) {
+                if (r.target_topic_id === effectiveTopicId) {
                     const t = topicById.get(r.source_topic_id);
                     if (t) subs.push({ id: t.id, name: t.name, noteCount: t.note_count });
-                } else if (r.source_topic_id === selectedTopicId) {
+                } else if (r.source_topic_id === effectiveTopicId) {
                     const t = topicById.get(r.target_topic_id);
                     if (t) parents.push({ id: t.id, name: t.name, noteCount: t.note_count });
                 }
             } else if (r.relation_type === "related-to") {
-                if (r.source_topic_id === selectedTopicId) {
+                if (r.source_topic_id === effectiveTopicId) {
                     const t = topicById.get(r.target_topic_id);
-                    if (t) related.push({ id: t.id, name: t.name, noteCount: t.note_count });
-                } else if (r.target_topic_id === selectedTopicId) {
+                    if (t && !seenRelated.has(t.id)) {
+                        seenRelated.add(t.id);
+                        related.push({ id: t.id, name: t.name, noteCount: t.note_count });
+                    }
+                } else if (r.target_topic_id === effectiveTopicId) {
                     const t = topicById.get(r.source_topic_id);
-                    if (t) related.push({ id: t.id, name: t.name, noteCount: t.note_count });
+                    if (t && !seenRelated.has(t.id)) {
+                        seenRelated.add(t.id);
+                        related.push({ id: t.id, name: t.name, noteCount: t.note_count });
+                    }
                 }
             } else if (r.relation_type === "classifies") {
                 // source classifies target
-                if (r.target_topic_id === selectedTopicId) {
+                if (r.target_topic_id === effectiveTopicId) {
                     const t = topicById.get(r.source_topic_id);
                     if (t) classifying.push({ id: t.id, name: t.name, noteCount: t.note_count });
                 }
@@ -89,7 +99,7 @@ export function TopicBrowser({
         }
 
         return { subtopics: subs, parentTopics: parents, relatedTopics: related, classifyingTopics: classifying };
-    }, [selectedTopicId, relations, topicById]);
+    }, [effectiveTopicId, relations, topicById]);
 
     return (
         <div style={{ display: "grid", gridTemplateColumns: "minmax(220px, 280px) 1fr", gap: "1rem", height: "100%" }}>
