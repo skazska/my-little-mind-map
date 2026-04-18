@@ -39,6 +39,16 @@ export type TopicRelationType = "subtopic-of" | "related-to" | "classifies";
 
 export type SourceType = "typed" | "pasted" | "uploaded" | "captured";
 
+export interface AssetView {
+    id: string;
+    filename: string;
+    mime_type: string;
+    size_bytes: number;
+    note_id: string;
+    source_type: SourceType;
+    created_at: string;
+}
+
 /** Request types for Tauri invocations. */
 
 export interface CreateNoteRequest {

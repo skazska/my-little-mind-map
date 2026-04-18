@@ -30,9 +30,9 @@
 | # | Feature | Description | Status |
 |---|---------|-------------|--------|
 | D1 | **Write** | Create and edit text artifacts (markdown) | In progress |
-| D2 | **Upload** | Upload files (images, documents) as artifacts | Not started |
-| D3 | **Paste from clipboard** | Paste text, images from system clipboard | Not started |
-| D4 | **Screen-part capture** | Capture a region of the screen as an artifact | Not started |
+| D2 | **Upload** | Upload files (images, documents) as artifacts | Done |
+| D3 | **Paste from clipboard** | Paste text, images from system clipboard | Done |
+| D4 | **Screen-part capture** | Capture a region of the screen as an artifact | Done |
 | D5 | **Classify** | Assign topics to artifacts | Done |
 | D6 | **Link (bidirectional)** | Create bidirectional links between artifacts and topics | Not started |
 | D7 | **Sync to Backend** | Push/pull data to/from backend service | Not started |
@@ -123,10 +123,10 @@ Add more ways to collect artifacts.
 
 | # | Task | Depends on | Status | Definition |
 |---|------|-----------|--------|------------|
-| 3.1 | File upload → artifact | 2.2 | Not started | [task](POC-phase-3/3.1_file-upload.md) |
-| 3.2 | Paste from clipboard → artifact | 2.2 | Not started | [task](POC-phase-3/3.2_paste-from-clipboard.md) |
-| 3.3 | Screen region capture → artifact | 2.2 | Not started | [task](POC-phase-3/3.3_screen-region-capture.md) |
-| 3.4 | File/media preview in editor | 3.1 | Not started | [task](POC-phase-3/3.4_file-media-preview.md) |
+| 3.1 | File upload → artifact | 2.2 | Done | [task](POC-phase-3/3.1_file-upload.md) |
+| 3.2 | Paste from clipboard → artifact | 2.2 | Done | [task](POC-phase-3/3.2_paste-from-clipboard.md) |
+| 3.3 | Screen region capture → artifact | 2.2 | Done | [task](POC-phase-3/3.3_screen-region-capture.md) |
+| 3.4 | File/media preview in editor | 3.1 | Done | [task](POC-phase-3/3.4_file-media-preview.md) |
 
 ### Phase 4: Linking — [detailed status](POC-phase-4-status.md) | [requirements](POC-phase-4-requirements.md)
 
@@ -166,7 +166,7 @@ Sync local data with the backend service.
 
 ## Current Status
 
-**Phase: Phase 2 complete. Phase 3/4 ready to start.**
+**Phase: Phase 3 complete. Phase 4/5 ready to start.**
 
 ### What's done
 
@@ -185,13 +185,14 @@ Sync local data with the backend service.
 - **Detailed development plan** — 6 phases, 29 tasks, each with task definition files
 - **Phase 1 complete** — data model, shared core integration, file storage library, desktop local storage, backend CRUD and backend file storage are implemented
 - **Phase 2 complete** — markdown editor, create/save note, topic management (CRUD + relations), note list/browse, topic filter/browse all done
+- **Phase 3 complete** — file upload, clipboard paste, screen capture, file/media preview in editor all done
 - **Status bar (6.6)** — desktop status bar with storage path, note/topic counts, and app version
 
 ### What's next
 
-**→ Start Phase 3 (Collect) or Phase 4 (Linking)** — both are unblocked by Phase 2 completion
+**→ Start Phase 4 (Linking) or Phase 5 (Sync)** — Phase 4 is unblocked by Phase 2, Phase 5 by Phase 1
 
-Phase 3 adds file upload, clipboard paste, and screen capture. Phase 4 adds bidirectional linking between notes and topics. Both can proceed in parallel.
+Phase 4 adds bidirectional linking between notes and topics. Phase 5 adds sync with the backend service.
 
 ---
 
