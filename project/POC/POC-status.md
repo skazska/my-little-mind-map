@@ -159,6 +159,7 @@ Sync local data with the backend service.
 | 6.3 | App settings (backend URL, sync interval, etc.) | 5.2 | Not started | [task](POC-phase-6/6.3_app-settings.md) |
 | 6.4 | Desktop app packaging and release | 6.1 | Not started | [task](POC-phase-6/6.4_desktop-packaging.md) |
 | 6.5 | Backend deployment | 6.1 | Not started | [task](POC-phase-6/6.5_backend-deployment.md) |
+| 6.6 | Status bar across all apps | Phase 2 | Desktop done | [task](POC-phase-6/6.6_status-bar.md) |
 
 ---
 
