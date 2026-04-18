@@ -119,8 +119,8 @@ function App() {
 
     if (loading) {
         return (
-            <div style={{ display: "flex", flexDirection: "column", height: "100vh", fontFamily: "system-ui, sans-serif" }}>
-                <main style={{ flex: 1, padding: "2rem" }}>Loading...</main>
+            <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: "system-ui, sans-serif" }}>
+                <main style={{ flex: 1, minHeight: 0, padding: "2rem" }}>Loading...</main>
                 <StatusBar storagePath={storagePath} noteCount={0} topicCount={0} appVersion={appVersion} />
             </div>
         );
@@ -128,8 +128,8 @@ function App() {
 
     if (currentView === "create" || currentView === "edit") {
         return (
-            <div style={{ display: "flex", flexDirection: "column", height: "100vh", fontFamily: "system-ui, sans-serif" }}>
-                <main style={{ flex: 1, padding: "1rem", overflow: "auto" }}>
+            <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: "system-ui, sans-serif" }}>
+                <main style={{ flex: 1, minHeight: 0, padding: "1rem", overflow: "auto" }}>
                     <NoteEditor
                     topics={vm.topics}
                     editNoteId={editState?.id}
@@ -148,8 +148,8 @@ function App() {
 
     if (currentView === "topics") {
         return (
-            <div style={{ display: "flex", flexDirection: "column", height: "100vh", fontFamily: "system-ui, sans-serif" }}>
-                <main style={{ flex: 1, padding: "1.5rem", overflow: "auto" }}>
+            <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: "system-ui, sans-serif" }}>
+                <main style={{ flex: 1, minHeight: 0, padding: "1.5rem", overflow: "auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                     <h1 style={{ margin: 0 }}>Topic Management</h1>
                     <button onClick={() => setCurrentView("list")}>Back to Notes</button>
@@ -226,8 +226,8 @@ function App() {
     }
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100vh", fontFamily: "system-ui, sans-serif" }}>
-            <main style={{ flex: 1, padding: "2rem", overflow: "auto" }}>
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: "system-ui, sans-serif" }}>
+            <main style={{ flex: 1, minHeight: 0, padding: "2rem", overflow: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                 <h1 style={{ margin: 0 }}>{vm.text || "My Little Mind Map"}</h1>
                 <div style={{ display: "flex", gap: "0.5rem" }}>
