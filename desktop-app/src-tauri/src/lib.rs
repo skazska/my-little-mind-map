@@ -299,6 +299,25 @@ fn get_storage_path(state: State<'_, AppState>) -> String {
     state.storage.root().display().to_string()
 }
 
+#[tauri::command]
+fn select_topic(id: String, state: State<'_, AppState>) -> Result<ViewModel, String> {
+    let topic_id = Uuid::parse_str(&id).map_err(|e| e.to_string())?;
+    let view = state.core.view();
+    if !view.topics.iter().any(|t| t.id == topic_id) {
+        return Err(format!("Topic '{id}' not found"));
+    }
+    let _ = state
+        .core
+        .process_event(Event::SelectTopic { id: topic_id });
+    Ok(state.core.view())
+}
+
+#[tauri::command]
+fn clear_topic_filter(state: State<'_, AppState>) -> ViewModel {
+    let _ = state.core.process_event(Event::ClearTopicFilter);
+    state.core.view()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -330,6 +349,8 @@ pub fn run() {
             delete_topic,
             add_topic_relation,
             remove_topic_relation,
+            select_topic,
+            clear_topic_filter,
             get_storage_path,
         ])
         .run(tauri::generate_context!())

@@ -6,6 +6,7 @@ import { NoteList } from "./components/NoteList";
 import { TopicList } from "./components/TopicList";
 import { TopicEditor } from "./components/TopicEditor";
 import { TopicRelationManager } from "./components/TopicRelationManager";
+import { TopicBrowser } from "./components/TopicBrowser";
 import { StatusBar } from "./components/StatusBar";
 import type {
     ViewModel,
@@ -14,7 +15,7 @@ import type {
     TopicRelationType,
 } from "./types";
 
-type View = "list" | "create" | "edit" | "topics";
+type View = "list" | "create" | "edit" | "topics" | "topic-browser";
 
 interface EditState {
     id: string;
@@ -24,11 +25,12 @@ interface EditState {
 }
 
 function App() {
-    const [vm, setVm] = useState<ViewModel>({ text: "", notes: [], topics: [], topic_relations: [], error: null });
+    const [vm, setVm] = useState<ViewModel>({ text: "", notes: [], topics: [], topic_relations: [], selected_topic_id: null, error: null });
     const [currentView, setCurrentView] = useState<View>("list");
     const [editState, setEditState] = useState<EditState | null>(null);
     const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
     const [commandError, setCommandError] = useState<string | null>(null);
+    const [browseError, setBrowseError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [storagePath, setStoragePath] = useState<string | null>(null);
     const [appVersion, setAppVersion] = useState<string | null>(null);
@@ -90,6 +92,26 @@ function App() {
         });
         setVm(view);
         setCommandError(null);
+    }, []);
+
+    const handleBrowseSelectTopic = useCallback(async (topicId: string) => {
+        try {
+            const view = await invoke<ViewModel>("select_topic", { id: topicId });
+            setVm(view);
+            setBrowseError(null);
+        } catch (e) {
+            setBrowseError(String(e));
+        }
+    }, []);
+
+    const handleBrowseClearFilter = useCallback(async () => {
+        try {
+            const view = await invoke<ViewModel>("clear_topic_filter");
+            setVm(view);
+            setBrowseError(null);
+        } catch (e) {
+            setBrowseError(String(e));
+        }
     }, []);
 
     const openEditor = useCallback((note?: NoteView) => {
@@ -212,12 +234,40 @@ function App() {
                 </div>
             </main>
         );
+    } else if (currentView === "topic-browser") {
+        content = (
+            <main style={{ flex: 1, minHeight: 0, padding: "1.5rem", overflow: "auto" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                    <h1 style={{ margin: 0 }}>Browse by Topic</h1>
+                    <button onClick={() => setCurrentView("list")}>Back to Notes</button>
+                </div>
+
+                {(vm.error || browseError) && (
+                    <div style={{ color: "red", padding: "0.5rem", background: "#fee", borderRadius: 4, marginBottom: "1rem" }}>
+                        {browseError ?? vm.error}
+                    </div>
+                )}
+
+                <TopicBrowser
+                    topics={vm.topics}
+                    notes={vm.notes}
+                    relations={vm.topic_relations}
+                    selectedTopicId={vm.selected_topic_id}
+                    onSelectTopic={handleBrowseSelectTopic}
+                    onClearFilter={handleBrowseClearFilter}
+                    onOpenNote={(note) => {
+                        openEditor(note);
+                    }}
+                />
+            </main>
+        );
     } else {
         content = (
             <main style={{ flex: 1, minHeight: 0, padding: "2rem", overflow: "auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                     <h1 style={{ margin: 0 }}>{vm.text || "My Little Mind Map"}</h1>
                     <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <button onClick={() => setCurrentView("topic-browser")}>Browse Topics</button>
                         <button onClick={() => setCurrentView("topics")}>Manage Topics</button>
                         <button onClick={() => openEditor()}>+ New Note</button>
                     </div>

@@ -9,7 +9,7 @@
 | **Decisions** | D-004 (topic graph) |
 | **Depends on** | 2.3 |
 | **Blocks** | — |
-| **Status** | Not started |
+| **Status** | In progress |
 
 ---
 

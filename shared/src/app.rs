@@ -69,6 +69,12 @@ pub enum Event {
         source_topic_id: Uuid,
         target_topic_id: Uuid,
     },
+
+    // --- Topic browser events ---
+    SelectTopic {
+        id: Uuid,
+    },
+    ClearTopicFilter,
 }
 
 /// The application's state model
@@ -79,6 +85,7 @@ pub struct Model {
     pub classifications: Vec<Classification>,
     pub note_references: Vec<NoteReference>,
     pub topic_relations: Vec<TopicRelation>,
+    pub selected_topic_id: Option<Uuid>,
 }
 
 /// Summary view of a note for UI lists.
@@ -120,6 +127,7 @@ pub struct ViewModel {
     pub notes: Vec<NoteView>,
     pub topics: Vec<TopicView>,
     pub topic_relations: Vec<TopicRelationView>,
+    pub selected_topic_id: Option<Uuid>,
     pub error: Option<String>,
 }
 
@@ -251,6 +259,18 @@ impl crux_core::App for MindMap {
                     !(r.source_topic_id == source_topic_id && r.target_topic_id == target_topic_id)
                 });
             }
+
+            Event::SelectTopic { id } => {
+                model.selected_topic_id = model
+                    .topics
+                    .iter()
+                    .any(|topic| topic.id == id)
+                    .then_some(id);
+            }
+
+            Event::ClearTopicFilter => {
+                model.selected_topic_id = None;
+            }
         }
 
         render::render()
@@ -335,6 +355,7 @@ impl crux_core::App for MindMap {
             notes,
             topics,
             topic_relations,
+            selected_topic_id: model.selected_topic_id,
             error: None,
         }
     }
@@ -582,5 +603,102 @@ mod tests {
             view.topic_relations.is_empty(),
             "Unresolved relations should be dropped"
         );
+    }
+
+    #[test]
+    fn select_topic_sets_selected_topic_id() {
+        let core: Core<MindMap> = Core::new();
+        let topic = make_topic("Rust");
+        let topic_id = topic.id;
+
+        core.process_event(Event::DataLoaded {
+            notes: vec![],
+            topics: vec![topic],
+            classifications: vec![],
+            note_references: vec![],
+            topic_relations: vec![],
+        });
+
+        // Initially no topic selected
+        let view = core.view();
+        assert!(view.selected_topic_id.is_none());
+
+        // Select topic
+        core.process_event(Event::SelectTopic { id: topic_id });
+        let view = core.view();
+        assert_eq!(view.selected_topic_id, Some(topic_id));
+    }
+
+    #[test]
+    fn select_nonexistent_topic_is_ignored() {
+        let core: Core<MindMap> = Core::new();
+        let topic = make_topic("Rust");
+
+        core.process_event(Event::DataLoaded {
+            notes: vec![],
+            topics: vec![topic],
+            classifications: vec![],
+            note_references: vec![],
+            topic_relations: vec![],
+        });
+
+        // Selecting a nonexistent topic should not set selected_topic_id
+        let fake_id = Uuid::new_v4();
+        core.process_event(Event::SelectTopic { id: fake_id });
+        let view = core.view();
+        assert!(
+            view.selected_topic_id.is_none(),
+            "Selecting a nonexistent topic should be ignored"
+        );
+    }
+
+    #[test]
+    fn clear_topic_filter_resets_selection() {
+        let core: Core<MindMap> = Core::new();
+        let topic = make_topic("Rust");
+        let topic_id = topic.id;
+
+        core.process_event(Event::TopicAdded {
+            topic: topic.clone(),
+        });
+
+        core.process_event(Event::SelectTopic { id: topic_id });
+        let view = core.view();
+        assert_eq!(view.selected_topic_id, Some(topic_id));
+
+        core.process_event(Event::ClearTopicFilter);
+        let view = core.view();
+        assert!(view.selected_topic_id.is_none());
+    }
+
+    #[test]
+    fn selected_topic_survives_data_reload() {
+        let core: Core<MindMap> = Core::new();
+        let topic = make_topic("Rust");
+        let topic_id = topic.id;
+
+        core.process_event(Event::DataLoaded {
+            notes: vec![],
+            topics: vec![topic.clone()],
+            classifications: vec![],
+            note_references: vec![],
+            topic_relations: vec![],
+        });
+
+        // Select a topic
+        core.process_event(Event::SelectTopic { id: topic_id });
+
+        // Reload data (simulates what Tauri's reload_data does)
+        core.process_event(Event::DataLoaded {
+            notes: vec![],
+            topics: vec![topic],
+            classifications: vec![],
+            note_references: vec![],
+            topic_relations: vec![],
+        });
+
+        // Selection should persist
+        let view = core.view();
+        assert_eq!(view.selected_topic_id, Some(topic_id));
     }
 }

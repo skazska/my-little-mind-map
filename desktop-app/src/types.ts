@@ -5,6 +5,7 @@ export interface ViewModel {
     notes: NoteView[];
     topics: TopicView[];
     topic_relations: TopicRelationView[];
+    selected_topic_id: string | null;
     error: string | null;
 }
 
