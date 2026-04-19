@@ -61,19 +61,19 @@ export function MarkdownEditor({
                 // Only trigger if there's no ]] between [[ and cursor, and no newline
                 if (!afterOpen.includes("]]") && !afterOpen.includes("\n")) {
                     const query = afterOpen;
-                    // Position dropdown relative to the textarea's positioned container
+                    // Estimate cursor position within the textarea
+                    const textBeforeCursor = value.substring(0, cursorPos);
+                    const lines = textBeforeCursor.split("\n");
+                    const lineNumber = lines.length - 1;
+                    const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight) || 18;
                     const rect = textarea.getBoundingClientRect();
-                    const offsetParent = textarea.offsetParent;
-                    const position =
-                        offsetParent instanceof HTMLElement
-                            ? (() => {
-                                  const parentRect = offsetParent.getBoundingClientRect();
-                                  return {
-                                      top: rect.bottom - parentRect.top + offsetParent.scrollTop + 4,
-                                      left: rect.left - parentRect.left + offsetParent.scrollLeft,
-                                  };
-                              })()
-                            : { top: rect.bottom + 4, left: rect.left };
+                    const paddingTop = parseFloat(getComputedStyle(textarea).paddingTop) || 0;
+                    const cursorTop = rect.top + paddingTop + lineNumber * lineHeight - textarea.scrollTop;
+                    // Use fixed positioning so it's always visible in viewport
+                    const position = {
+                        top: Math.min(cursorTop + lineHeight + 4, rect.bottom),
+                        left: rect.left + 16,
+                    };
 
                     setAutocomplete({
                         active: true,
