@@ -28,18 +28,27 @@ export function NoteLinkAutocomplete({
         setSelectedIndex(0);
     }, [query]);
 
+    // Keep selection within bounds when results change
+    useEffect(() => {
+        setSelectedIndex((prev) => {
+            if (filtered.length === 0) return 0;
+            return Math.min(Math.max(prev, 0), filtered.length - 1);
+        });
+    }, [filtered.length]);
+
     // Keyboard navigation
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
             if (e.key === "ArrowDown") {
                 e.preventDefault();
-                setSelectedIndex((prev) => Math.min(prev + 1, filtered.length - 1));
+                if (filtered.length === 0) return;
+                setSelectedIndex((prev) => Math.min(Math.max(prev + 1, 0), filtered.length - 1));
             } else if (e.key === "ArrowUp") {
                 e.preventDefault();
                 setSelectedIndex((prev) => Math.max(prev - 1, 0));
             } else if (e.key === "Enter") {
                 e.preventDefault();
-                if (filtered.length > 0 && selectedIndex < filtered.length) {
+                if (filtered.length > 0 && selectedIndex >= 0 && selectedIndex < filtered.length) {
                     const note = filtered[selectedIndex];
                     onSelect(note.id, note.title);
                 }

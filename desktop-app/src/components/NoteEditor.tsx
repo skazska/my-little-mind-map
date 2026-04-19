@@ -46,10 +46,29 @@ export function NoteEditor({
 
     // Load broken references when editing an existing note
     useEffect(() => {
-        if (!editNoteId) return;
-        invoke<string[]>("get_broken_references", { noteId: editNoteId })
-            .then(setBrokenReferenceIds)
-            .catch(console.error);
+        if (!editNoteId) {
+            setBrokenReferenceIds([]);
+            return;
+        }
+
+        const noteId = editNoteId;
+        let isActive = true;
+
+        invoke<string[]>("get_broken_references", { noteId })
+            .then((ids) => {
+                if (isActive) {
+                    setBrokenReferenceIds(ids);
+                }
+            })
+            .catch((err) => {
+                if (isActive) {
+                    console.error(err);
+                }
+            });
+
+        return () => {
+            isActive = false;
+        };
     }, [editNoteId]);
 
     const refreshContent = useCallback((view: ViewModel) => {

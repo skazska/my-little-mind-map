@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import Markdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import { parseMarkdown, renderReferencesForPreview } from "../lib/markdown";
 import { NoteLinkAutocomplete } from "./NoteLinkAutocomplete";
 import type { Root } from "mdast";
@@ -60,12 +61,24 @@ export function MarkdownEditor({
                 // Only trigger if there's no ]] between [[ and cursor, and no newline
                 if (!afterOpen.includes("]]") && !afterOpen.includes("\n")) {
                     const query = afterOpen;
-                    // Position dropdown below the textarea (simple fixed position for POC)
+                    // Position dropdown relative to the textarea's positioned container
                     const rect = textarea.getBoundingClientRect();
+                    const offsetParent = textarea.offsetParent;
+                    const position =
+                        offsetParent instanceof HTMLElement
+                            ? (() => {
+                                  const parentRect = offsetParent.getBoundingClientRect();
+                                  return {
+                                      top: rect.bottom - parentRect.top + offsetParent.scrollTop + 4,
+                                      left: rect.left - parentRect.left + offsetParent.scrollLeft,
+                                  };
+                              })()
+                            : { top: rect.bottom + 4, left: rect.left };
+
                     setAutocomplete({
                         active: true,
                         query,
-                        position: { top: rect.bottom + 4, left: rect.left },
+                        position,
                         triggerPos: lastOpen,
                     });
                     return;
@@ -248,7 +261,7 @@ export function MarkdownEditor({
                         overflow: "auto",
                     }}
                 >
-                    <Markdown components={components}>{previewContent}</Markdown>
+                    <Markdown rehypePlugins={[rehypeRaw]} components={components}>{previewContent}</Markdown>
                 </div>
             </div>
         </div>

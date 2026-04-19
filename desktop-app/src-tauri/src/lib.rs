@@ -599,12 +599,36 @@ struct BacklinkItem {
     is_broken: bool,
 }
 
+/// Find the nearest valid UTF-8 char boundary at or before `pos`.
+fn floor_char_boundary(s: &str, pos: usize) -> usize {
+    if pos >= s.len() {
+        return s.len();
+    }
+    let mut i = pos;
+    while i > 0 && !s.is_char_boundary(i) {
+        i -= 1;
+    }
+    i
+}
+
+/// Find the nearest valid UTF-8 char boundary at or after `pos`.
+fn ceil_char_boundary(s: &str, pos: usize) -> usize {
+    if pos >= s.len() {
+        return s.len();
+    }
+    let mut i = pos;
+    while i < s.len() && !s.is_char_boundary(i) {
+        i += 1;
+    }
+    i
+}
+
 /// Extract ~200 chars of context around a `[[note_id|...]]` reference in a note's content.
 fn extract_reference_context(content: &str, target_note_id: &str) -> String {
     let pattern = format!("[[{target_note_id}|");
     if let Some(start) = content.find(&pattern) {
-        let ctx_start = start.saturating_sub(80);
-        let ctx_end = (start + 120).min(content.len());
+        let ctx_start = floor_char_boundary(content, start.saturating_sub(80));
+        let ctx_end = ceil_char_boundary(content, (start + 120).min(content.len()));
         let mut context = content[ctx_start..ctx_end].to_string();
         if ctx_start > 0 {
             context = format!("...{context}");
@@ -615,7 +639,7 @@ fn extract_reference_context(content: &str, target_note_id: &str) -> String {
         context
     } else {
         // Fallback: first 200 chars
-        let end = content.len().min(200);
+        let end = ceil_char_boundary(content, content.len().min(200));
         let mut context = content[..end].to_string();
         if end < content.len() {
             context.push_str("...");

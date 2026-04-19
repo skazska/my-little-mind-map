@@ -39,7 +39,7 @@ export function renderReferencesForPreview(raw: string, brokenIds: string[] = []
     const brokenSet = new Set(brokenIds);
     return raw.replace(REFERENCE_RE, (_match, id: string, text: string) => {
         if (brokenSet.has(id)) {
-            return `~~${text} (broken link)~~`;
+            return `<del>${text} (broken link)</del>`;
         }
         return `**[${text}](#)**`;
     });
