@@ -427,4 +427,163 @@ mod api_tests {
             .unwrap();
         assert_eq!(resp.status(), StatusCode::NOT_FOUND);
     }
+
+    #[tokio::test]
+    async fn forward_links_endpoint() {
+        let (app, _dir) = setup_app();
+
+        // Create topic and two notes
+        let resp = app
+            .clone()
+            .oneshot(json_request(
+                "POST",
+                "/api/topics",
+                Some(json!({"name": "T"})),
+            ))
+            .await
+            .unwrap();
+        let topic = response_json(resp).await;
+        let tid = topic["id"].as_str().unwrap();
+
+        let resp = app
+            .clone()
+            .oneshot(json_request(
+                "POST",
+                "/api/notes",
+                Some(json!({"title": "A", "content": "a", "topic_ids": [tid]})),
+            ))
+            .await
+            .unwrap();
+        let note_a = response_json(resp).await;
+        let aid = note_a["id"].as_str().unwrap();
+
+        let resp = app
+            .clone()
+            .oneshot(json_request(
+                "POST",
+                "/api/notes",
+                Some(json!({"title": "B", "content": "b", "topic_ids": [tid]})),
+            ))
+            .await
+            .unwrap();
+        let note_b = response_json(resp).await;
+        let bid = note_b["id"].as_str().unwrap();
+
+        // Add reference A → B
+        let resp = app
+            .clone()
+            .oneshot(json_request(
+                "POST",
+                "/api/references",
+                Some(json!({"source_note_id": aid, "target_note_id": bid})),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(resp.status(), StatusCode::CREATED);
+
+        // Get forward links for A
+        let resp = app
+            .clone()
+            .oneshot(json_request(
+                "GET",
+                &format!("/api/notes/{aid}/forward-links"),
+                None,
+            ))
+            .await
+            .unwrap();
+        assert_eq!(resp.status(), StatusCode::OK);
+        let forward = response_json(resp).await;
+        assert_eq!(forward.as_array().unwrap().len(), 1);
+        assert_eq!(forward[0]["target_note_id"], bid);
+
+        // Forward links for B should be empty
+        let resp = app
+            .clone()
+            .oneshot(json_request(
+                "GET",
+                &format!("/api/notes/{bid}/forward-links"),
+                None,
+            ))
+            .await
+            .unwrap();
+        assert_eq!(resp.status(), StatusCode::OK);
+        let forward_b = response_json(resp).await;
+        assert!(forward_b.as_array().unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn delete_note_marks_inbound_refs_broken() {
+        let (app, _dir) = setup_app();
+
+        // Create topic and two notes
+        let resp = app
+            .clone()
+            .oneshot(json_request(
+                "POST",
+                "/api/topics",
+                Some(json!({"name": "T"})),
+            ))
+            .await
+            .unwrap();
+        let topic = response_json(resp).await;
+        let tid = topic["id"].as_str().unwrap();
+
+        let resp = app
+            .clone()
+            .oneshot(json_request(
+                "POST",
+                "/api/notes",
+                Some(json!({"title": "A", "content": "a", "topic_ids": [tid]})),
+            ))
+            .await
+            .unwrap();
+        let note_a = response_json(resp).await;
+        let aid = note_a["id"].as_str().unwrap();
+
+        let resp = app
+            .clone()
+            .oneshot(json_request(
+                "POST",
+                "/api/notes",
+                Some(json!({"title": "B", "content": "b", "topic_ids": [tid]})),
+            ))
+            .await
+            .unwrap();
+        let note_b = response_json(resp).await;
+        let bid = note_b["id"].as_str().unwrap();
+
+        // Add reference A → B
+        app.clone()
+            .oneshot(json_request(
+                "POST",
+                "/api/references",
+                Some(json!({"source_note_id": aid, "target_note_id": bid})),
+            ))
+            .await
+            .unwrap();
+
+        // Delete B - should mark A's ref to B as broken
+        let resp = app
+            .clone()
+            .oneshot(json_request("DELETE", &format!("/api/notes/{bid}"), None))
+            .await
+            .unwrap();
+        assert_eq!(resp.status(), StatusCode::NO_CONTENT);
+
+        // A's forward links should show broken ref to B
+        let resp = app
+            .clone()
+            .oneshot(json_request(
+                "GET",
+                &format!("/api/notes/{aid}/forward-links"),
+                None,
+            ))
+            .await
+            .unwrap();
+        assert_eq!(resp.status(), StatusCode::OK);
+        let forward = response_json(resp).await;
+        assert_eq!(forward.as_array().unwrap().len(), 1);
+        assert_eq!(forward[0]["target_note_id"], bid);
+        assert_eq!(forward[0]["broken"], true);
+    }
 }

@@ -33,8 +33,14 @@ export function extractReferences(raw: string): InternalReference[] {
 
 /**
  * Replace [[uuid|text]] patterns in raw markdown with rendered link markup for preview.
- * Returns markdown with references converted to bold links (for display).
+ * Broken references (where the target note was deleted) are shown with strikethrough.
  */
-export function renderReferencesForPreview(raw: string): string {
-    return raw.replace(REFERENCE_RE, (_match, _id: string, text: string) => `**[${text}](#)**`);
+export function renderReferencesForPreview(raw: string, brokenIds: string[] = []): string {
+    const brokenSet = new Set(brokenIds);
+    return raw.replace(REFERENCE_RE, (_match, id: string, text: string) => {
+        if (brokenSet.has(id)) {
+            return `<del>${text} (broken link)</del>`;
+        }
+        return `**[${text}](#)**`;
+    });
 }

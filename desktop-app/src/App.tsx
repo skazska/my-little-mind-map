@@ -150,6 +150,7 @@ function App() {
             <main style={{ flex: 1, minHeight: 0, padding: "1rem", overflow: "auto" }}>
                 <NoteEditor
                     topics={vm.topics}
+                    notes={vm.notes}
                     editNoteId={editState?.id}
                     editTitle={editState?.title}
                     editContent={editState?.content}
@@ -157,6 +158,10 @@ function App() {
                     onSaved={handleSaved}
                     onCancel={() => { setCurrentView("list"); setEditState(null); }}
                     onCreateTopic={handleCreateTopic}
+                    onNavigateToNote={(noteId) => {
+                        const note = vm.notes.find((n) => n.id === noteId);
+                        if (note) openEditor(note);
+                    }}
                 />
             </main>
         );

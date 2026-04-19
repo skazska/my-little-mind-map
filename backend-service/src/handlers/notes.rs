@@ -151,7 +151,7 @@ pub async fn update_note(
 }
 
 pub async fn delete_note(State(state): State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
-    // Clean up classifications and references before deleting the note
+    // Clean up classifications before deleting the note
     if let Err(e) = storage::relations::remove_note_classifications(&state.storage, id)
         && !matches!(e, storage::StorageError::NotFound(_))
     {
@@ -161,7 +161,18 @@ pub async fn delete_note(State(state): State<AppState>, Path(id): Path<Uuid>) ->
         )
             .into_response();
     }
-    if let Err(e) = storage::relations::remove_note_references(&state.storage, id)
+    // Remove outbound references (source note is being deleted)
+    if let Err(e) = storage::relations::remove_outbound_references(&state.storage, id)
+        && !matches!(e, storage::StorageError::NotFound(_))
+    {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e.to_string()})),
+        )
+            .into_response();
+    }
+    // Mark inbound references as broken (preserve for backlinks display)
+    if let Err(e) = storage::relations::mark_target_references_broken(&state.storage, id)
         && !matches!(e, storage::StorageError::NotFound(_))
     {
         return (

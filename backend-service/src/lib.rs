@@ -64,6 +64,10 @@ fn api_router() -> Router<AppState> {
             "/api/notes/{id}/backlinks",
             get(handlers::references::get_backlinks),
         )
+        .route(
+            "/api/notes/{id}/forward-links",
+            get(handlers::references::get_forward_links),
+        )
         // Topic Relations
         .route(
             "/api/topic-relations",
