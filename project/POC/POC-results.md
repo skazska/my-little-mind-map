@@ -49,4 +49,10 @@ This would require changes to:
     - e.g., `DeleteNote { note_id }` action that prevents deletion if note is referenced but allows to force deletion in UI with trigger to remove all references.
     - e.g., `DeleteTopic { topic_path, new_title }` action that prevents deletion if any note under this topic or subtopics is referenced but allows to force deletion in UI with trigger to remove non-last topic link of notes or remove all notes with last topic link under this topic.
 
-###     
+### Sync to cloud (backend service)
+
+Because of cloudflare announcement of [artifactfs](https://developers.cloudflare.com/artifacts) it worth to reconsider the approach to sync with own backend service via own API and instead use artifactfs to sync local storage with cloud.
+
+This would eliminate the need to implement and maintain a backend service and API for syncing.
+
+This require investigation of artifactfs capabilities and limitations, and redesign of sync logic to work with artifactfs instead of custom API.
