@@ -4,8 +4,9 @@
     "description": "Default capabilities for the desktop app",
     "windows": ["main"],
     "permissions": [
-        "core:default",
-        "shell:allow-open",
-        "dialog:allow-open"
+        "dialog:default",
+        "upload:default",
+        "fs:default",
+        "core:default"
     ]
 }
