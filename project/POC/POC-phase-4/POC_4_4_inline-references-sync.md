@@ -9,7 +9,7 @@
 | **Decisions** | D-009 (reference index sync — this is the core implementation) |
 | **Depends on** | 4.1, 2.1 |
 | **Blocks** | — |
-| **Status** | Not started |
+| **Status** | Done |
 
 ---
 

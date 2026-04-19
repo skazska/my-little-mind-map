@@ -213,6 +213,29 @@ pub fn get_backlinks(handle: &StorageHandle, note_id: Uuid) -> Result<Vec<NoteRe
         .collect())
 }
 
+/// Get all notes referenced by the given note (forward links).
+pub fn get_forward_links(handle: &StorageHandle, note_id: Uuid) -> Result<Vec<NoteReference>> {
+    let idx = read_references(handle)?;
+    Ok(idx
+        .references
+        .into_iter()
+        .filter(|r| r.source_note_id == note_id)
+        .collect())
+}
+
+/// Mark all inbound references to a note as broken (used when deleting a note).
+/// Instead of removing the references, this preserves them so backlinks panels
+/// can show that the target was deleted.
+pub fn mark_target_references_broken(handle: &StorageHandle, note_id: Uuid) -> Result<()> {
+    let mut idx = read_references(handle)?;
+    for r in &mut idx.references {
+        if r.target_note_id == note_id {
+            r.broken = true;
+        }
+    }
+    write_references(handle, &idx)
+}
+
 /// Remove all references involving a note (used when deleting a note).
 pub fn remove_note_references(handle: &StorageHandle, note_id: Uuid) -> Result<()> {
     let mut idx = read_references(handle)?;

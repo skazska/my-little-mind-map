@@ -67,3 +67,10 @@ export interface CreateTopicRequest {
     name: string;
     description: string | null;
 }
+
+export interface BacklinkItem {
+    source_note_id: string;
+    source_note_title: string;
+    context_text: string;
+    is_broken: boolean;
+}
