@@ -19,12 +19,14 @@ Possible decisions to go forward with implementation, pivot, or scrap the projec
 
 Using uuid for note identification in references is not user-friendly nor text-centric (see `README##Key`).
 
-Need to concider use of links format and URI for note referencing and identification, e.g., `[text](note://<subtopic.topic>/<note/subnote>#title?fragment)` or `[[subtopic.topic/note/subnote#title?fragment|text]]`
+Need to concider use of links format and URI for note referencing and identification, e.g., `[text](note://<subtopic.topic>/<note/subnote>#title?fragment)`
 
 This would require changes to:
 
     - the markdown syntax, parser, renderer, and reference extraction logic
     - topic relations, classification, and search (to support note URI as identifier instead of uuid)
+
+This would eliminate the need to support custom AST node for internal references and mdast dilemma, as the same markdown syntax and AST node can be used for both internal and external links.
 
 #### suggestions
 

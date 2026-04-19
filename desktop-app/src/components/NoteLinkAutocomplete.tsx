@@ -81,7 +81,7 @@ export function NoteLinkAutocomplete({
             <div
                 ref={containerRef}
                 style={{
-                    position: "absolute",
+                    position: "fixed",
                     top: position.top,
                     left: position.left,
                     background: "#fff",
@@ -104,7 +104,7 @@ export function NoteLinkAutocomplete({
         <div
             ref={containerRef}
             style={{
-                position: "absolute",
+                position: "fixed",
                 top: position.top,
                 left: position.left,
                 background: "#fff",
