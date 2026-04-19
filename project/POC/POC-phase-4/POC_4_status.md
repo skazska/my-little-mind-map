@@ -11,16 +11,16 @@ Decisions: [POC-decisions.md](POC-decisions.md) — D-009, D-010
 
 | # | Task | Depends on | Status | Definition |
 |---|------|-----------|--------|------------|
-| 4.1 | Link creation UI (note↔note, note↔topic) | Phase 2 (2.2, 2.3) | Not started | [4.1_link-creation-ui.md](POC-phase-4/4.1_link-creation-ui.md) |
-| 4.2 | Bidirectional link storage and resolution | Phase 1 (1.2) | Not started | [4.2_bidirectional-link-storage.md](POC-phase-4/4.2_bidirectional-link-storage.md) |
-| 4.3 | Backlinks display | 4.2 | Not started | [4.3_backlinks-display.md](POC-phase-4/4.3_backlinks-display.md) |
-| 4.4 | Inline references with index sync | 4.1, 2.1 | Not started | [4.4_inline-references-sync.md](POC-phase-4/4.4_inline-references-sync.md) |
+| 4.1 | Link creation UI (note↔note, note↔topic) | Phase 2 (2.2, 2.3) | Done | [4.1_link-creation-ui.md](POC-phase-4/4.1_link-creation-ui.md) |
+| 4.2 | Bidirectional link storage and resolution | Phase 1 (1.2) | Done | [4.2_bidirectional-link-storage.md](POC-phase-4/4.2_bidirectional-link-storage.md) |
+| 4.3 | Backlinks display | 4.2 | Done | [4.3_backlinks-display.md](POC-phase-4/4.3_backlinks-display.md) |
+| 4.4 | Inline references with index sync | 4.1, 2.1 | Done | [4.4_inline-references-sync.md](POC-phase-4/4.4_inline-references-sync.md) |
 
 ---
 
 ## Phase Status
 
-**Status: Not started** — Blocked on Phase 2.
+**Status: Done**
 
 ### Dependency Graph
 

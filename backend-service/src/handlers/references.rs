@@ -117,3 +117,17 @@ pub async fn get_backlinks(
             .into_response(),
     }
 }
+
+pub async fn get_forward_links(
+    State(state): State<AppState>,
+    Path(note_id): Path<Uuid>,
+) -> impl IntoResponse {
+    match storage::relations::get_forward_links(&state.storage, note_id) {
+        Ok(refs) => (StatusCode::OK, Json(serde_json::to_value(&refs).unwrap())).into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e.to_string()})),
+        )
+            .into_response(),
+    }
+}

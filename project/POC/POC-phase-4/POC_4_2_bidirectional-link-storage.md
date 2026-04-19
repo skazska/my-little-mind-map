@@ -9,7 +9,7 @@
 | **Decisions** | D-009 (reference index sync), D-002 (reference properties) |
 | **Depends on** | Phase 1 (1.2, 1.3) |
 | **Blocks** | 4.3 |
-| **Status** | Not started |
+| **Status** | Done |
 
 ---
 

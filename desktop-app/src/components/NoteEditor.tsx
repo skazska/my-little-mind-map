@@ -1,14 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { MarkdownEditor } from "./MarkdownEditor";
 import { TopicSelector } from "./TopicSelector";
+import { BacklinksPanel } from "./BacklinksPanel";
 import { parseMarkdown } from "../lib/markdown";
-import type { ViewModel, TopicView, CreateTopicRequest } from "../types";
+import type { ViewModel, TopicView, NoteView, CreateTopicRequest } from "../types";
 import type { Root } from "mdast";
 
 export interface NoteEditorProps {
     topics: TopicView[];
+    notes: NoteView[];
     editNoteId?: string | null;
     editTitle?: string;
     editContent?: string;
@@ -16,10 +18,12 @@ export interface NoteEditorProps {
     onSaved: (view: ViewModel) => void;
     onCancel: () => void;
     onCreateTopic: (req: CreateTopicRequest) => Promise<ViewModel>;
+    onNavigateToNote?: (noteId: string) => void;
 }
 
 export function NoteEditor({
     topics,
+    notes,
     editNoteId,
     editTitle,
     editContent,
@@ -27,6 +31,7 @@ export function NoteEditor({
     onSaved,
     onCancel,
     onCreateTopic,
+    onNavigateToNote,
 }: NoteEditorProps) {
     const [title, setTitle] = useState(editTitle ?? "");
     const [contentRaw, setContentRaw] = useState(editContent ?? "");
@@ -35,8 +40,17 @@ export function NoteEditor({
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [topicError, setTopicError] = useState<string | null>(null);
+    const [brokenReferenceIds, setBrokenReferenceIds] = useState<string[]>([]);
 
     const isEdit = !!editNoteId;
+
+    // Load broken references when editing an existing note
+    useEffect(() => {
+        if (!editNoteId) return;
+        invoke<string[]>("get_broken_references", { noteId: editNoteId })
+            .then(setBrokenReferenceIds)
+            .catch(console.error);
+    }, [editNoteId]);
 
     const refreshContent = useCallback((view: ViewModel) => {
         if (!editNoteId) return;
@@ -237,8 +251,17 @@ export function NoteEditor({
                     onChange={handleEditorChange}
                     noteId={isEdit ? editNoteId : undefined}
                     onAssetAdded={handleAssetAdded}
+                    availableNotes={notes}
+                    brokenReferenceIds={brokenReferenceIds}
                 />
             </div>
+
+            {isEdit && editNoteId && onNavigateToNote && (
+                <BacklinksPanel
+                    noteId={editNoteId}
+                    onNavigateToNote={onNavigateToNote}
+                />
+            )}
         </div>
     );
 }

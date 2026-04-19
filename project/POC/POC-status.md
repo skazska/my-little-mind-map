@@ -34,7 +34,7 @@
 | D3 | **Paste from clipboard** | Paste text, images from system clipboard | Done |
 | D4 | **Screen-part capture** | Capture a region of the screen as an artifact | Done |
 | D5 | **Classify** | Assign topics to artifacts | Done |
-| D6 | **Link (bidirectional)** | Create bidirectional links between artifacts and topics | Not started |
+| D6 | **Link (bidirectional)** | Create bidirectional links between artifacts and topics | Done |
 | D7 | **Sync to Backend** | Push/pull data to/from backend service | Not started |
 
 ### Backend Service
@@ -134,10 +134,10 @@ Bidirectional links between notes and topics.
 
 | # | Task | Depends on | Status | Definition |
 |---|------|-----------|--------|------------|
-| 4.1 | Link creation UI (note ↔ note, note ↔ topic) | 2.2, 2.3 | Not started | [task](POC-phase-4/4.1_link-creation-ui.md) |
-| 4.2 | Bidirectional link storage and resolution | 1.2 | Not started | [task](POC-phase-4/4.2_bidirectional-link-storage.md) |
-| 4.3 | Backlinks display | 4.2 | Not started | [task](POC-phase-4/4.3_backlinks-display.md) |
-| 4.4 | Inline references with index sync | 4.1, 2.1 | Not started | [task](POC-phase-4/4.4_inline-references-sync.md) |
+| 4.1 | Link creation UI (note ↔ note, note ↔ topic) | 2.2, 2.3 | Done | [task](POC-phase-4/4.1_link-creation-ui.md) |
+| 4.2 | Bidirectional link storage and resolution | 1.2 | Done | [task](POC-phase-4/4.2_bidirectional-link-storage.md) |
+| 4.3 | Backlinks display | 4.2 | Done | [task](POC-phase-4/4.3_backlinks-display.md) |
+| 4.4 | Inline references with index sync | 4.1, 2.1 | Done | [task](POC-phase-4/4.4_inline-references-sync.md) |
 
 ### Phase 5: Sync — [detailed status](POC-phase-5-status.md) | [requirements](POC-phase-5-requirements.md)
 
@@ -166,7 +166,7 @@ Sync local data with the backend service.
 
 ## Current Status
 
-**Phase: Phase 3 complete. Phase 4/5 ready to start.**
+**Phase: Phase 4 complete. Phase 5 ready to start.**
 
 ### What's done
 
@@ -186,13 +186,12 @@ Sync local data with the backend service.
 - **Phase 1 complete** — data model, shared core integration, file storage library, desktop local storage, backend CRUD and backend file storage are implemented
 - **Phase 2 complete** — markdown editor, create/save note, topic management (CRUD + relations), note list/browse, topic filter/browse all done
 - **Phase 3 complete** — file upload, clipboard paste, screen capture, file/media preview in editor all done
+- **Phase 4 complete** — link creation UI (`[[` autocomplete), bidirectional link storage (forward links, backlinks, broken reference detection), backlinks panel with context, inline reference sync on save/delete
 - **Status bar (6.6)** — desktop status bar with storage path, note/topic counts, and app version
 
 ### What's next
 
-**→ Start Phase 4 (Linking) or Phase 5 (Sync)** — Phase 4 is unblocked by Phase 2, Phase 5 by Phase 1
-
-Phase 4 adds bidirectional linking between notes and topics. Phase 5 adds sync with the backend service.
+**→ Start Phase 5 (Sync)** — Push/pull data to/from backend service
 
 ---
 

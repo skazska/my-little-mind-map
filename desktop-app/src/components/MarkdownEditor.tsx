@@ -1,15 +1,18 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import Markdown from "react-markdown";
 import { parseMarkdown, renderReferencesForPreview } from "../lib/markdown";
+import { NoteLinkAutocomplete } from "./NoteLinkAutocomplete";
 import type { Root } from "mdast";
-import type { ViewModel } from "../types";
+import type { NoteView, ViewModel } from "../types";
 
 export interface MarkdownEditorProps {
     initialContent?: string;
     onChange?: (raw: string, ast: Root) => void;
     noteId?: string | null;
     onAssetAdded?: (view: ViewModel) => void;
+    availableNotes?: NoteView[];
+    brokenReferenceIds?: string[];
 }
 
 export function MarkdownEditor({
@@ -17,8 +20,19 @@ export function MarkdownEditor({
     onChange,
     noteId,
     onAssetAdded,
+    availableNotes = [],
+    brokenReferenceIds = [],
 }: MarkdownEditorProps) {
     const [raw, setRaw] = useState(initialContent);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Autocomplete state
+    const [autocomplete, setAutocomplete] = useState<{
+        active: boolean;
+        query: string;
+        position: { top: number; left: number };
+        triggerPos: number; // cursor position where [[ was typed
+    } | null>(null);
 
     // Sync raw state when initialContent changes externally (e.g. after asset upload)
     useEffect(() => {
@@ -32,6 +46,32 @@ export function MarkdownEditor({
                 const ast = parseMarkdown(value);
                 onChange(value, ast);
             }
+
+            // Detect [[ autocomplete trigger
+            const textarea = textareaRef.current;
+            if (!textarea) return;
+            const cursorPos = textarea.selectionStart;
+            const textUpToCursor = value.substring(0, cursorPos);
+
+            // Find the last [[ that hasn't been closed
+            const lastOpen = textUpToCursor.lastIndexOf("[[");
+            if (lastOpen >= 0) {
+                const afterOpen = textUpToCursor.substring(lastOpen + 2);
+                // Only trigger if there's no ]] between [[ and cursor, and no newline
+                if (!afterOpen.includes("]]") && !afterOpen.includes("\n")) {
+                    const query = afterOpen;
+                    // Position dropdown below the textarea (simple fixed position for POC)
+                    const rect = textarea.getBoundingClientRect();
+                    setAutocomplete({
+                        active: true,
+                        query,
+                        position: { top: rect.bottom + 4, left: rect.left },
+                        triggerPos: lastOpen,
+                    });
+                    return;
+                }
+            }
+            setAutocomplete(null);
         },
         [onChange],
     );
@@ -75,7 +115,47 @@ export function MarkdownEditor({
         [noteId, onAssetAdded],
     );
 
-    const previewContent = useMemo(() => renderReferencesForPreview(raw), [raw]);
+    const handleAutocompleteSelect = useCallback(
+        (selectedNoteId: string, selectedTitle: string) => {
+            if (!autocomplete) return;
+            const textarea = textareaRef.current;
+            if (!textarea) return;
+
+            const before = raw.substring(0, autocomplete.triggerPos);
+            const after = raw.substring(textarea.selectionStart);
+            const reference = `[[${selectedNoteId}|${selectedTitle}]]`;
+            const newValue = before + reference + after;
+
+            setRaw(newValue);
+            setAutocomplete(null);
+
+            if (onChange) {
+                const ast = parseMarkdown(newValue);
+                onChange(newValue, ast);
+            }
+
+            // Restore focus and cursor position
+            requestAnimationFrame(() => {
+                textarea.focus();
+                const newPos = before.length + reference.length;
+                textarea.setSelectionRange(newPos, newPos);
+            });
+        },
+        [autocomplete, raw, onChange],
+    );
+
+    const handleAutocompleteCancel = useCallback(() => {
+        setAutocomplete(null);
+        textareaRef.current?.focus();
+    }, []);
+
+    // Filter out current note from autocomplete suggestions
+    const autocompleteNotes = useMemo(
+        () => (noteId ? availableNotes.filter((n) => n.id !== noteId) : availableNotes),
+        [availableNotes, noteId],
+    );
+
+    const previewContent = useMemo(() => renderReferencesForPreview(raw, brokenReferenceIds), [raw, brokenReferenceIds]);
 
     const imageComponent = useMemo(() => {
         if (!noteId) return undefined;
@@ -119,12 +199,13 @@ export function MarkdownEditor({
 
     return (
         <div style={{ display: "flex", gap: "1rem", height: "100%" }}>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative" }}>
                 <label htmlFor="md-source" style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
                     Source
                 </label>
                 <textarea
                     id="md-source"
+                    ref={textareaRef}
                     value={raw}
                     onChange={(e) => handleChange(e.target.value)}
                     onPaste={handlePaste}
@@ -139,6 +220,15 @@ export function MarkdownEditor({
                     }}
                     spellCheck={false}
                 />
+                {autocomplete?.active && (
+                    <NoteLinkAutocomplete
+                        notes={autocompleteNotes}
+                        query={autocomplete.query}
+                        position={autocomplete.position}
+                        onSelect={handleAutocompleteSelect}
+                        onCancel={handleAutocompleteCancel}
+                    />
+                )}
             </div>
             <div
                 style={{

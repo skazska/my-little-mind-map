@@ -361,6 +361,90 @@ mod storage_references {
         let backlinks2 = relations::get_backlinks(&handle, tgt).unwrap();
         assert!(backlinks2.is_empty());
     }
+
+    #[test]
+    fn get_forward_links() {
+        let dir = tempdir().unwrap();
+        let handle = init_storage(dir.path()).unwrap();
+
+        let src = Uuid::new_v4();
+        let tgt1 = Uuid::new_v4();
+        let tgt2 = Uuid::new_v4();
+        let ref1 = NoteReference::new(src, tgt1, ReferenceType::LinksTo);
+        let ref2 = NoteReference::new(src, tgt2, ReferenceType::LinksTo);
+        relations::add_reference(&handle, &ref1).unwrap();
+        relations::add_reference(&handle, &ref2).unwrap();
+
+        let forward = relations::get_forward_links(&handle, src).unwrap();
+        assert_eq!(forward.len(), 2);
+
+        // No forward links from a target
+        let forward_tgt = relations::get_forward_links(&handle, tgt1).unwrap();
+        assert!(forward_tgt.is_empty());
+    }
+
+    #[test]
+    fn mark_target_references_broken() {
+        let dir = tempdir().unwrap();
+        let handle = init_storage(dir.path()).unwrap();
+
+        let note_a = Uuid::new_v4();
+        let note_b = Uuid::new_v4();
+        let note_c = Uuid::new_v4();
+
+        // A -> B, A -> C
+        let ref_ab = NoteReference::new(note_a, note_b, ReferenceType::LinksTo);
+        let ref_ac = NoteReference::new(note_a, note_c, ReferenceType::LinksTo);
+        relations::add_reference(&handle, &ref_ab).unwrap();
+        relations::add_reference(&handle, &ref_ac).unwrap();
+
+        // Mark references to B as broken (simulates B being deleted)
+        relations::mark_target_references_broken(&handle, note_b).unwrap();
+
+        // A's forward links: ref to B should be broken, ref to C should not
+        let forward = relations::get_forward_links(&handle, note_a).unwrap();
+        assert_eq!(forward.len(), 2);
+
+        let broken_ref = forward.iter().find(|r| r.target_note_id == note_b).unwrap();
+        assert!(broken_ref.broken);
+
+        let intact_ref = forward.iter().find(|r| r.target_note_id == note_c).unwrap();
+        assert!(!intact_ref.broken);
+
+        // Backlinks for B should still exist but be marked broken
+        let backlinks = relations::get_backlinks(&handle, note_b).unwrap();
+        assert_eq!(backlinks.len(), 1);
+        assert!(backlinks[0].broken);
+    }
+
+    #[test]
+    fn delete_note_marks_inbound_broken_removes_outbound() {
+        let dir = tempdir().unwrap();
+        let handle = init_storage(dir.path()).unwrap();
+
+        let note_a = Uuid::new_v4();
+        let note_b = Uuid::new_v4();
+
+        // A -> B and B -> A (bidirectional)
+        let ref_ab = NoteReference::new(note_a, note_b, ReferenceType::LinksTo);
+        let ref_ba = NoteReference::new(note_b, note_a, ReferenceType::LinksTo);
+        relations::add_reference(&handle, &ref_ab).unwrap();
+        relations::add_reference(&handle, &ref_ba).unwrap();
+
+        // Simulate deleting note B: remove outbound, mark inbound as broken
+        relations::remove_outbound_references(&handle, note_b).unwrap();
+        relations::mark_target_references_broken(&handle, note_b).unwrap();
+
+        // B's outbound references should be gone
+        let forward_b = relations::get_forward_links(&handle, note_b).unwrap();
+        assert!(forward_b.is_empty());
+
+        // A's reference to B should be marked broken
+        let forward_a = relations::get_forward_links(&handle, note_a).unwrap();
+        assert_eq!(forward_a.len(), 1);
+        assert!(forward_a[0].broken);
+        assert_eq!(forward_a[0].target_note_id, note_b);
+    }
 }
 
 #[cfg(test)]

@@ -1,4 +1,5 @@
 use crux_core::Core;
+use serde::Serialize;
 use shared::model::{Note, NoteReference, ReferenceType, SourceType, Topic};
 use shared::{Event, MindMap, ViewModel};
 use storage::StorageHandle;
@@ -203,9 +204,14 @@ fn update_note(
 fn delete_note(id: String, state: State<'_, AppState>) -> Result<ViewModel, String> {
     let note_id = Uuid::parse_str(&id).map_err(|e| e.to_string())?;
 
-    // Clean up classifications and references
+    // Clean up classifications
     let _ = storage::relations::remove_note_classifications(&state.storage, note_id);
-    let _ = storage::relations::remove_note_references(&state.storage, note_id);
+
+    // Remove outbound references (source note is being deleted)
+    let _ = storage::relations::remove_outbound_references(&state.storage, note_id);
+
+    // Mark inbound references as broken (so backlinks panels show the target was deleted)
+    let _ = storage::relations::mark_target_references_broken(&state.storage, note_id);
 
     storage::notes::delete_note(&state.storage, &note_id).map_err(|e| e.to_string())?;
 
@@ -585,6 +591,91 @@ fn list_note_assets(
     storage::assets::list_assets(&state.storage, nid).map_err(|e| e.to_string())
 }
 
+#[derive(Serialize, Clone)]
+struct BacklinkItem {
+    source_note_id: String,
+    source_note_title: String,
+    context_text: String,
+    is_broken: bool,
+}
+
+/// Extract ~200 chars of context around a `[[note_id|...]]` reference in a note's content.
+fn extract_reference_context(content: &str, target_note_id: &str) -> String {
+    let pattern = format!("[[{target_note_id}|");
+    if let Some(start) = content.find(&pattern) {
+        let ctx_start = start.saturating_sub(80);
+        let ctx_end = (start + 120).min(content.len());
+        let mut context = content[ctx_start..ctx_end].to_string();
+        if ctx_start > 0 {
+            context = format!("...{context}");
+        }
+        if ctx_end < content.len() {
+            context.push_str("...");
+        }
+        context
+    } else {
+        // Fallback: first 200 chars
+        let end = content.len().min(200);
+        let mut context = content[..end].to_string();
+        if end < content.len() {
+            context.push_str("...");
+        }
+        context
+    }
+}
+
+#[tauri::command]
+fn get_note_backlinks(
+    note_id: String,
+    state: State<'_, AppState>,
+) -> Result<Vec<BacklinkItem>, String> {
+    let nid = Uuid::parse_str(&note_id).map_err(|e| e.to_string())?;
+    let backlinks =
+        storage::relations::get_backlinks(&state.storage, nid).map_err(|e| e.to_string())?;
+
+    let mut items = Vec::new();
+    for backlink in backlinks {
+        let source_id = backlink.source_note_id;
+        match storage::notes::read_note(&state.storage, &source_id) {
+            Ok(source_note) => {
+                let context = extract_reference_context(&source_note.content_raw, &nid.to_string());
+                items.push(BacklinkItem {
+                    source_note_id: source_id.to_string(),
+                    source_note_title: source_note.title,
+                    context_text: context,
+                    is_broken: backlink.broken,
+                });
+            }
+            Err(_) => {
+                // Source note was deleted — this backlink is orphaned
+                items.push(BacklinkItem {
+                    source_note_id: source_id.to_string(),
+                    source_note_title: "(deleted note)".to_string(),
+                    context_text: String::new(),
+                    is_broken: true,
+                });
+            }
+        }
+    }
+    Ok(items)
+}
+
+#[tauri::command]
+fn get_broken_references(
+    note_id: String,
+    state: State<'_, AppState>,
+) -> Result<Vec<String>, String> {
+    let nid = Uuid::parse_str(&note_id).map_err(|e| e.to_string())?;
+    let forward =
+        storage::relations::get_forward_links(&state.storage, nid).map_err(|e| e.to_string())?;
+    let broken_ids: Vec<String> = forward
+        .into_iter()
+        .filter(|r| r.broken)
+        .map(|r| r.target_note_id.to_string())
+        .collect();
+    Ok(broken_ids)
+}
+
 #[tauri::command]
 fn select_topic(id: String, state: State<'_, AppState>) -> Result<ViewModel, String> {
     let topic_id = Uuid::parse_str(&id).map_err(|e| e.to_string())?;
@@ -644,6 +735,8 @@ pub fn run() {
             capture_screen,
             read_asset_base64,
             list_note_assets,
+            get_note_backlinks,
+            get_broken_references,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

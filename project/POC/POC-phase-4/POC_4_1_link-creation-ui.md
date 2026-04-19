@@ -9,7 +9,7 @@
 | **Decisions** | D-009 (reference index sync), D-010 (text-centered) |
 | **Depends on** | Phase 2 (2.2, 2.3) |
 | **Blocks** | 4.4 |
-| **Status** | Not started |
+| **Status** | Done |
 
 ---
 
