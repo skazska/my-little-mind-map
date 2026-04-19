@@ -35,15 +35,15 @@
 | D4 | **Screen-part capture** | Capture a region of the screen as an artifact | Done |
 | D5 | **Classify** | Assign topics to artifacts | Done |
 | D6 | **Link (bidirectional)** | Create bidirectional links between artifacts and topics | Done |
-| D7 | **Sync to Backend** | Push/pull data to/from backend service | Not started |
+| D7 | **Sync to Backend** | Push/pull data to/from backend service | Reconsidering |
 
 ### Backend Service
 
 | # | Feature | Description | Status |
 |---|---------|-------------|--------|
-| B1 | **Store** | Persist artifacts, topics, and relations | Not started |
-| B2 | **Sync** | Receive and serve data to/from clients | Not started |
-| B3 | **Manage data** | CRUD operations for artifacts, topics, relations | Not started |
+| B1 | **Store** | Persist artifacts, topics, and relations | Reconsidering |
+| B2 | **Sync** | Receive and serve data to/from clients | Reconsidering |
+| B3 | **Manage data** | CRUD operations for artifacts, topics, relations | Reconsidering |
 
 ---
 
@@ -145,28 +145,28 @@ Sync local data with the backend service.
 
 | # | Task | Depends on | Status | Definition |
 |---|------|-----------|--------|------------|
-| 5.1 | Sync protocol design | 1.1 | Not started | [task](POC-phase-5/5.1_sync-protocol-design.md) |
-| 5.2 | CRUX HTTP capability | 5.1 | Not started | [task](POC-phase-5/5.2_crux-http-capability.md) |
-| 5.3 | Push local changes to backend | 5.2, 1.5 | Not started | [task](POC-phase-5/5.3_push-local-changes.md) |
-| 5.4 | Pull remote changes to local | 5.2, 1.5 | Not started | [task](POC-phase-5/5.4_pull-remote-changes.md) |
-| 5.5 | Offline-first queue | 5.3, 5.4 | Not started | [task](POC-phase-5/5.5_offline-first-queue.md) |
+| 5.1 | Sync protocol design | 1.1 | Cancelled | [task](POC-phase-5/5.1_sync-protocol-design.md) |
+| 5.2 | CRUX HTTP capability | 5.1 | Cancelled | [task](POC-phase-5/5.2_crux-http-capability.md) |
+| 5.3 | Push local changes to backend | 5.2, 1.5 | Cancelled | [task](POC-phase-5/5.3_push-local-changes.md) |
+| 5.4 | Pull remote changes to local | 5.2, 1.5 | Cancelled | [task](POC-phase-5/5.4_pull-remote-changes.md) |
+| 5.5 | Offline-first queue | 5.3, 5.4 | Cancelled | [task](POC-phase-5/5.5_offline-first-queue.md) |
 
 ### Phase 6: Polish & Release — [detailed status](POC-phase-6-status.md) | [requirements](POC-phase-6-requirements.md)
 
 | # | Task | Depends on | Status | Definition |
 |---|------|-----------|--------|------------|
-| 6.1 | Error handling and user feedback | All above | Not started | [task](POC-phase-6/6.1_error-handling.md) |
-| 6.2 | Keyboard shortcuts | 2.1 | Not started | [task](POC-phase-6/6.2_keyboard-shortcuts.md) |
-| 6.3 | App settings (backend URL, sync interval, etc.) | 5.2 | Not started | [task](POC-phase-6/6.3_app-settings.md) |
-| 6.4 | Desktop app packaging and release | 6.1 | Not started | [task](POC-phase-6/6.4_desktop-packaging.md) |
-| 6.5 | Backend deployment | 6.1 | Not started | [task](POC-phase-6/6.5_backend-deployment.md) |
+| 6.1 | Error handling and user feedback | All above | Cancelled | [task](POC-phase-6/6.1_error-handling.md) |
+| 6.2 | Keyboard shortcuts | 2.1 | Cancelled | [task](POC-phase-6/6.2_keyboard-shortcuts.md) |
+| 6.3 | App settings (backend URL, sync interval, etc.) | 5.2 | Cancelled | [task](POC-phase-6/6.3_app-settings.md) |
+| 6.4 | Desktop app packaging and release | 6.1 | Cancelled | [task](POC-phase-6/6.4_desktop-packaging.md) |
+| 6.5 | Backend deployment | 6.1 | Cancelled | [task](POC-phase-6/6.5_backend-deployment.md) |
 | 6.6 | Status bar across all apps | Phase 2 | Desktop done | [task](POC-phase-6/6.6_status-bar.md) |
 
 ---
 
 ## Current Status
 
-**Phase: Phase 4 complete. Phase 5 ready to start.**
+**Phase: POC concluded. Phases 1–4 complete. Phases 5–6 cancelled — see [POC-results.md](POC-results.md).**
 
 ### What's done
 
@@ -189,9 +189,14 @@ Sync local data with the backend service.
 - **Phase 4 complete** — link creation UI (`[[` autocomplete), bidirectional link storage (forward links, backlinks, broken reference detection), backlinks panel with context, inline reference sync on save/delete
 - **Status bar (6.6)** — desktop status bar with storage path, note/topic counts, and app version
 
-### What's next
+### Cancelled — Reconsidering
 
-**→ Start Phase 5 (Sync)** — Push/pull data to/from backend service
+- **Phase 5 (Sync)** — cancelled due to pivot: considering Cloudflare ArtifactFS instead of custom backend sync API
+- **Phase 6 (Polish & Release)** — cancelled: tasks 6.1–6.5 depend on sync/backend decisions; 6.6 (status bar) desktop done
+- **Backend features (B1–B3)** — reconsidering: custom backend API may be replaced by ArtifactFS
+- **Desktop sync (D7)** — reconsidering: sync approach to be redesigned
+
+See [POC-results.md](POC-results.md) for learnings and pivot details.
 
 ---
 

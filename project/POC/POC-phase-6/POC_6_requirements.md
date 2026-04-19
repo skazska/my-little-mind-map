@@ -33,7 +33,9 @@ References: [POC-requirements.md](POC-requirements.md), [POC-decisions.md](POC-d
 
 ---
 
-## Acceptance Criteria
+## Acceptance Criteria — Reconsidering
+
+> Phase 6 tasks 6.1–6.5 cancelled due to POC pivots. See [POC-results.md](../POC-results.md).
 
 - [ ] No raw error messages or stack traces shown to user
 - [ ] Network errors trigger offline mode gracefully

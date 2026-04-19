@@ -9,7 +9,7 @@
 | **Decisions** | D-006 (manual conflict resolution) |
 | **Depends on** | 5.2, Phase 1 (1.5) |
 | **Blocks** | 5.5 |
-| **Status** | Not started |
+| **Status** | Cancelled |
 
 ---
 

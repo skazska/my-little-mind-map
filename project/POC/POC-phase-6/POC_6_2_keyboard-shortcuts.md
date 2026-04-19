@@ -9,7 +9,7 @@
 | **Decisions** | — |
 | **Depends on** | Phase 2 (2.1) |
 | **Blocks** | — |
-| **Status** | Not started |
+| **Status** | Cancelled |
 
 ---
 

@@ -9,7 +9,7 @@
 | **Decisions** | D-003 (file-based storage), D-012 (single-user) |
 | **Depends on** | 6.1 |
 | **Blocks** | — |
-| **Status** | Not started |
+| **Status** | Cancelled |
 
 ---
 

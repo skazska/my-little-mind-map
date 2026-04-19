@@ -9,7 +9,7 @@
 | **Decisions** | D-003 (same file layout both sides), D-006 (single-user, manual conflict resolution), D-012 (single-user) |
 | **Depends on** | Phase 1 (1.1) |
 | **Blocks** | 5.2 |
-| **Status** | Not started |
+| **Status** | Cancelled |
 
 ---
 

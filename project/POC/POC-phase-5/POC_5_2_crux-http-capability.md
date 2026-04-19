@@ -9,7 +9,7 @@
 | **Decisions** | D-006 (sync strategy) |
 | **Depends on** | 5.1 |
 | **Blocks** | 5.3, 5.4, Phase 6 (6.3) |
-| **Status** | Not started |
+| **Status** | Cancelled |
 
 ---
 

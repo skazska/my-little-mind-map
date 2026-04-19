@@ -9,7 +9,7 @@
 | **Decisions** | D-002 (data directory), D-006 (sync configuration) |
 | **Depends on** | Phase 5 (5.2) |
 | **Blocks** | — |
-| **Status** | Not started |
+| **Status** | Cancelled |
 
 ---
 

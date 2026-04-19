@@ -9,7 +9,7 @@
 | **Decisions** | D-006 (single-user, queue offline) |
 | **Depends on** | 5.3, 5.4 |
 | **Blocks** | — |
-| **Status** | Not started |
+| **Status** | Cancelled |
 
 ---
 
