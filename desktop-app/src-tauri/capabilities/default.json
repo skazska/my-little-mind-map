@@ -4,9 +4,12 @@
     "description": "Default capabilities for the desktop app",
     "windows": ["main"],
     "permissions": [
-        "dialog:default",
-        "upload:default",
-        "fs:default",
+        "dialog:allow-open",
+        "upload:allow-upload",
+        {
+            "identifier": "fs:allow-read-file",
+            "allow": [{"path": "$HOME/**"}]
+        },
         "core:default"
     ]
 }

@@ -1,1 +1,1 @@
-{"default":{"identifier":"default","description":"Default capabilities for the desktop app","local":true,"windows":["main"],"permissions":["dialog:default","upload:default","fs:default","core:default"]}}
+{"default":{"identifier":"default","description":"Default capabilities for the desktop app","local":true,"windows":["main"],"permissions":["dialog:allow-open","upload:allow-upload",{"identifier":"fs:allow-read-file","allow":[{"path":"$HOME/**"}]},"core:default"]}}
