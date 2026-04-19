@@ -11,17 +11,17 @@ Decisions: [POC-decisions.md](POC-decisions.md) — D-003, D-006, D-012
 
 | # | Task | Depends on | Status | Definition |
 |---|------|-----------|--------|------------|
-| 5.1 | Sync protocol design | Phase 1 (1.1) | Not started | [5.1_sync-protocol-design.md](POC-phase-5/5.1_sync-protocol-design.md) |
-| 5.2 | CRUX HTTP capability for backend communication | 5.1 | Not started | [5.2_crux-http-capability.md](POC-phase-5/5.2_crux-http-capability.md) |
-| 5.3 | Push local changes to backend | 5.2, Phase 1 (1.5) | Not started | [5.3_push-local-changes.md](POC-phase-5/5.3_push-local-changes.md) |
-| 5.4 | Pull remote changes to local | 5.2, Phase 1 (1.5) | Not started | [5.4_pull-remote-changes.md](POC-phase-5/5.4_pull-remote-changes.md) |
-| 5.5 | Offline-first queue | 5.3, 5.4 | Not started | [5.5_offline-first-queue.md](POC-phase-5/5.5_offline-first-queue.md) |
+| 5.1 | Sync protocol design | Phase 1 (1.1) | Cancelled | [5.1_sync-protocol-design.md](POC-phase-5/5.1_sync-protocol-design.md) |
+| 5.2 | CRUX HTTP capability for backend communication | 5.1 | Cancelled | [5.2_crux-http-capability.md](POC-phase-5/5.2_crux-http-capability.md) |
+| 5.3 | Push local changes to backend | 5.2, Phase 1 (1.5) | Cancelled | [5.3_push-local-changes.md](POC-phase-5/5.3_push-local-changes.md) |
+| 5.4 | Pull remote changes to local | 5.2, Phase 1 (1.5) | Cancelled | [5.4_pull-remote-changes.md](POC-phase-5/5.4_pull-remote-changes.md) |
+| 5.5 | Offline-first queue | 5.3, 5.4 | Cancelled | [5.5_offline-first-queue.md](POC-phase-5/5.5_offline-first-queue.md) |
 
 ---
 
 ## Phase Status
 
-**Status: Not started** — Blocked on Phase 1 (data model + backend API).
+**Status: Cancelled** — Sync approach reconsidered due to Cloudflare ArtifactFS pivot. See [POC-results.md](../POC-results.md).
 
 ### Dependency Graph
 

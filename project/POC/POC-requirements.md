@@ -85,9 +85,11 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 | FR-D6.6 | User can insert inline references in the markdown editor (`[[note-id\|text]]`) |
 | FR-D6.7 | Deleting a note marks references in other notes as broken |
 
-### FR-D7: Sync to Backend
+### FR-D7: Sync to Backend — Reconsidering
 
 > Source: `README##Plan/POC`: "sync to Backend Service"; `README##Key`: "Local first, sync to backend service, but can work without it"
+>
+> **Reconsidering**: Custom backend sync API may be replaced by Cloudflare ArtifactFS. See [POC-results.md](POC-results.md).
 
 | ID | Requirement |
 |----|-------------|
@@ -100,9 +102,11 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ---
 
-## Functional Requirements — Backend Service
+## Functional Requirements — Backend Service — Reconsidering
 
-### FR-B1: Store
+> **Reconsidering**: Custom backend service may be replaced by Cloudflare ArtifactFS. See [POC-results.md](POC-results.md).
+
+### FR-B1: Store — Reconsidering
 
 > Source: `README##Plan/POC`: "store"; `README##How/Store`: "Save data locally. Sync data to the cloud"
 
@@ -113,7 +117,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 | FR-B1.3 | Data is stored per-user in separate directories (D-003, D-012) |
 | FR-B1.4 | Backend preserves all metadata (timestamps, source_type, etc.) |
 
-### FR-B2: Sync
+### FR-B2: Sync — Reconsidering
 
 > Source: `README##Plan/POC`: "sync"
 
@@ -124,7 +128,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 | FR-B2.3 | Backend detects version conflicts and rejects conflicting pushes (D-006) |
 | FR-B2.4 | Backend provides a health check endpoint (`/health`) |
 
-### FR-B3: Manage Data
+### FR-B3: Manage Data — Reconsidering
 
 > Source: `README##Plan/POC`: "manage data"
 

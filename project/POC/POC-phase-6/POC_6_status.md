@@ -11,18 +11,18 @@ Decisions: [POC-decisions.md](POC-decisions.md)
 
 | # | Task | Depends on | Status | Definition |
 |---|------|-----------|--------|------------|
-| 6.1 | Error handling and user feedback | All phases | Not started | [6.1_error-handling.md](POC-phase-6/6.1_error-handling.md) |
-| 6.2 | Keyboard shortcuts | Phase 2 (2.1) | Not started | [6.2_keyboard-shortcuts.md](POC-phase-6/6.2_keyboard-shortcuts.md) |
-| 6.3 | App settings (backend URL, sync interval, etc.) | Phase 5 (5.2) | Not started | [6.3_app-settings.md](POC-phase-6/6.3_app-settings.md) |
-| 6.4 | Desktop app packaging and release | 6.1 | Not started | [6.4_desktop-packaging.md](POC-phase-6/6.4_desktop-packaging.md) |
-| 6.5 | Backend deployment | 6.1 | Not started | [6.5_backend-deployment.md](POC-phase-6/6.5_backend-deployment.md) |
+| 6.1 | Error handling and user feedback | All phases | Cancelled | [6.1_error-handling.md](POC-phase-6/6.1_error-handling.md) |
+| 6.2 | Keyboard shortcuts | Phase 2 (2.1) | Cancelled | [6.2_keyboard-shortcuts.md](POC-phase-6/6.2_keyboard-shortcuts.md) |
+| 6.3 | App settings (backend URL, sync interval, etc.) | Phase 5 (5.2) | Cancelled | [6.3_app-settings.md](POC-phase-6/6.3_app-settings.md) |
+| 6.4 | Desktop app packaging and release | 6.1 | Cancelled | [6.4_desktop-packaging.md](POC-phase-6/6.4_desktop-packaging.md) |
+| 6.5 | Backend deployment | 6.1 | Cancelled | [6.5_backend-deployment.md](POC-phase-6/6.5_backend-deployment.md) |
 | 6.6 | Status bar across all apps | Phase 2 | Desktop done | [6.6_status-bar.md](POC-phase-6/6.6_status-bar.md) |
 
 ---
 
 ## Phase Status
 
-**Status: Not started** — Blocked on all prior phases.
+**Status: Cancelled** — Tasks 6.1–6.5 cancelled due to POC pivots. 6.6 (status bar) desktop done. See [POC-results.md](../POC-results.md).
 
 ### Dependency Graph
 

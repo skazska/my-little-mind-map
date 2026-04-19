@@ -9,7 +9,7 @@
 | **Decisions** | — |
 | **Depends on** | 6.1 |
 | **Blocks** | — |
-| **Status** | Not started |
+| **Status** | Cancelled |
 
 ---
 

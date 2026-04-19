@@ -40,7 +40,9 @@ References: [POC-requirements.md](POC-requirements.md), [POC-decisions.md](POC-d
 
 ---
 
-## Acceptance Criteria
+## Acceptance Criteria — Reconsidering
+
+> Phase 5 cancelled due to sync approach pivot. See [POC-results.md](../POC-results.md).
 
 - [ ] User can push local changes to backend and see them stored
 - [ ] User can pull backend changes to local
