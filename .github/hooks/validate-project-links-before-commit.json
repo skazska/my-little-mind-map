@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "./.github/hooks/scripts/run_validate_project_links_pre_commit.sh",
+        "timeout": 25
+      }
+    ]
+  }
+}

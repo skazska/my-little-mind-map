@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+set -eu
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+JS_SCRIPT="$REPO_ROOT/.github/hooks/scripts/validate_project_links_pre_commit.js"
+
+if ! command -v node >/dev/null 2>&1; then
+  printf '%s\n' 'Node.js is required to validate staged project markdown links before commit.' >&2
+  exit 1
+fi
+
+cd "$REPO_ROOT"
+exec node "$JS_SCRIPT" --git-pre-commit

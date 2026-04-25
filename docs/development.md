@@ -87,10 +87,12 @@ Add to `.vscode/settings.json`:
 }
 ```
 
-### `fnm` / `node` not found after install
+### `nvm` / `node` not found after install
 
 ```bash
-# If installed via fnm, ensure it's in PATH:
-export PATH="$HOME/.local/share/fnm:$PATH"
-eval "$(fnm env)"
+# If installed via nvm, ensure it's in PATH:
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
 ```

@@ -8,7 +8,7 @@ Install the following tools before starting development.
 |-------------|---------|---------|
 | **Rust**    | stable  | [rustup.rs](https://rustup.rs/)                              |
 | **just**    | latest  | `cargo install just`                                         |
-| **Node.js** | 22 LTS+ | [fnm](https://github.com/Schniz/fnm)                         |
+| **Node.js** | 22 LTS+ | [nvm](https://github.com/nvm-sh/nvm)                         |
 | **pnpm**    | 10+     | `corepack enable && corepack prepare pnpm@latest --activate` |
 | **Docker**  | 24+     | [docker.com](https://docs.docker.com/get-docker/)            |
 
