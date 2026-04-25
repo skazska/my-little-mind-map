@@ -5,9 +5,7 @@ Aggregates feedback, learnings, and outcomes from all POC phases.
 
 Possible decisions to go forward with implementation, pivot, or scrap the project based on POC findings.
 
-## Learnings Feedback Pivots
-
-### mdast
+## mdast
 
 1. mdast is actually a format.
 2. [mdast spike results](POC-phase-2/mdast-evaluation.md) to use `markdown` crate in Rust and `remark-parse` in JS for cross-platform AST compatibility doesn't look satisfactory at th end:
@@ -15,9 +13,9 @@ Possible decisions to go forward with implementation, pivot, or scrap the projec
     - need to investigate additionally whar cases require `serde` support for `Node` (e.g., storing references in index)
     - need additional research on markdown parsing in Rust to find better options (other crates, or extending `markdown` crate with serde support)
 
-### note referencing and identification
+## note referencing and identification
 
-Using uuid for note identification in references is not user-friendly nor text-centric (see `README##Key`).
+Using uuid for note identification in references is not user-friendly nor text-centric (see `IDEA##Key`).
 
 Need to concider use of links format and URI for note referencing and identification, e.g., `[text](note://<subtopic.topic>/<note/subnote>#title?fragment)`
 
@@ -28,7 +26,7 @@ This would require changes to:
 
 This would eliminate the need to support custom AST node for internal references and mdast dilemma, as the same markdown syntax and AST node can be used for both internal and external links.
 
-#### suggestions
+### suggestions
 
 1. Direct topic hierarchy tree to be stored in index so any topic can be identified by its path.
     - allow to uniquely identify topic as url.
@@ -51,7 +49,17 @@ This would eliminate the need to support custom AST node for internal references
     - e.g., `DeleteNote { note_id }` action that prevents deletion if note is referenced but allows to force deletion in UI with trigger to remove all references.
     - e.g., `DeleteTopic { topic_path, new_title }` action that prevents deletion if any note under this topic or subtopics is referenced but allows to force deletion in UI with trigger to remove non-last topic link of notes or remove all notes with last topic link under this topic.
 
-### Sync to cloud (backend service)
+## UI
+
+UI implementation in POC show tendency to be overloaded with controls.
+
+[IDEA##Key] suggests text-centered approach where text is the keystone.
+
+1. note topics is to be placed in content as with `#topic.subtopic` (or other preferable standard) syntax, saving note must check at least 1 topic link in content presented and update note classification accordingly. It ok to show note topics in metadata/sidebar panel but it should be derived from content and not editable directly from there to avoid sync issues.
+2. note title is to be placed in content as with `# Note Title` according to markdown standard, saving note must check title in content and update note title in index accordingly. It ok to show note title in metadata/sidebar panel but it should be derived from content and not editable directly from there to avoid sync issues.
+3. actions like add file, capture screen part, etc. should be triggered from text commands in content like `/add file` or `/capture screen` (or other preferable standard syntax), and not from buttons in UI to avoid overload and to keep text-centered approach.
+
+## Sync to cloud (backend service)
 
 Because of cloudflare announcement of [artifactfs](https://developers.cloudflare.com/artifacts) it worth to reconsider the approach to sync with own backend service via own API and instead use artifactfs to sync local storage with cloud.
 

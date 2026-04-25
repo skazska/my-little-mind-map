@@ -26,8 +26,8 @@ References: [POC-requirements.md](POC-requirements.md), [POC-decisions.md](POC-d
 | P6-R5 | Shortcuts documented and discoverable in app | — |
 | P6-R6 | App settings: backend URL, sync interval, data directory | FR-D7, D-002 |
 | P6-R7 | Settings persist locally | D-002 |
-| P6-R8 | Desktop app packages for Linux (.deb, .AppImage), macOS (.dmg), Windows (.msi) | `README##Development process/CI/CD` |
-| P6-R9 | Backend deployable as Docker container or standalone binary | `README##Development process/CI/CD` |
+| P6-R8 | Desktop app packages for Linux (.deb, .AppImage), macOS (.dmg), Windows (.msi) | `IDEA##Development process/CI/CD` |
+| P6-R9 | Backend deployable as Docker container or standalone binary | `IDEA##Development process/CI/CD` |
 | P6-R10 | Performance meets NFR-6 baselines | NFR-6.1–6.3 |
 | P6-R11 | All client apps display a persistent status bar showing storage path, counts, and version (D-014) | NFR-7.1–7.5 |
 

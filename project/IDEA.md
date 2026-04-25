@@ -91,6 +91,7 @@ Miro: visual collaboration, mind mapping, whiteboarding.
 ## Key
 
 Text centered, text is a keystone artifact, other artifacts must be referenced in some text.
+Note content is the source of truth, indexes, relations, references, and classifications are derived from it and must stay in sync with it.
 Classification is required.
 Topics are items of classifications.
 Angles are perspectives on topics, they can be used to group topics and artifacts in different ways.
@@ -101,11 +102,11 @@ Single-user data ownership.
 
 Rust first.
 
-Mobile Apps: Swift on iOS, kotlin on Android, FFI to rust lib that implements the biz logic and client for the API.
-Desktop App: Tauri, FFI to rust lib that implements the biz logic and client for the API.
-Web App: React, FFI to rust lib that implements the biz logic and client for the API.
+Mobile Apps: Swift on iOS, Kotlin on Android, FFI to Rust lib that implements the biz logic and client for the API.
+Desktop App: Tauri, FFI to Rust lib that implements the biz logic and client for the API.
+Web App: React, FFI to Rust lib that implements the biz logic and client for the API.
 [CRUX](https://github.com/redbadger/crux)
-Backend Service: Rust Axum/Actix-web.
+Backend Service: Rust Axum
 
 ## File structure
 

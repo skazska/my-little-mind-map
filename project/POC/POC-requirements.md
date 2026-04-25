@@ -1,8 +1,8 @@
 # POC — Requirements
 
-This document defines POC-scoped requirements for My Little Mind Map. Requirements are derived from [README.md](../README.md) feature expectations and design decisions in [POC-decisions.md](POC-decisions.md).
+This document defines POC-scoped requirements for My Little Mind Map. Requirements are derived from [IDEA.md](../IDEA.md) feature expectations and design decisions in [POC-decisions.md](POC-decisions.md).
 
-> **Notation:** `README##Section` references a section in README.md. `D-NNN` references a decision in POC-decisions.md. Phase-specific requirements are in `POC-phase-N-requirements.md`.
+> **Notation:** `IDEA##Section` references a section in IDEA.md. `D-NNN` references a decision in POC-decisions.md. Phase-specific requirements are in `POC-phase-N-requirements.md`.
 
 ---
 
@@ -10,7 +10,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### FR-D1: Write
 
-> Source: `README##Plan/POC`: "write"; `README##How/Collect`: "Write"; `README##Key`: "Text centered"
+> Source: `IDEA##Plan/POC`: "write"; `IDEA##How/Collect`: "Write"; `IDEA##Key`: "Text centered"
 
 | ID | Requirement |
 |----|-------------|
@@ -24,7 +24,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### FR-D2: Upload
 
-> Source: `README##Plan/POC`: "upload"; `README##How/Collect`: "import from other apps"
+> Source: `IDEA##Plan/POC`: "upload"; `IDEA##How/Collect`: "import from other apps"
 
 | ID | Requirement |
 |----|-------------|
@@ -36,7 +36,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### FR-D3: Paste from Clipboard
 
-> Source: `README##Plan/POC`: "paste from clipboard"; `README##How/Collect`: "Write"
+> Source: `IDEA##Plan/POC`: "paste from clipboard"; `IDEA##How/Collect`: "Write"
 
 | ID | Requirement |
 |----|-------------|
@@ -48,7 +48,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### FR-D4: Screen-Part Capture
 
-> Source: `README##Plan/POC`: "screen-part capture"; `README##How/Collect`: "take photo/video/audio"
+> Source: `IDEA##Plan/POC`: "screen-part capture"; `IDEA##How/Collect`: "take photo/video/audio"
 
 | ID | Requirement |
 |----|-------------|
@@ -59,7 +59,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### FR-D5: Classify
 
-> Source: `README##Plan/POC`: "classify"; `README##How/Collect`: "Classify artifacts by topics"; `README##Key`: "Classification is required"
+> Source: `IDEA##Plan/POC`: "classify"; `IDEA##How/Collect`: "Classify artifacts by topics"; `IDEA##Key`: "Classification is required"
 
 | ID | Requirement |
 |----|-------------|
@@ -73,7 +73,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### FR-D6: Link (Bidirectional)
 
-> Source: `README##Plan/POC`: "link(bidirectional)"; `README##How/Collect`: "Interlink artifacts, topics"; `README##Like What`: "Roam Research: bidirectional links", "Logseq: backlinks"
+> Source: `IDEA##Plan/POC`: "link(bidirectional)"; `IDEA##How/Collect`: "Interlink artifacts, topics"; `IDEA##Like What`: "Roam Research: bidirectional links", "Logseq: backlinks"
 
 | ID | Requirement |
 |----|-------------|
@@ -87,7 +87,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### FR-D7: Sync to Backend — Reconsidering
 
-> Source: `README##Plan/POC`: "sync to Backend Service"; `README##Key`: "Local first, sync to backend service, but can work without it"
+> Source: `IDEA##Plan/POC`: "sync to Backend Service"; `IDEA##Key`: "Local first, sync to backend service, but can work without it"
 >
 > **Reconsidering**: Custom backend sync API may be replaced by Cloudflare ArtifactFS. See [POC-results.md](POC-results.md).
 
@@ -108,7 +108,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### FR-B1: Store — Reconsidering
 
-> Source: `README##Plan/POC`: "store"; `README##How/Store`: "Save data locally. Sync data to the cloud"
+> Source: `IDEA##Plan/POC`: "store"; `IDEA##How/Store`: "Save data locally. Sync data to the cloud"
 
 | ID | Requirement |
 |----|-------------|
@@ -119,7 +119,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### FR-B2: Sync — Reconsidering
 
-> Source: `README##Plan/POC`: "sync"
+> Source: `IDEA##Plan/POC`: "sync"
 
 | ID | Requirement |
 |----|-------------|
@@ -130,7 +130,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### FR-B3: Manage Data — Reconsidering
 
-> Source: `README##Plan/POC`: "manage data"
+> Source: `IDEA##Plan/POC`: "manage data"
 
 | ID | Requirement |
 |----|-------------|
@@ -145,7 +145,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### NFR-1: Local-First
 
-> Source: `README##Key`: "Local first, sync to backend service, but can work without it"
+> Source: `IDEA##Key`: "Local first, sync to backend service, but can work without it"
 
 | ID | Requirement |
 |----|-------------|
@@ -155,7 +155,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### NFR-2: Text-Centered
 
-> Source: `README##Key`: "Text centered, text is a keystone artifact, other artifacts must be referenced in some text" (D-010)
+> Source: `IDEA##Key`: "Text centered, text is a keystone artifact, other artifacts must be referenced in some text" (D-010)
 
 | ID | Requirement |
 |----|-------------|
@@ -164,7 +164,7 @@ This document defines POC-scoped requirements for My Little Mind Map. Requiremen
 
 ### NFR-3: Cross-Platform Core
 
-> Source: `README##Tech Stack`: "CRUX"; architecture uses shared Rust core
+> Source: `IDEA##Tech Stack`: "CRUX"; architecture uses shared Rust core
 
 | ID | Requirement |
 |----|-------------|

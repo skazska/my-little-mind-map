@@ -2,7 +2,7 @@
 
 This document records key decisions made for the POC scope. Each decision includes context, options considered, the chosen approach, and rationale.
 
-> References use the format `README##Section` for README.md sections, `REQ-XXX` for requirements in [POC-requirements.md](POC-requirements.md) and `PLAN##Section` for [PLAN](PLAN.md) sections.
+> References use the format `IDEA##Section` for IDEA.md sections, `REQ-XXX` for requirements in [POC-requirements.md](POC-requirements.md) and `PLAN##Section` for [PLAN](PLAN.md) sections.
 
 ---
 
@@ -26,7 +26,7 @@ This document records key decisions made for the POC scope. Each decision includ
 
 ## D-002: Local Storage — Desktop App
 
-**Context:** The desktop app needs to persist artifacts, topics, relations, and metadata locally. Must support offline-first operation. See `README##Key`: "Local first, sync to backend service, but can work without it."
+**Context:** The desktop app needs to persist artifacts, topics, relations, and metadata locally. Must support offline-first operation. See `IDEA##Key`: "Local first, sync to backend service, but can work without it."
 
 **Options:**
 
@@ -39,7 +39,7 @@ This document records key decisions made for the POC scope. Each decision includ
 
 **Decision:** File-based storage — JSON files for indexes + markdown/media files for content.
 
-**Rationale:** Aligns with `README##Key` principle "Text centered, text is a keystone artifact." Notes are stored as markdown files, non-text artifacts (images, documents) live alongside their referencing note. Metadata stored as JSON per note. Global index files track references, topics, relations, and classifications. This approach is human-readable, inspectable, and git-friendly. No ACID guarantees needed for single-user POC.
+**Rationale:** Aligns with `IDEA##Key` principle "Text centered, text is a keystone artifact." Notes are stored as markdown files, non-text artifacts (images, documents) live alongside their referencing note. Metadata stored as JSON per note. Global index files track references, topics, relations, and classifications. This approach is human-readable, inspectable, and git-friendly. No ACID guarantees needed for single-user POC.
 
 **Storage Layout:**
 
@@ -91,7 +91,7 @@ data/
 
 ## D-004: Topic Structure
 
-**Context:** Topics classify artifacts. Need to decide how topics relate to each other. See `README##What for?`: "structure (Artifacts relations, Topics relations, Artifacts-Topics relations, Topic-hierarchy, Angles)."
+**Context:** Topics classify artifacts. Need to decide how topics relate to each other. See `IDEA##What for?`: "structure (Artifacts relations, Topics relations, Artifacts-Topics relations, Topic-hierarchy, Angles)."
 
 **Options:**
 
@@ -103,7 +103,7 @@ data/
 
 **Decision:** Graph — topics as nodes with typed relations. Topics can classify other topics.
 
-**Rationale:** The README envisions rich topic structure including hierarchy, angles, and inter-topic relations. A graph model with typed edges naturally supports "subtopic-of" (hierarchy), "related-to" (associations), and recursive classification (topics classifying topics). Flat list is too limited; rigid tree prevents the multi-perspective structure described in `README##What for?`.
+**Rationale:** The IDEA envisions rich topic structure including hierarchy, angles, and inter-topic relations. A graph model with typed edges naturally supports "subtopic-of" (hierarchy), "related-to" (associations), and recursive classification (topics classifying topics). Flat list is too limited; rigid tree prevents the multi-perspective structure described in `IDEA##What for?`.
 
 **Relation Types (POC):**
 
@@ -115,7 +115,7 @@ data/
 
 ## D-005: Markdown Content Storage Format
 
-**Context:** Artifacts contain markdown text. Need to decide storage format. See `README##Key`: "Text centered, text is a keystone artifact."
+**Context:** Artifacts contain markdown text. Need to decide storage format. See `IDEA##Key`: "Text centered, text is a keystone artifact."
 
 **Options:**
 
@@ -149,7 +149,7 @@ data/
 
 ## D-006: Sync Strategy
 
-**Context:** Desktop app syncs local data with the backend. See `README##Key`: "Local first, sync to backend service, but can work without it."
+**Context:** Desktop app syncs local data with the backend. See `IDEA##Key`: "Local first, sync to backend service, but can work without it."
 
 **Options:**
 
@@ -170,23 +170,23 @@ data/
 - On conflict, client pulls server version and presents both to user for manual merge
 - Future: owner-controlled actions to merge external data (e.g., shared topics from other users)
 
-> **Note:** Update `README##Key` to reflect single-user data ownership model (see D-012).
+> **Note:** Update `IDEA##Key` to reflect single-user data ownership model (see D-012).
 
 ---
 
 ## D-007: Graph View
 
-**Context:** Visual graph of notes and topics. See `README##Like What`: "Obsidian: graph view" and `PLAN##MVP2`: "Better visualisation of data and relations e.g. graph view, mind map view."
+**Context:** Visual graph of notes and topics. See `IDEA##Like What`: "Obsidian: graph view" and `PLAN##MVP2`: "Better visualisation of data and relations e.g. graph view, mind map view."
 
 **Decision:** Defer to MVP2.
 
-**Rationale:** Graph visualization is significant effort (rendering engine, layout algorithms, interaction). POC focuses on core data operations: create, classify, link, sync. List/browse views are sufficient for POC navigation. Graph view is explicitly listed under MVP2 in README.
+**Rationale:** Graph visualization is significant effort (rendering engine, layout algorithms, interaction). POC focuses on core data operations: create, classify, link, sync. List/browse views are sufficient for POC navigation. Graph view is explicitly listed under MVP2 in IDEA.
 
 ---
 
 ## D-008: Automatic Metadata
 
-**Context:** What metadata to capture automatically when creating artifacts. See `README##How/Collect`: "Classify artifacts by topics, tag datetime locations and other metadata."
+**Context:** What metadata to capture automatically when creating artifacts. See `IDEA##How/Collect`: "Classify artifacts by topics, tag datetime locations and other metadata."
 
 **Options:**
 
@@ -204,13 +204,13 @@ data/
 - `updated_at`: ISO 8601 timestamp, updated on every save
 - `source_type`: enum — `typed`, `pasted`, `uploaded`, `captured`
 
-**Rationale:** Source type provides useful context for how an artifact was collected (aligns with `README##How/Collect` which lists write, paste, upload, capture as distinct collection methods). Location adds platform-specific complexity (GPS permissions, desktop location APIs) — defer to future.
+**Rationale:** Source type provides useful context for how an artifact was collected (aligns with `IDEA##How/Collect` which lists write, paste, upload, capture as distinct collection methods). Location adds platform-specific complexity (GPS permissions, desktop location APIs) — defer to future.
 
 ---
 
 ## D-009: Reference Index Sync
 
-**Context:** Notes contain markdown references to other notes and artifacts. These references also exist in the global index (`index/references.json`). The two must stay in sync. See `README##Key`: "other artifacts must be referenced in some text."
+**Context:** Notes contain markdown references to other notes and artifacts. These references also exist in the global index (`index/references.json`). The two must stay in sync. See `IDEA##Key`: "other artifacts must be referenced in some text."
 
 **Decision:** In-text markdown references must stay bidirectionally in sync with the references index.
 
@@ -220,13 +220,13 @@ data/
 2. **On reference index change** (e.g., linked note deleted): Update referencing note's AST to mark reference as broken/orphaned
 3. **Reference format in markdown:** `[[note-id|display text]]` for internal note links, `![alt](assets/filename)` for embedded assets
 
-**Rationale:** The `README##Key` principle "other artifacts must be referenced in some text" means the index is derived from text content. Text is the source of truth for references; the index is a computed cache for fast lookups and backlink resolution.
+**Rationale:** The `IDEA##Key` principle "other artifacts must be referenced in some text" means the index is derived from text content. Text is the source of truth for references; the index is a computed cache for fast lookups and backlink resolution.
 
 ---
 
 ## D-010: Text-Centered Design
 
-**Context:** `README##Key`: "Text centered, text is a keystone artifact, other artifacts must be referenced in some text."
+**Context:** `IDEA##Key`: "Text centered, text is a keystone artifact, other artifacts must be referenced in some text."
 
 **Decision:** Notes (text/markdown) are the keystone artifact type. All other artifact types (images, documents, audio, etc.) must be referenced from at least one note.
 
@@ -241,7 +241,7 @@ data/
 
 ## D-011: Classification Required
 
-**Context:** `README##Key`: "Classification is required."
+**Context:** `IDEA##Key`: "Classification is required."
 
 **Decision:** Every note must be classified with at least one topic.
 
@@ -266,13 +266,13 @@ data/
 - Backend stores data per-user directory (prepared for multi-user future)
 - Sync conflicts are same-user multi-device conflicts only
 - Future: owner-controlled actions to merge/accept external data
-- `README##Key` to be updated to include: "Single-user data ownership."
+- `IDEA##Key` to be updated to include: "Single-user data ownership."
 
 ---
 
 ## D-013: Screen Capture Implementation
 
-**Context:** POC feature D4 requires capturing a screen region as an artifact. See `README##Plan/POC`: "screen-part capture."
+**Context:** POC feature D4 requires capturing a screen region as an artifact. See `IDEA##Plan/POC`: "screen-part capture."
 
 **Options:**
 

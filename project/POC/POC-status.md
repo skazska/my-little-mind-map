@@ -1,6 +1,6 @@
 # POC — Development Plan & Status
 
-## POC Scope (from README)
+## POC Scope (from IDEA)
 
 > Desktop App with basic features: write, upload, paste from clipboard, screen-part capture, classify, link(bidirectional), sync to Backend Service.
 > Backend Service with basic features: store, sync, manage data.
