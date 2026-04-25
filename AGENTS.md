@@ -62,3 +62,8 @@ Inspired by personal knowledge management, note-taking, and project management t
 - **Testing**: unit for reusable or non-typing protected logic, integration and E2E for user flows and critical features.
 - **Git Flow**: See `docs/development/git-flow.md`
 - **CI/CD**: GitHub Actions
+
+## MCP services
+
+io.github.github/github-mcp-server
+io.github.ChromeDevTools/chrome-devtools-mcp

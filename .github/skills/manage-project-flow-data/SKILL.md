@@ -23,7 +23,7 @@ Collect or infer these inputs before editing:
 - Sprint/phase identifier within the milestone
 - Task number and short name
 - Current and target status values
-- Required links to related artifacts (requirements, decisions, results, PRs/commits)
+- Required links to related artifacts (requirements, open-questions, decisions, results, PRs/commits)
 
 If any identifier is unclear, inspect existing neighboring files first and match existing patterns.
 
@@ -52,17 +52,17 @@ Use a fixed status vocabulary for all roll-ups:
 
 2. Ensure milestone artifacts exist and are current
 - For a new milestone, create a milestone file and milestone folder with required companion docs used by this repository.
-- For an existing milestone, update requirements/decisions/status/results sections as needed.
+- For an existing milestone, update requirements/open-questions/decisions/status/results sections as needed.
 - Keep links between milestone summary and milestone folder files current.
 
 3. Ensure sprint/phase artifacts exist and are current
 - Create or update sprint/phase summary file under the milestone path.
-- Create or update sprint companion docs (requirements, decisions, status) if that pattern is used for the milestone.
+- Create or update sprint companion docs (requirements, open-questions, decisions, status) if that pattern is used for the milestone.
 - Make sure sprint status reflects task states and blockers.
 
 4. Ensure task artifacts exist and are current
 - Create or update task file using task numbering and naming used in the sprint.
-- Include goal, requirements, design notes, deliverables, acceptance criteria, and status.
+- Include goal, requirements, open-questions, design notes, deliverables, acceptance criteria, and status.
 - Record implementation artifacts (PRs, commits, follow-ups) when available.
 
 5. Update status chain bottom-up
