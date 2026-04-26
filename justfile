@@ -41,28 +41,28 @@ dev-backend:
 
 # Run desktop app in dev mode
 dev-desktop:
-    cd desktop-app && pnpm tauri dev
+    cd desktop-app && npm run dev
 
 # Build desktop app
 build-desktop:
-    cd desktop-app && pnpm tauri build
+    cd desktop-app && npm run build
 
 # === Web ===
 
 # Run web app in dev mode
 dev-web:
-    cd web-app && pnpm dev
+    cd web-app && npm run dev
 
 # Build web app
 build-web:
-    cd web-app && pnpm build
+    cd web-app && npm run build
 
 # === Setup ===
 
 # Install all JS dependencies
 install-js:
-    cd desktop-app && pnpm install
-    cd web-app && pnpm install
+    cd desktop-app && npm install
+    cd web-app && npm install
 
 # Install scripts dependencies
 setup-scripts:

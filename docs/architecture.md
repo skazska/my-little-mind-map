@@ -70,4 +70,4 @@ Shell (UI) ──Event──► Core.update() ──Effects──► Shell (exec
 | iOS         | Swift + SwiftUI        | Native UX, UniFFI bindings to shared core        |
 | Android     | Kotlin + Compose       | Native UX, UniFFI bindings to shared core        |
 | Monorepo    | Cargo workspace + just | Language-agnostic orchestration                  |
-| JS tooling  | pnpm + Vite            | Fast, efficient package management and bundling  |
+| JS tooling  | npm + Vite             | Standard package management and bundling         |

@@ -6,8 +6,8 @@ just dev-desktop
 
 # Or manually:
 cd desktop-app
-pnpm install
-pnpm tauri dev
+npm install
+npm run dev
 
 # Build release:
 just build-desktop

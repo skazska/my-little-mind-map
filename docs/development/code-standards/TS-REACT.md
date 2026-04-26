@@ -8,4 +8,4 @@ applyTo: '**/*.{ts,tsx}'
 - **Format:** Prettier (enforced in CI)
 - **Lint:** ESLint with `--max-warnings=0` (enforced in CI)
 - **Framework:** React 19, Vite 6, TypeScript strict mode
-- **Package manager:** pnpm only — do not use npm or yarn
+- **Package manager:** npm

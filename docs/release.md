@@ -106,8 +106,8 @@ just build-desktop
 
 # Or manually:
 cd desktop-app
-pnpm install
-pnpm tauri build
+npm install
+npm run build
 ```
 
 **Output:** `desktop-app/src-tauri/target/release/bundle/`
@@ -180,7 +180,7 @@ Runs on every push/PR to `main`:
 | Job | Steps |
 |-----|-------|
 | **rust** | Format check → Clippy → Build → Test (all Rust crates) |
-| **web** | pnpm install → Build web-app |
+| **web** | npm install → Build web-app |
 
 ### Release workflow (to be added)
 
@@ -210,8 +210,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - uses: pnpm/action-setup@v4
-        with: { version: 10 }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - name: Install system deps
@@ -221,7 +219,7 @@ jobs:
             libappindicator3-dev librsvg2-dev patchelf \
             libgtk-3-dev libsoup-3.0-dev \
             libjavascriptcoregtk-4.1-dev
-      - run: cd desktop-app && pnpm install && pnpm tauri build
+      - run: cd desktop-app && npm install && npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: desktop-linux
@@ -232,11 +230,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - uses: pnpm/action-setup@v4
-        with: { version: 10 }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - run: cd desktop-app && pnpm install && pnpm tauri build
+      - run: cd desktop-app && npm install && npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: desktop-macos
@@ -247,11 +243,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - uses: pnpm/action-setup@v4
-        with: { version: 10 }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - run: cd desktop-app && pnpm install && pnpm tauri build
+      - run: cd desktop-app && npm install && npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: desktop-windows
@@ -261,11 +255,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: 10 }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - run: cd web-app && pnpm install && pnpm build
+      - run: cd web-app && npm install && npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: web-dist

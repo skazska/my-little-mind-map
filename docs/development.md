@@ -44,7 +44,6 @@ Create a `.env` file in the project root for local overrides (loaded by `justfil
 RUST_LOG=debug
 ```
 
-
 ## code process
 
 [git flow](development/git-flow.md)
@@ -68,9 +67,9 @@ RUST_LOG=debug
 
 Install Tauri system dependencies for your OS (see [Prerequisites](development/prerequisites.md#linux-ubuntudebian--tauri-system-dependencies)).
 
-### `pnpm install` shows "Ignored build scripts: esbuild"
+### `npm install` shows "npm warn"  messages
 
-This is a pnpm 10 security feature. The build still works. To suppress, run `pnpm approve-builds` and approve `esbuild`.
+Usually safe to ignore unless they indicate a missing peer dependency. Run `npm install --legacy-peer-deps` if peer dependency conflicts arise.
 
 ### Tauri dev mode: blank window
 

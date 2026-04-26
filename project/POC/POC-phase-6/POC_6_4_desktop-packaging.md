@@ -29,7 +29,7 @@ Build installable desktop app packages for target platforms.
 
 ### Build Process
 
-- `just build-desktop` runs `cd desktop-app && pnpm tauri build`
+- `just build-desktop` runs `cd desktop-app && npm run build`
 - Tauri v2 handles platform-specific bundling
 - Output: `desktop-app/src-tauri/target/release/bundle/`
 
