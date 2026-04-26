@@ -1,6 +1,12 @@
 # POC
 
-## Overview
+## Goals
+
+## Requirements
+
+## Open questions
+
+## Decisions
 
 ## Status
 

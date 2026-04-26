@@ -28,23 +28,22 @@ Project idea, vision, and goals in `project/IDEA.md`.
 - documentation: changes proposed to improve documentation (dev, project, spec), actualize docs, add new docs, update statuses.
 - plan & research: activities related to planning and researching for milestones, sprints, and tasks, including creating and updating project documentation, researching solutions, etc.
 - iteration: can be one or set of any of the above change types planed or unplanned, included in pull request.
-- task: planned unit of change that can be implemented, tested, and reviewed within a sprint/phase, with clear goal, requirements, design, acceptance criteria, and deliverables.
-- sprint/phase: planned transition between consistent states of the product, consisting of a set of tasks that can be performed in parallel or sequentially, with clear requirements, decisions, and status.
+- task: planned unit of change that can be implemented, tested, and reviewed within a sprint, with clear goal, requirements, design, acceptance criteria, and deliverables.
+- sprint: planned transition between consistent states of the product, consisting of a set of tasks that can be performed in parallel or sequentially, with clear requirements, decisions, and status.
 - milestone: a significant stage or event in the project, such as POC, MVP, etc.
 
 ## Flow structure
 
 1. [PLAN](../project/PLAN.md) - high-level plan and roadmap, milestones (like POC, POC3, MVP etc.).
-2. Each milestone consists of sprints/phases and represented by file `project/{MILESTONE}.md` containing overall requirements, open-questions, decisions, status and `results and learnings`, and a folder `project/{MILESTONE}/` with optioonal:
+2. Each milestone consists of sprints and represented by file `project/{MILESTONE}.md` containing overall goals, requirements, open-questions, decisions, status and `results and learnings`, and a folder `project/{MILESTONE}/` with artifacts and optional detailed files for requirements, decisions, and results:
     - `{MILESTONE}-requirements.md` - milestone requirements details.
     - `{MILESTONE}-decisions.md` - milestone implementation decisions details.
-    - `{MILESTONE}-status.md` - per phase/sprint.
     - `{MILESTONE}-results.md` - results and learnings from this milestone, including further PLAN change decisions.
-3. Each phase/sprint consists of tasks and represented by file `project/{MILESTONE}/{MILESTONE}-sprint-{NUM}.md` with overall requirements, open-questions, decisions and status and a folder `project/{MILESTONE}/{MILESTONE}-sprint-{NUM}/` with optional:
-    - `{MILESTONE}-{NUM}-requirements.md` - requirements for this phase/sprint, including features, improvements, bug fixes, etc.
-    - `{MILESTONE}-{NUM}-decisions.md` - decisions made for this phase/sprint implementations, including design choices, trade-offs, etc.
-    - `{MILESTONE}-{NUM}-status.md` - current status of this phase/sprint.
-4. Each task represented by file `project/{MILESTONE}/{MILESTONE}-sprint-{NUM}/{TASK_NUM}_{TASK_NAME}.md` with details of the task, including goal, requirements, open-questions, design, deliverables, acceptance criteria, etc. and optionally a folder `project/{MILESTONE}/{MILESTONE}-sprint-{NUM}/{TASK_NUM}_{TASK_NAME}/` with additional artifacts or implementation details.
+3. Each sprint consists of tasks and represented by file `project/{MILESTONE}/{MILESTONE}-{SPRINT}.md` with overall goals, requirements, open-questions, decisions and status and a folder `project/{MILESTONE}/{MILESTONE}-{SPRINT}/` with artifacts and optional detailed files for requirements, decisions, and status:
+    - `{MILESTONE}-{SPRINT}-requirements.md` - requirements for this sprint, including features, improvements, bug fixes, etc.
+    - `{MILESTONE}-{SPRINT}-decisions.md` - decisions made for this sprint implementations, including design choices, trade-offs, etc.
+    - `{MILESTONE}-{SPRINT}-status.md` - current status of this sprint.
+4. Each task represented by file `project/{MILESTONE}/{MILESTONE}-{SPRINT}/{MILESTONE}-{SPRINT}-{TASK}.md` with details of the task, including goal, requirements, open-questions, design, deliverables, acceptance criteria, etc. and optionally a folder `project/{MILESTONE}/{MILESTONE}-{SPRINT}/{MILESTONE}-{SPRINT}-{TASK}/` with additional artifacts or task details.
 
 ## Flow process
 

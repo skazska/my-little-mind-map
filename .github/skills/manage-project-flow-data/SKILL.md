@@ -1,31 +1,79 @@
 ---
 name: manage-project-flow-data
 description: 'Create and maintain project-flow documentation for PLAN, milestones, sprints, and tasks. Use when adding or updating milestone folders, sprint/task files, and status tracking links in project docs.'
-argument-hint: 'What milestone/sprint/task change should be made?'
+argument-hint: 'yaml with fields:
+  new_{milestone|sprint|task}:
+    name: {MILESTONE_NAME}[-{SPRINT}[-{TASK}]]:
+    description: short description of the milestone/sprint/task
+    goals:
+      - GOAL_{GOAL_CODE}: description
+      - ...
+    requirements:
+      - REQ_{REQUIREMENT_CODE}: description
+      - ...
+    design_notes?:
+      - DN_{DESIGN_NOTE_CODE}: description
+      - ...
+    deliverables?:
+      - DLV_{DELIVERABLE_CODE}: description
+      - ...
+    open_questions?:
+      - Q_{QUESTION_CODE}: description
+      - ...
+    acceptance_criteria?:
+      - AC_{AC_CODE}: description
+      - ...
+  patch_{milestone|sprint|task}:
+    name: {MILESTONE_NAME}[-{SPRINT}[-{TASK}]]:
+    description?: short description of the milestone/sprint/task
+    {goals|requirements|design_notes|deliverables|open_questions|acceptance_criteria|decisions|status|results}?:
+      - {section_code}: description
+      - ...
+  rename_{milestone|sprint|task}:
+    old_name: {MILESTONE_NAME}[-{SPRINT}[-{TASK}]]
+    new_name: {MILESTONE_NAME}[-{SPRINT}[-{TASK}]]
+  update_{milestone|sprint|task}:
+    name: {MILESTONE_NAME}[-{SPRINT}[-{TASK}]]
+    status?: planned | in-progress | blocked | done
+    decisions?:
+      - D_{DECISION_CODE}: description
+      - ...
+    results?:
+      - R_{RESULT_CODE}: description
+      - ...
+  details_{milestone|sprint}:
+    name: {MILESTONE_NAME}[-{SPRINT}]
+    requirements?:
+      - REQ_{REQUIREMENT_CODE}: details
+      - ...
+    decisions?:
+      - D_{DECISION_CODE}: details
+      - ...
+    results?:
+      - R_{RESULT_CODE}: details
+      - ...
+'
 user-invocable: true
 ---
 
 # Manage Project Flow Data
 
-Create and update planning artifacts in `project/` using the repository project-flow conventions.
+Create and update planning artifacts in `project/` using the repository [project-flow](../../../docs/project-flow.md) conventions.
+
+create PLAN.md if it does not exist.
 
 Use this skill when you need to:
-- Add or modify files and folders for a milestone defined in `project/PLAN.md`
-- Add or modify files and folders for sprints/phases in that milestone
-- Add or modify files and folders for tasks in a sprint/phase
-- Update task, sprint, milestone, and PLAN status so progress stays internally consistent
+- Add, patch milestones
+- Add, patch sprints for milestone
+- Add, patch tasks in a sprint
+- Update task, sprint, milestone status, results, decisions so progress stays internally consistent
+- Rename milestones, sprints, or tasks to keep naming consistent and clear
+- Add details to milestone or sprint requirements, decisions, or results as dedicated files linked from summary file.
+- Add artifact files to milestone, sprint, or task folders to be linked from summary file. 
 
 ## Inputs
 
-Collect or infer these inputs before editing:
-- Change type: new milestone, milestone update, new sprint, sprint update, new task, task update, status update
-- Milestone identifier and canonical naming scheme used by this skill
-- Sprint/phase identifier within the milestone
-- Task number and short name
-- Current and target status values
-- Required links to related artifacts (requirements, open-questions, decisions, results, PRs/commits)
-
-If any identifier is unclear, inspect existing neighboring files first and match existing patterns.
+For all operations except adding artifact files, input should follow the YAML structure defined in the `argument-hint` field above. For adding artifact files, input should include the target milestone/sprint/task, and link to the file to be added.
 
 ## Canonical Conventions
 
@@ -33,15 +81,94 @@ Use one canonical naming scheme across milestones, sprints/phases, and tasks. Do
 
 - Milestone summary file: `project/{MILESTONE}.md`
 - Milestone folder: `project/{MILESTONE}/`
-- Sprint/phase summary file: `project/{MILESTONE}/{MILESTONE}-sprint-{NUM}.md`
-- Sprint/phase folder: `project/{MILESTONE}/{MILESTONE}-sprint-{NUM}/`
-- Task file: `project/{MILESTONE}/{MILESTONE}-sprint-{NUM}/{TASK_NUM}_{TASK_NAME}.md`
+- Sprint summary file: `project/{MILESTONE}/{MILESTONE}-{SPRINT}.md`
+- Sprint folder: `project/{MILESTONE}/{MILESTONE}-{SPRINT}/`
+- Task file: `project/{MILESTONE}/{MILESTONE}-{SPRINT}/{MILESTONE}-{SPRINT}-{TASK}.md`
+- Task folder (optional): `project/{MILESTONE}/{MILESTONE}-{SPRINT}/{MILESTONE}-{SPRINT}-{TASK}/`
 
 Use a fixed status vocabulary for all roll-ups:
 - `planned`
 - `in-progress`
 - `blocked`
 - `done`
+
+## Templates
+File template for milestones, sprints, and tasks summary files:
+```
+# {MILESTONE} / {MILESTONE}-{SPRINT} / {MILESTONE}-{SPRINT}-{TASK}
+
+Milestone [{MILESTONE}]({link to parent file (PLAN.md, milestone file, or sprint file)})
+Sprint [{SPRINT}]({link to parent file (PLAN.md, milestone file, or sprint file)}) - if this is a sprint or task file
+Task {TASK} - if this is a task file
+
+short description.
+
+## Goals
+- [GOAL_1]
+- [GOAL_2]
+...
+
+## Requirements
+- [REQ_1]
+- [REQ_2]
+... 
+
+## Open questions
+- [Q_1]
+- [Q_2]
+... 
+
+[##Design notes] - optional, for tasks
+- [DN_1]
+- [DN_2]
+...
+
+[## Decisions] - not for tasks
+- [D_1]
+- [D_2]
+...
+
+[## Deliverables] - optional, not for milestones
+- [DLV_1]
+- [DLV_2]
+...
+
+[## Acceptance criteria] - optional, for tasks
+- [AC_1]
+- [AC_2]
+...
+
+## Status
+[planned | in-progress | blocked | done]
+
+## Results and learnings
+- [R_1]
+- [R_2]
+...
+
+[Additional sections as needed, e.g. design notes for tasks, results and learnings for milestones, etc.]
+
+```
+
+Template for milestone/sprint requirements, decisions, and results details files:
+```
+# {MILESTONE} / {MILESTONE}-{SPRINT} / {MILESTONE}-{SPRINT}-{TASK} {section}
+
+Summary: link to the milestone/sprint/task summary file and section.
+[{Description}].
+[{Links}].
+
+## [CODE]
+
+Description
+
+## [CODE]
+
+Description
+
+...
+
+```
 
 ## Workflow
 
@@ -52,12 +179,12 @@ Use a fixed status vocabulary for all roll-ups:
 
 2. Ensure milestone artifacts exist and are current
 - For a new milestone, create a milestone file and milestone folder with required companion docs used by this repository.
-- For an existing milestone, update requirements/open-questions/decisions/status/results sections as needed.
+- For an existing milestone, update goals, requirements, open-questions, decisions, status, and results sections as needed.
 - Keep links between milestone summary and milestone folder files current.
 
 3. Ensure sprint/phase artifacts exist and are current
 - Create or update sprint/phase summary file under the milestone path.
-- Create or update sprint companion docs (requirements, open-questions, decisions, status) if that pattern is used for the milestone.
+- Create or update sprint companion docs (goals, requirements, open-questions, decisions, status) if that pattern is used for the milestone.
 - Make sure sprint status reflects task states and blockers.
 
 4. Ensure task artifacts exist and are current
@@ -103,7 +230,7 @@ Status roll-up rules:
 
 ## Quality Criteria
 
-- Documentation-first: decisions, open-questions and requirements are documented before implementation status is marked complete.
+- Documentation-first: decisions, open-questions, requirements, and goals are documented before implementation status is marked complete.
 - Traceability: each status update is backed by links to tasks and implementation artifacts when available.
 - Consistency over novelty: prefer existing repository structure and naming conventions over inventing new ones.
 - Minimal drift: update all impacted docs in one pass to avoid stale status snapshots.
