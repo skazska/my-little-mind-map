@@ -64,6 +64,24 @@ install-js:
     cd desktop-app && pnpm install
     cd web-app && pnpm install
 
+# Install scripts dependencies
+setup-scripts:
+    cd scripts && npm install
+
+# Build all Node scripts (requires setup-scripts first)
+build-scripts:
+    cd scripts && npm run build
+
+# Run Node script unit tests (requires build-scripts first)
+test-scripts: build-scripts
+    cd scripts && npm test
+
 # Full setup: install all deps
-setup: install-js
+setup: install-js setup-scripts build-scripts
     @echo "Setup complete!"
+
+# === Project flow CLI ===
+
+# Run the project-flow plan CLI (build-scripts required)
+plan *args:
+    node scripts/dist/plan/src/index.js {{args}}

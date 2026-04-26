@@ -4,6 +4,7 @@ description: 'Create and maintain project-flow documentation for PLAN, milestone
 argument-hint: 'yaml with fields:
   new_{milestone|sprint|task}:
     name: {MILESTONE_NAME}[-{SPRINT}[-{TASK}]]:
+    position?: position in the parent file (PLAN.md for milestones, milestone file for sprints, sprint file for tasks) or "end" (default) to add at the end of the section
     description: short description of the milestone/sprint/task
     goals:
       - GOAL_{GOAL_CODE}: description
@@ -23,10 +24,16 @@ argument-hint: 'yaml with fields:
     acceptance_criteria?:
       - AC_{AC_CODE}: description
       - ...
+    blockers?:
+      - BLK_{BLOCKER_CODE}: description
+      - ...
+    {custom_section_name}?:
+      - {CODE}: description
+      - ...
   patch_{milestone|sprint|task}:
     name: {MILESTONE_NAME}[-{SPRINT}[-{TASK}]]:
     description?: short description of the milestone/sprint/task
-    {goals|requirements|design_notes|deliverables|open_questions|acceptance_criteria|decisions|status|results}?:
+    {goals|requirements|design_notes|deliverables|open_questions|acceptance_criteria|decisions|status|results|blockers|custom_section_name}?:
       - {section_code}: description
       - ...
   rename_{milestone|sprint|task}:
@@ -108,6 +115,11 @@ short description.
 - [GOAL_2]
 ...
 
+[## Blockers] - optional
+- [BLK_1](link to blocker details file and section if exists)
+- [BLK_2](link to blocker details file and section if exists)
+...
+
 ## Requirements
 - [REQ_1]
 - [REQ_2]
@@ -141,7 +153,7 @@ short description.
 ## Status
 [planned | in-progress | blocked | done]
 
-## Results and learnings
+[## Results and learnings] - optional
 - [R_1]
 - [R_2]
 ...

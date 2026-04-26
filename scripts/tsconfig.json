@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "target": "ES2023",
+        "module": "CommonJS",
+        "outDir": "./dist",
+        "rootDir": "./",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "types": [
+            "node"
+        ]
+    },
+    "include": [
+        "plan/src/**/*.ts",
+        "plan/tests/**/*.ts"
+    ]
+}
