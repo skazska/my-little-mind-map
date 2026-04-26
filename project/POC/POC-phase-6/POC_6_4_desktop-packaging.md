@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Phase** | [Phase 6: Polish & Release](../POC-phase-6-status.md) |
+| **Phase** | [Phase 6: Polish & Release](../POC-status.md) |
 | **Requirements** | P6-R8, P6-R10 |
 | **Decisions** | — |
 | **Depends on** | 6.1 |
@@ -33,7 +33,7 @@ Build installable desktop app packages for target platforms.
 - Tauri v2 handles platform-specific bundling
 - Output: `desktop-app/src-tauri/target/release/bundle/`
 
-> See [docs/release.md](../../docs/release.md) for full release process.
+> See [docs/release.md](../../../docs/release.md) for full release process.
 
 ### CI/CD
 
