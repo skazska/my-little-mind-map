@@ -103,7 +103,7 @@ Status roll-up rules:
 
 ## Quality Criteria
 
-- Documentation-first: decisions and requirements are documented before implementation status is marked complete.
+- Documentation-first: decisions, open-questions and requirements are documented before implementation status is marked complete.
 - Traceability: each status update is backed by links to tasks and implementation artifacts when available.
 - Consistency over novelty: prefer existing repository structure and naming conventions over inventing new ones.
 - Minimal drift: update all impacted docs in one pass to avoid stale status snapshots.
