@@ -8,8 +8,8 @@ import {
     taskFilePath,
     updateStatusInContent,
     writeFile,
-} from '../fs-utils';
-import { isValidStatus, VALID_STATUSES } from '../status';
+} from '../commons/fs-utils';
+import { isValidStatus, VALID_STATUSES } from '../commons/status';
 
 export function registerUpdateStatus(program: Command): void {
     program

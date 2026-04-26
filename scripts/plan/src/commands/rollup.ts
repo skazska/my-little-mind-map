@@ -1,6 +1,6 @@
 import type { Command } from 'commander';
-import { fileExists, isCompanionDoc, listDir, milestoneDirPath, resolveProjectRoot } from '../fs-utils';
-import { rollupMilestone, rollupSprint } from '../status';
+import { fileExists, isCompanionDoc, listDir, milestoneDirPath, resolveProjectRoot } from '../commons/fs-utils';
+import { rollupMilestone, rollupSprint } from '../commons/status';
 import { join } from 'node:path';
 
 export function registerRollup(program: Command): void {

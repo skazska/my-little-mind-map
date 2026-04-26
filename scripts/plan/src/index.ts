@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { registerList } from './commands/list';
 import { registerNewMilestone } from './commands/new-milestone';
 import { registerNewSprint } from './commands/new-sprint';
 import { registerNewTask } from './commands/new-task';
@@ -14,6 +15,7 @@ program
     .description('Project flow CLI — scaffold and maintain project/PLAN.md documentation')
     .version('0.1.0');
 
+registerList(program);
 registerNewMilestone(program);
 registerNewSprint(program);
 registerNewTask(program);

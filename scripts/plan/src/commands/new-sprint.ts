@@ -7,13 +7,13 @@ import {
     sprintDirPath,
     sprintFilePath,
     writeFile,
-} from '../fs-utils';
+} from '../commons/fs-utils';
 import {
     sprintDecisionsContent,
     sprintFileContent,
     sprintRequirementsContent,
     sprintStatusContent,
-} from '../templates';
+} from '../commons/templates';
 
 export function registerNewSprint(program: Command): void {
     program

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readStatus, updateStatusInContent, addItemToSection } from '../src/fs-utils';
+import { readStatus, updateStatusInContent, addItemToSection } from '../src/commons/fs-utils';
 
 // ─── readStatus ───────────────────────────────────────────────────────────────
 

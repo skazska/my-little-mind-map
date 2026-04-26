@@ -179,6 +179,10 @@ function toRepoRelative(repoRoot, targetPath) {
     : targetPath;
 }
 
+function removeCodeBlocks(content) {
+  return content.replace(/```[\s\S]*?```/g, "").replace(/`[^`]*`/g, "");
+}
+
 function validateLinks(repoRoot, files) {
   const errors = [];
   const headingCache = new Map();
@@ -186,7 +190,7 @@ function validateLinks(repoRoot, files) {
   for (const filePath of files) {
     let content;
     try {
-      content = fs.readFileSync(filePath, "utf8");
+      content = removeCodeBlocks(fs.readFileSync(filePath, "utf8"));
     } catch {
       continue;
     }

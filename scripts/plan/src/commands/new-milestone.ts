@@ -7,19 +7,21 @@ import {
     planFilePath,
     readFile,
     writeFile,
-} from '../fs-utils';
+} from '../commons/fs-utils';
 import {
     milestoneDecisionsContent,
     milestoneFileContent,
     milestoneRequirementsContent,
     milestoneResultsContent,
     planEntry,
-} from '../templates';
+} from '../commons/templates';
 
 export function registerNewMilestone(program: Command): void {
     program
         .command('new-milestone <milestone> <description>')
-        .description('Scaffold a new milestone with companion docs')
+        .description(
+            'Scaffold a new milestone with companion docs'
+        )
         .option('--goal <item>', 'Add a goal (repeatable)', collect, [])
         .option('--requirement <item>', 'Add a requirement (repeatable)', collect, [])
         .option('--blocker <item>', 'Add a blocker (repeatable)', collect, [])

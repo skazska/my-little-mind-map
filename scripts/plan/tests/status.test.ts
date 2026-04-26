@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { rollupStatuses, isValidStatus, VALID_STATUSES } from '../src/status';
+import { rollupStatuses, isValidStatus, VALID_STATUSES } from '../src/commons/status';
 
 test('rollupStatuses: empty array returns planned', () => {
     assert.equal(rollupStatuses([]), 'planned');

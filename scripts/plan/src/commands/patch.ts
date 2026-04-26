@@ -8,7 +8,7 @@ import {
     sprintFilePath,
     taskFilePath,
     writeFile,
-} from '../fs-utils';
+} from '../commons/fs-utils';
 
 export function registerPatch(program: Command): void {
     program

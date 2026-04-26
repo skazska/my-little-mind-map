@@ -1,5 +1,5 @@
 import type { Command } from 'commander';
-import { validateProject, type ValidationError } from '../validate';
+import { validateProject, type ValidationError } from '../commons/validate';
 
 export function registerValidate(program: Command): void {
     program

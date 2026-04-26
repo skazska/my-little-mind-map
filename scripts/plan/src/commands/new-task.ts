@@ -6,8 +6,8 @@ import {
     sprintFilePath,
     taskFilePath,
     writeFile,
-} from '../fs-utils';
-import { taskFileContent } from '../templates';
+} from '../commons/fs-utils';
+import { taskFileContent } from '../commons/templates';
 
 export function registerNewTask(program: Command): void {
     program
