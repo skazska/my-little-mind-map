@@ -9,7 +9,7 @@ status: partially done. discontinued, pivot for POC2.
 
 ## POC2
 
-Desktop App Web App. Features of POC1 rethinked and implemented according to [results and learnings from POC1](POC/POC-results.md).
+Desktop App, Web App. Features of POC1 rethinked and implemented according to [results and learnings from POC1](POC/POC-results.md).
 
 status: TBD
 

@@ -57,7 +57,8 @@ UI implementation in POC show tendency to be overloaded with controls.
 
 1. note topics is to be placed in content as with `#topic.subtopic` (or other preferable standard) syntax, saving note must check at least 1 topic link in content presented and update note classification accordingly. It ok to show note topics in metadata/sidebar panel but it should be derived from content and not editable directly from there to avoid sync issues.
 2. note title is to be placed in content as with `# Note Title` according to markdown standard, saving note must check title in content and update note title in index accordingly. It ok to show note title in metadata/sidebar panel but it should be derived from content and not editable directly from there to avoid sync issues.
-3. actions like add file, capture screen part, etc. should be triggered from text commands in content like `/add file` or `/capture screen` (or other preferable standard syntax), and not from buttons in UI to avoid overload and to keep text-centered approach.
+3. note parent-child hierarchy is to be placed in content as with `> [[Parent Note Title]]` (or other preferable standard) syntax, saving note must check parent note link in content and update note parent relation in index accordingly. It ok to show note parent in metadata/sidebar panel but it should be derived from content and not editable directly from there to avoid sync issues.
+4. actions like add file, capture screen part, etc. should be triggered from text commands in content like `/add file` or `/capture screen` (or other preferable standard syntax), and not from buttons in UI to avoid overload and to keep text-centered approach.
 
 ## Sync to cloud (backend service)
 
