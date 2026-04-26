@@ -1,9 +1,27 @@
+/**
+ * Filesystem utilities for plan scripts.
+ * Provides path resolution, file reading/writing, and markdown section manipulation.
+ */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 
-// Compiled to scripts/dist/plan/src/ — 4 levels up is the project root.
+/**
+ * Returns path to project root
+ * 1. `PROJECT_ROOT` env var.
+ * 2. first dir from working directory containing a `project` folder.
+ */
 export function resolveProjectRoot(): string {
-    return resolve(__dirname, '../../../../');
+    if (process.env.PROJECT_ROOT) return resolve(process.env.PROJECT_ROOT);
+
+    let dir = process.cwd();
+    while (true) {
+        if (existsSync(join(dir, 'project'))) return dir;
+        const parent = dirname(dir);
+        if (parent === dir) break; // Reached filesystem root
+        dir = parent;
+    }
+    
+    throw new Error('Project root not found. Please set PROJECT_ROOT env var to the path of the project.');
 }
 
 export function projectPath(...parts: string[]): string {
@@ -73,21 +91,20 @@ export interface ParsedName {
  * (since each segment may itself contain hyphens).
  */
 export function parseName(name: string): ParsedName {
-    const root = resolveProjectRoot();
     const parts = name.split('-');
 
     for (let mEnd = parts.length; mEnd >= 1; mEnd--) {
         const milestone = parts.slice(0, mEnd).join('-');
-        const mFile = join(root, 'project', `${milestone}.md`);
-        const mDir = join(root, 'project', milestone);
+        const mFile = milestoneFilePath(milestone);
+        const mDir = milestoneDirPath(milestone);
         if (!existsSync(mFile) && !existsSync(mDir)) continue;
 
         if (mEnd === parts.length) return { milestone };
 
         for (let sEnd = parts.length; sEnd > mEnd; sEnd--) {
             const sprint = parts.slice(mEnd, sEnd).join('-');
-            const sFile = join(root, 'project', milestone, `${milestone}-${sprint}.md`);
-            const sDir = join(root, 'project', milestone, `${milestone}-${sprint}`);
+            const sFile = sprintFilePath(milestone, sprint);
+            const sDir = sprintDirPath(milestone, sprint);
             if (!existsSync(sFile) && !existsSync(sDir)) continue;
 
             if (sEnd === parts.length) return { milestone, sprint };

@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import {
     isCompanionDoc,
@@ -9,7 +9,6 @@ import {
     projectPath,
     readFile,
     readStatus,
-    resolveProjectRoot,
     sprintDirPath,
     sprintFilePath,
 } from './fs-utils';
@@ -24,21 +23,32 @@ export interface ValidationError {
 // ─── Main entry ───────────────────────────────────────────────────────────────
 
 export function validateProject(milestoneName?: string): ValidationError[] {
+    const planMilestoneRe = /^## (.+)$/gm;
     const errors: ValidationError[] = [];
-    const root = resolveProjectRoot();
 
     const milestones = milestoneName
         ? [milestoneName]
-        : discoverMilestones(root);
+        : discoverMilestones();
 
-    for (const m of milestones) {
-        errors.push(...validateMilestone(m, root));
-    }
-
-    // PLAN.md links
+    // PLAN.md
     const planFile = planFilePath();
     if (existsSync(planFile)) {
         errors.push(...validateLinks(planFile));
+
+        const planContent = readFileSync(planFile, 'utf-8');
+        const planMilestones = Array.from(planContent.matchAll(planMilestoneRe)).map((m) => m[1]);
+
+        for (const m of milestones) {
+            if (!planMilestones.includes(m)) {
+                errors.push({
+                    file: planFile,
+                    message: `Milestone "${m}" missing from PLAN.md`,
+                });
+            }
+            errors.push(...validateMilestone(m));
+        }
+        } else {
+        errors.push({ file: planFile, message: 'PLAN.md file missing' });
     }
 
     return errors;
@@ -46,10 +56,12 @@ export function validateProject(milestoneName?: string): ValidationError[] {
 
 // ─── Milestone validation ─────────────────────────────────────────────────────
 
-function validateMilestone(milestone: string, root: string): ValidationError[] {
+function validateMilestone(milestone: string): ValidationError[] {
     const errors: ValidationError[] = [];
     const mFile = milestoneFilePath(milestone);
     const mDir = milestoneDirPath(milestone);
+
+    console.debug(`Validating milestone "${milestone}" with file "${mFile}" and dir "${mDir}"`);
 
     if (!existsSync(mFile)) {
         errors.push({ file: mFile, message: `Milestone file missing: ${mFile}` });
@@ -59,7 +71,10 @@ function validateMilestone(milestone: string, root: string): ValidationError[] {
     errors.push(...validateLinks(mFile));
     errors.push(...validateStatusValue(mFile));
 
-    if (!existsSync(mDir)) return errors;
+    if (!existsSync(mDir)) {
+        // errors.push({ file: mDir, message: `Milestone directory missing: ${mDir}` });
+        return errors;
+    }
 
     const entries = listDir(mDir).filter((f) => f.endsWith('.md') && !isCompanionDoc(f));
     const sprintFiles = entries.filter((f) => f.startsWith(`${milestone}-`));
@@ -75,7 +90,7 @@ function validateMilestone(milestone: string, root: string): ValidationError[] {
     const sprintStatuses: string[] = [];
     for (const sf of sprintFiles) {
         const sprint = sf.slice(milestone.length + 1, -3);
-        const sprintErrors = validateSprint(milestone, sprint, root);
+        const sprintErrors = validateSprint(milestone, sprint);
         errors.push(...sprintErrors);
 
         const spFile = sprintFilePath(milestone, sprint);
@@ -101,7 +116,7 @@ function validateMilestone(milestone: string, root: string): ValidationError[] {
 
 // ─── Sprint validation ────────────────────────────────────────────────────────
 
-function validateSprint(milestone: string, sprint: string, root: string): ValidationError[] {
+function validateSprint(milestone: string, sprint: string): ValidationError[] {
     const errors: ValidationError[] = [];
     const spFile = sprintFilePath(milestone, sprint);
     const spDir = sprintDirPath(milestone, sprint);
@@ -205,8 +220,8 @@ function validateStatusValue(filePath: string): ValidationError[] {
 
 // ─── Milestone discovery ──────────────────────────────────────────────────────
 
-function discoverMilestones(root: string): string[] {
-    const projectDir = join(root, 'project');
+function discoverMilestones(): string[] {
+    const projectDir = projectPath();
     if (!existsSync(projectDir)) return [];
 
     return listDir(projectDir)

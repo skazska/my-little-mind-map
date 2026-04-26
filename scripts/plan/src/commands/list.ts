@@ -92,6 +92,9 @@ function discoverMilestones(): string[] {
 
 function discoverSprints(milestone: string): string[] {
     const mDir = milestoneDirPath(milestone);
+
+    console.debug(`Discovering sprints in milestone "${milestone}" with dir "${mDir}"`);
+
     return listDir(mDir)
         .filter((f) =>
             f.endsWith('.md') &&

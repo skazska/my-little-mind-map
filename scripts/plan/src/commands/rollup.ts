@@ -1,7 +1,6 @@
 import type { Command } from 'commander';
-import { fileExists, isCompanionDoc, listDir, milestoneDirPath, resolveProjectRoot } from '../commons/fs-utils';
+import { fileExists, listDir, projectPath } from '../commons/fs-utils';
 import { rollupMilestone, rollupSprint } from '../commons/status';
-import { join } from 'node:path';
 
 export function registerRollup(program: Command): void {
     program
@@ -29,8 +28,7 @@ export function registerRollup(program: Command): void {
 }
 
 function discoverMilestones(): string[] {
-    const root = resolveProjectRoot();
-    const projectDir = join(root, 'project');
+    const projectDir = projectPath();
     if (!fileExists(projectDir)) return [];
     return listDir(projectDir)
         .filter((f) => f.endsWith('.md') && f !== 'PLAN.md' && f !== 'IDEA.md')
