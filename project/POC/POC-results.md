@@ -28,17 +28,19 @@ This would eliminate the need to support custom AST node for internal references
 
 ### suggestions
 
-1. Direct topic hierarchy tree to be stored in index so any topic can be identified by its path.
+1. Direct topic hierarchy tree to be stored in index as json object so any topic can be identified by its path.
     - allow to uniquely identify topic as url.
-    - allow to controll no note title duplication within a topic (enforce unique root note titles within a topic) to ensure note URI is unique and human-friendly.
-    - use topic path as domain in note URI to distinguish notes with same title in different topics (e.g., `note://project/notes/meeting-notes` vs `note://personal/notes/meeting-notes`).
+    - use topic path as domain in note URI to distinguish notes with same title in different topics (e.g., `note://project.notes/meeting/notes` vs `note://personal.notes/meeting/notes`).
 2. Keep user configurable topic relations and classification but not use them for note identification and referencing.
-3. Allow note hierarchy and store it in index as `note_path` along with `parent_id` to allow referencing notes by their path in the hierarchy (e.g., `note://project/notes/meeting-notes`).
-4. Keep using uuid for internal note identification, including in bidirectional links and reference index, but add `note_path` as a property of the note in the index to allow referencing by path in the markdown syntax and UI.
-    - will need to keep `note_path` in sync with `parent_id`
-5. Allow note to be classified under multiple root topics but enforce unique note titles within each root topic to ensure note URI is unique and human-friendly.
+3. require main topic for note to be stored in note's frontmatter as `main_topic` and other topics as `other_topics` array.
+4. Allow note hierarchy and store it:
+    - as `note_path` e.g., `meeting/notes/child` in note's frontmatter
+    - in file system so child notes are placed in parent's note folder: `Folder Note` structure.
+    - use note title as .md file name and folder name for note path segment.
+    - root note file and folder names is to be prefixed with topic from main topic.
+5. Do not allow root notes with same title within a topic.
 6. Allow topic and note direct hierarchy management via special actions only to ensure syncs and consistency including links in note content.
-    - e.g., `MoveNote { note_id, new_parent_id }` and `RenameNote { note_id, new_title }` actions that:
+    - e.g., `MoveNote { note_path, new_parent_path }` and `RenameNote { note_path, new_title }` actions that:
         - updates the note's `parent_id`, `note_path` for this note and all its descendants,
         - prevents conflicting note titles and paths.
         - and triggers reference index sync to update all links in note content that reference this note by path.
