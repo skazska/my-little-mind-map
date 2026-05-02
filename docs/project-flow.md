@@ -12,7 +12,7 @@ Project idea, vision, and goals in `project/IDEA.md`.
   - refer to guidelines,
   - document what going to do,
   - rich internal linking in documentation,
-  - specs then implementation.
+  - specs before implementation.
 - **plan changes, not calendar**:
   - no deadlines and time estimates, plan changes and iterations instead.
   - tasks are "units of change", sprints are "transitions between consistent states of the product".
@@ -34,7 +34,7 @@ Project idea, vision, and goals in `project/IDEA.md`.
 
 ## Flow structure
 
-1. [PLAN](../project/PLAN.md) - high-level plan and roadmap, milestones (like POC, POC3, MVP etc.).
+1. [PLAN](../project/PLAN.md) - high-level plan and roadmap, milestones (like POC, MVP etc.).
 2. Each milestone consists of sprints and represented by file `project/{MILESTONE}.md` containing overall goals, requirements, open-questions, decisions, status and `results and learnings`, and a folder `project/{MILESTONE}/` with artifacts and optional detailed files for requirements, decisions, and results:
     - `{MILESTONE}-requirements.md` - milestone requirements details.
     - `{MILESTONE}-decisions.md` - milestone implementation decisions details.

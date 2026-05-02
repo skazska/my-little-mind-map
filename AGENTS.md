@@ -44,7 +44,6 @@ Inspired by personal knowledge management, note-taking, and project management t
     - phases/sprints
       - tasks, issues, etc.
 - `product/`: product implementation
-  TBD: move backend-service, desktop-app, mobile-app, shared, shared_types, test, web-app and necessary infrastructure files here.
 
 ## Product Key Expectations
 

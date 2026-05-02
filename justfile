@@ -41,28 +41,28 @@ dev-backend:
 
 # Run desktop app in dev mode
 dev-desktop:
-    cd desktop-app && npm run dev
+    cd product/desktop-app && npm run dev
 
 # Build desktop app
 build-desktop:
-    cd desktop-app && npm run build
+    cd product/desktop-app && npm run build
 
 # === Web ===
 
 # Run web app in dev mode
 dev-web:
-    cd web-app && npm run dev
+    cd product/web-app && npm run dev
 
 # Build web app
 build-web:
-    cd web-app && npm run build
+    cd product/web-app && npm run build
 
 # === Setup ===
 
 # Install all JS dependencies
 install-js:
-    cd desktop-app && npm install
-    cd web-app && npm install
+    cd product/desktop-app && npm install
+    cd product/web-app && npm install
 
 # Install scripts dependencies
 setup-scripts:

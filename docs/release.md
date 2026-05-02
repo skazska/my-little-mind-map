@@ -2,30 +2,9 @@
 
 ## Versioning
 
-This project uses [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH`.
-
-All Rust crates share a single version defined in the workspace `Cargo.toml`:
-
-```toml
-[workspace.package]
-version = "0.1.0"
-```
-
-Frontend apps track their own versions in `package.json` but should stay in sync.
 
 ### Version bump checklist
 
-When bumping the version:
-
-1. Update `version` in `Cargo.toml` (workspace)
-2. Update `version` in `desktop-app/package.json`
-3. Update `version` in `desktop-app/src-tauri/tauri.conf.json`
-4. Update `version` in `web-app/package.json`
-5. Commit: `git commit -m "chore: bump version to X.Y.Z"`
-6. Tag: `git tag vX.Y.Z`
-7. Push: `git push origin main --tags`
-
----
 
 ## Release Targets
 
@@ -37,14 +16,11 @@ When bumping the version:
 | iOS App | `.ipa` | App Store (future) |
 | Android App | `.apk` / `.aab` | Google Play (future) |
 
----
-
 ## Backend Service
 
 ### Build release binary
 
 ```bash
-cargo build --release -p backend-service
 # Binary: target/release/backend-service
 ```
 

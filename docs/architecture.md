@@ -20,7 +20,7 @@ My Little Mind Map is a cross-platform application for collecting, storing, grow
 │                            │ HTTP                             │
 │  ┌─────────────────────────┴───────────────────────────────┐  │
 │  │            Backend Service (Axum)                       │  │
-│  │            REST API for sync & storage                  │  │
+│  │            REST API for advanced features               │  │
 │  └──────────────────────────┬──────────────────────────────┘  │
 │                             │                                 │
 │  ┌──────────────────────────┴──────────────────────────────┐  │
@@ -49,25 +49,8 @@ Shell (UI) ──Event──► Core.update() ──Effects──► Shell (exec
 
 ## Folder Structure
 
-- `shared/` — CRUX shared core: business logic, state, events, view models
-- `shared_types/` — Generated FFI types (Swift, Kotlin, TypeScript)
-- `backend-service/` — Axum REST API
-- `desktop-app/` — Tauri v2 + React desktop shell
-- `web-app/` — React + WASM web shell
-- `mobile-apps/ios/` — SwiftUI iOS shell
-- `mobile-apps/android/` — Kotlin/Compose Android shell
-- `docs/` — Documentation, ADRs
-- `tests/` — Integration and E2E tests
+TBD
 
 ## Tech Choices
 
-| Component   | Technology             | Rationale                                        |
-|-------------|------------------------|--------------------------------------------------|
-| Shared Core | Rust + CRUX            | Single codebase for all biz logic, type-safe FFI |
-| Backend     | Rust + Axum            | Tokio ecosystem, tower middleware, familiar      |
-| Desktop     | Tauri v2               | Lightweight, drct Rust calls (no WASM overhead)  |
-| Web         | React + WASM           | Standard web stack, CRUX WASM shell              |
-| iOS         | Swift + SwiftUI        | Native UX, UniFFI bindings to shared core        |
-| Android     | Kotlin + Compose       | Native UX, UniFFI bindings to shared core        |
-| Monorepo    | Cargo workspace + just | Language-agnostic orchestration                  |
-| JS tooling  | npm + Vite             | Standard package management and bundling         |
+TBD
