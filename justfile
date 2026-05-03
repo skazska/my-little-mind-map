@@ -41,11 +41,11 @@ dev-backend:
 
 # Run desktop app in dev mode
 dev-desktop:
-    cd product/desktop-app && npm run dev
+    cd product/desktop-app && npm run tauri dev
 
-# Build desktop app
+# Build desktop app for distribution
 build-desktop:
-    cd product/desktop-app && npm run build
+    cd product/desktop-app && npm run tauri build
 
 # === Web ===
 
@@ -56,6 +56,10 @@ dev-web:
 # Build web app
 build-web:
     cd product/web-app && npm run build
+
+# Build WASM package from shared core
+build-wasm:
+    wasm-pack build product/shared --target web --out-dir ../web-app/src/wasm -- --features wasm
 
 # === Setup ===
 

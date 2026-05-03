@@ -61,10 +61,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: web-app/package-lock.json
+          cache-dependency-path: product/web-app/package-lock.json
 
       - name: Install & build web-app
-        working-directory: web-app
+        working-directory: product/web-app
         run: |
           npm install
           npm run build

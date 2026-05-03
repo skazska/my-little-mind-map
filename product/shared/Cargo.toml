@@ -1,0 +1,23 @@
+[package]
+name    = "shared"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = []
+wasm    = ["wasm-bindgen", "serde-wasm-bindgen", "console_error_panic_hook", "getrandom"]
+
+[dependencies]
+shared_types = { path = "../shared_types" }
+serde        = { workspace = true }
+serde_json   = { workspace = true }
+thiserror    = { workspace = true }
+
+# WASM-only dependencies
+wasm-bindgen             = { version = "0.2",  optional = true }
+serde-wasm-bindgen       = { version = "0.6",  optional = true }
+console_error_panic_hook = { version = "0.1",  optional = true }
+getrandom                = { version = "0.2",  features = ["js"], optional = true }
