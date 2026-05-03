@@ -6,9 +6,9 @@ services:
   # db:
   #   image: postgres:17
   #   environment:
-  #     POSTGRES_USER: mindmap
-  #     POSTGRES_PASSWORD: mindmap_dev
-  #     POSTGRES_DB: mindmap
+  #     POSTGRES_USER: ml_mindmap
+  #     POSTGRES_PASSWORD: ml_mindmap_dev
+  #     POSTGRES_DB: ml_mindmap
   #   ports:
   #     - "5432:5432"
   #   volumes:
@@ -21,6 +21,6 @@ services:
     ports:
       - "3000:3000"
     # environment:
-    #   DATABASE_URL: postgres://mindmap:mindmap_dev@db:5432/mindmap
+    #   DATABASE_URL: postgres://ml_mindmap:ml_mindmap_dev@db:5432/ml_mindmap
     # depends_on:
     #   - db

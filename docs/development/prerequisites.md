@@ -4,13 +4,13 @@ Install the following tools before starting development.
 
 ## Required (all platforms)
 
-| Tool        | Version | Install |
-|-------------|---------|---------|
-| **Rust**    | stable  | [rustup.rs](https://rustup.rs/)                              |
-| **just**    | latest  | `cargo install just`                                         |
-| **Node.js** | 22 LTS+ | [nvm](https://github.com/nvm-sh/nvm)                         |
-| **npm**     | 10+     | Bundled with Node.js (see above)                             |
-| **Docker**  | 24+     | [docker.com](https://docs.docker.com/get-docker/)            |
+| Tool        | Version | Install                                           |
+|-------------|---------|---------------------------------------------------|
+| **Rust**    | stable  | [rustup.rs](https://rustup.rs/)                   |
+| **just**    | latest  | `cargo install just`                              |
+| **Node.js** | 22 LTS+ | [nvm](https://github.com/nvm-sh/nvm)              |
+| **npm**     | 10+     | Bundled with Node.js (see above)                  |
+| **Docker**  | 24+     | [docker.com](https://docs.docker.com/get-docker/) |
 
 ### Linux (Ubuntu/Debian) — Tauri system dependencies
 

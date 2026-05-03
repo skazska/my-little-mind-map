@@ -1,38 +1,38 @@
 # Specs
 
-This section contains technical specifications for the MindMap product.
+This section contains technical specifications for the MyLittleMindMap product.
 It includes detailed descriptions of the system architecture, design decisions, data models, APIs, and other technical aspects that guide the development and implementation of the product.
 
 ## Data Model
 
 ### Labels
 
-- [SDM-L1] Labels: single words: alphanumeric + hyphens, lowercase. Categorization and search.
-- [SDM-L2] Labels: cross-cutting: (spaces, notes).
-- [SDM-L4] Labels unused: clear automatically.
-- [SDM-L6] Label content: statistics.
+- [S-DM-L1] Labels: single words: alphanumeric + hyphens, lowercase. Categorization and search.
+- [S-DM-L2] Labels: cross-cutting: (spaces, notes).
+- [S-DM-L4] Labels unused: clear automatically.
+- [S-DM-L6] Label content: statistics.
 
 ## Views
 
-- [SDM-V1] View: Set of labels. Perspective filtering by labels.
-- [SDM-V2] View id: labels sorted alphabetically: `view://alabel2-blabel1-label3`.
-- [SDM-V3] View content: statistics.
+- [S-DM-V1] View: Set of labels. Perspective filtering by labels.
+- [S-DM-V2] View id: labels sorted alphabetically: `view://alabel2-blabel1-label3`.
+- [S-DM-V3] View content: statistics.
 
 ### Spaces
 
-- [SDM-S1] Spaces: containers for notes, hierarchical, independent and manageable.
-- [SDM-S2] Space name: alphanumeric + hyphens, spacebars replaced with hyphens, lowercase.
-- [SDM-S3] Space id: domain by names: `this-space.parent...root`
-- [SDM-S5] Space content: name, description, labels, statistics.
+- [S-DM-S1] Spaces: containers for notes, hierarchical, independent and manageable.
+- [S-DM-S2] Space name: alphanumeric + hyphens, spacebars replaced with hyphens, lowercase.
+- [S-DM-S3] Space id: domain by names: `this-space.parent...root`
+- [S-DM-S5] Space content: name, description, labels, statistics.
 
 ### Notes
 
-- [SDM-N1] Notes: primary content units, hierarchical: trees.
-- [SDM-N2] Note content: markdown files (no custom syntax), metadata in front matter, attached files.
+- [S-DM-N1] Notes: primary content units, hierarchical: trees.
+- [S-DM-N2] Note content: markdown files (no custom syntax), metadata in front matter, attached files.
 replaced with hyphens, lowercase. In sync with `# title`
-- [SDM-N3] Note id: path by titles: `root-note/../parent-note/this-note`.
-- [SDM-N4] Note description: first line under title in markdown content.
-- [SDM-N5] Note metadata:
+- [S-DM-N3] Note id: path by titles: `root-note/../parent-note/this-note`.
+- [S-DM-N4] Note description: first line under title in markdown content.
+- [S-DM-N5] Note metadata:
   - `space`: (root note only) sync from placement in storage.
   - `referenes`: (note, space, view, file) sync from content.
   - `labels`: string of space-separated words.
@@ -43,47 +43,47 @@ replaced with hyphens, lowercase. In sync with `# title`
 
 #### Note References
 
-- [SDM-NR1] Note reference: other note, space, view, attached file, external resource.
-- [SDM-NR2] Note reference in content: All markdown referencing syntax.
-- [SDM-NR3] Internal references: other notes, spaces and views:
+- [S-DM-NR1] Note reference: other note, space, view, attached file, external resource.
+- [S-DM-NR2] Note reference in content: All markdown referencing syntax.
+- [S-DM-NR3] Internal references: other notes, spaces and views:
   - `space://<subspace>.<space>[<query>]`
   - `note://<subspace>.<space>/<note>/<subnote>[<query>]`
   - `view://<label>-<label>-<label>[<query>]`
   - `file://<relative.file.path>` for attached files.
-- [SDM-NR5] Note-to-note references are bi-directional and support block-level granularity:
+- [S-DM-NR5] Note-to-note references are bi-directional and support block-level granularity:
   - forward link query: [text](ref://space/note[#block-id][?query]) - links to a specific block in the target note, allowing for precise referencing and navigation.
   - backlink: block-id where the reference is made is stored in references index.
   - indexed. Sync from content.
 
 #### Note definitions
 
-- [SDM-ND1] Note definition: markdown syntax for definitions.
-- [SDM-ND2] Note definitions: indexed. Sync from content.
-- [SDM-ND3] Note definition: term, ref to definition in note, statistics.
+- [S-DM-ND1] Note definition: markdown syntax for definitions.
+- [S-DM-ND2] Note definitions: indexed. Sync from content.
+- [S-DM-ND3] Note definition: term, ref to definition in note, statistics.
 
 ## Storage
 
 ### Cloud storage
 
-- [SST-CS1] Git compatible. [TBD - research and evaluation of options for cloud storage with git compatibility, ease of integration, performance, cost, etc. GitHub, GitLab, Bitbucket, Cloudflare Artifacts].
+- [S-ST-CS1] Git compatible. [TBD - research and evaluation of options for cloud storage with git compatibility, ease of integration, performance, cost, etc. GitHub, GitLab, Bitbucket, Cloudflare Artifacts].
 
 ### Local storage
 
-- [SST-LS1] Local storage prefer: same approach for all apps.
-- [SST-LS2] Desktop: file system based for desktop app. git versioning. run on any project's folder as storage.
-- [SST-LS4] Web-app: [TBD - research and evaluation of options for local storage compatable with git in web app].
-- [SST-LS5] Mobile-app: [TBD - research and evaluation of options for local storage compatable with git in mobile app].
+- [S-ST-LS1] Local storage prefer: same approach for all apps.
+- [S-ST-LS2] Desktop: file system based for desktop app. git versioning. run on any project's folder as storage.
+- [S-ST-LS4] Web-app: [TBD - research and evaluation of options for local storage compatable with git in web app].
+- [S-ST-LS5] Mobile-app: [TBD - research and evaluation of options for local storage compatable with git in mobile app].
 
 ### Sync
 
-- [SST-SYN1] Sync prefer: via git compatible operations.
+- [S-ST-SYN1] Sync prefer: via git compatible operations.
 
 ### Storage Data model
 
-- [SST-DM1] Data folder structure: Folder Note.
-- [SST-DM2] Structured and index data: JSON files.
-- [SST-DM3] Note content: Markdown files with front matter.
-- [SST-DM4] Data folder structure:
+- [S-ST-DM1] Data folder structure: Folder Note.
+- [S-ST-DM2] Structured and index data: JSON files.
+- [S-ST-DM3] Note content: Markdown files with front matter.
+- [S-ST-DM4] Data folder structure:
 
 ```text
 data_folder/
@@ -113,11 +113,11 @@ data_folder/
 
 ### Starting the app
 
-- [UX-SA1] overview options: spaces, labels, views, recent activity, search.
-- [UX-SA2] Actions: create space and note.
-- [UX-SA3] Status bar: data folder path, sync status, version, and settings button.
-- [UX-SA4] Select or create data folder on first launch, with option to skip to default.
-- [UX-SA5] Onboarding guide for new users, accessible from start screen and settings.
+- [S-UX-SA1] overview options: spaces, labels, views, recent activity, search.
+- [S-UX-SA2] Actions: create space and note.
+- [S-UX-SA3] Status bar: data folder path, sync status, version, and settings button.
+- [S-UX-SA4] Select or create data folder on first launch, with option to skip to default.
+- [S-UX-SA5] Onboarding guide for new users, accessible from start screen and settings.
 
 ### Overview
 
@@ -129,38 +129,38 @@ data_folder/
 
 ### Note list and view
 
-- [UX-NLV1] Notes: list in overview context.
-- [UX-NLV2] Note list:
+- [S-UX-NLV1] Notes: list in overview context.
+- [S-UX-NLV2] Note list:
   - title, labels in short, description and metadata in expanded detail.
   - sort, filter, search
-- [UX-NLV5] Note:
+- [S-UX-NLV5] Note:
   - view, preview.
   - open in editor.
 
 ### Note editing
 
-- [UX-NE1] Metadata panel above/top-inside content. Synced. Interactive, Expandable: all metadata and actions.
+- [S-UX-NE1] Metadata panel above/top-inside content. Synced. Interactive, Expandable: all metadata and actions.
   - Draft: indicator and action to publish note.
   - Id: Indicators - absence of space/parent, title. Actions - move.
   - Labels:  Actions - add, remove.
   - Attacments: Indicators - count. Actions - add file, capture screen part.
-- [UX-NE2] Note editor with markdown support and live preview.
+- [S-UX-NE2] Note editor with markdown support and live preview.
   - inline suggests, autocomplete, and validation.
   - highlight note description in content.
   - non-serializable commands in content editor: `/:command [<arg>];` - allow to trigger actions.
     - `labels` set via `/:labels <tag1> <tag2> <tag3>;` command in content.
-- [UX-NE3] Editor actions:
+- [S-UX-NE3] Editor actions:
   - save, undo/redo, delete.
 
 ## Configuration
 
-- [CFG-1] Path to data folder and sync settings is platform-specific and stored in app settings.
-- [CFG-2] Other settings and preferences are stored in `settings.json` in data folder.
+- [S-CFG-1] Path to data folder and sync settings is platform-specific and stored in app settings.
+- [S-CFG-2] Other settings and preferences are stored in `settings.json` in data folder.
 
 ## Architecture
 
-[See architecture.md](architecture.md)
+[Details in architecture.md](architecture.md)
 
-- [ARCH-1] Shared core in Rust with UniFFI bindings for platform shells.
-- [ARCH-2] Maximize shared logic and minimize platform-specific code in shells.
-- [ARCH-3] Prefer shells implemented in native UI frameworks for best performance and user experience, with fallback to web-based shell if needed for cross-platform consistency and development speed.
+- [S-ARCH-1] Shared core in Rust with UniFFI bindings for platform shells.
+- [S-ARCH-2] Maximize shared logic and minimize platform-specific code in shells.
+- [S-ARCH-3] Prefer shells implemented in native UI frameworks for best performance and user experience, with fallback to web-based shell if needed for cross-platform consistency and development speed.

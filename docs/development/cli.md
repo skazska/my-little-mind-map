@@ -12,9 +12,11 @@
 - run web app (Vite dev server):    `just dev-web`
 - build desktop release:            `just build-desktop`
 - build web production bundle:      `just build-web`
-- install all JS dependencies:      `just setup`
+- install all JS dependencies:      `just install-js`
 - install scripts dependencies:     `just setup-scripts`
 - build Node scripts:               `just build-scripts`
+- run script unit tests:            `just test-scripts`
+- install all deps + build scripts: `just setup`
 - project-flow plan CLI:            `just plan <command>`
 
 ## Project flow CLI (`just plan`)
@@ -85,24 +87,24 @@ just ci   # runs: fmt-check → lint → test
 Frontend type checking:
 
 ```bash
-cd web-app && npx tsc --noEmit
-cd desktop-app && npx tsc --noEmit
+cd product/web-app && npx tsc --noEmit
+cd product/desktop-app && npx tsc --noEmit
 ```
 
 Docker Compose:
 
 ```bash
 # Start all services (backend)
-docker compose up -d
+docker compose -f product/docker-compose.yml up -d
 
 # View logs
-docker compose logs -f backend
+docker compose -f product/docker-compose.yml logs -f backend
 
 # Stop
-docker compose down
+docker compose -f product/docker-compose.yml down
 
 # Rebuild after code changes
-docker compose up -d --build
+docker compose -f product/docker-compose.yml up -d --build
 ```
 
 Backend without Docker:

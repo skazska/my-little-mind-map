@@ -8,15 +8,15 @@
 
 ### Future: Database
 
-When a database is added, uncomment the `db` service in `docker-compose.yml`:
+When a database is added, uncomment the `db` service in `product/docker-compose.yml`:
 
 ```yaml
 db:
   image: postgres:17
   environment:
-    POSTGRES_USER: mindmap
-    POSTGRES_PASSWORD: mindmap_dev
-    POSTGRES_DB: mindmap
+    POSTGRES_USER: ml_mindmap
+    POSTGRES_PASSWORD: ml_mindmap_dev
+    POSTGRES_DB: ml_mindmap
   ports:
     - "5432:5432"
 ```
@@ -31,11 +31,11 @@ DATABASE_URL=postgres://mindmap:mindmap_dev@localhost:5432/mindmap cargo run -p 
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `RUST_LOG` | `info` | Log level for backend (`debug`, `info`, `warn`, `error`) |
-| `DATABASE_URL` | — | Database connection string (future) |
-| `PORT` | `3000` | Backend listen port (future, currently hardcoded) |
+| Variable            | Default | Description                                              |
+|---------------------|---------|----------------------------------------------------------|
+| `RUST_LOG`          | `info`  | Log level for backend (`debug`, `info`, `warn`, `error`) |
+| `DATABASE_URL`      | —       | Database connection string (future)                      |
+| `PORT`              | `3000`  | Backend listen port (future, currently hardcoded)        |
 
 Create a `.env` file in the project root for local overrides (loaded by `justfile`'s `set dotenv-load`):
 
@@ -59,8 +59,6 @@ RUST_LOG=debug
 [android app](development/android-app.md)
 [iOS app](development/ios-app.md)
 
----
-
 ## Troubleshooting
 
 ### `cargo build --workspace` fails with pkg-config errors
@@ -73,7 +71,7 @@ Usually safe to ignore unless they indicate a missing peer dependency. Run `npm 
 
 ### Tauri dev mode: blank window
 
-Ensure the Vite dev server is running on port 1420. Check `desktop-app/src-tauri/tauri.conf.json` → `build.devUrl`.
+Ensure the Vite dev server is running on port 1420. Check `product/desktop-app/src-tauri/tauri.conf.json` → `build.devUrl`.
 
 ### Rust analyzer slow in VS Code
 
