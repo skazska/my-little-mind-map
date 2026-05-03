@@ -9,7 +9,7 @@ cargo --version
 # Install just (task runner)
 cargo install just
 
-# Install all JS deps and build scripts
+# Install all JS deps
 just setup
 
 # Enable repository git hooks
