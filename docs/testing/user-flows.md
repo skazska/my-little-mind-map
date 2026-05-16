@@ -1,0 +1,300 @@
+# Test Cases: User Flows
+
+End-to-end tests that drive the full application through the UI. Each test starts the app via Tauri WebDriver.
+
+**Layer**: E2E (`product/desktop-app/tests/e2e/`, WebdriverIO + `tauri-driver`)
+**Spec coverage**: [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-SA4], [S-UX-SA5], [S-UX-OV1], [S-UX-NLV1], [S-UX-NLV2], [S-UX-NLV5], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-CFG-1], [S-CFG-2]
+
+---
+
+## Conventions
+
+- Each test starts with a fresh temporary data folder (no persisted config).
+- `[selector]` placeholders should be replaced with actual element selectors or `data-testid` attributes when implementing.
+- Steps are sequential unless noted.
+- **Expected result** is what the test assertion checks.
+
+---
+
+## First Launch
+
+### TC-E2E-FL-01 — First launch shows folder selection screen [S-UX-SA4]
+
+**Given** the app is launched with no persisted data folder config  
+**When** the app window finishes loading  
+**Then** the `first_launch` screen is visible  
+**And** there is a button to select a data folder  
+**And** there is a button to use the default data folder [S-CFG-2]
+
+### TC-E2E-FL-02 — Selecting a data folder transitions to overview [S-UX-SA4]
+
+**Given** the first launch screen is visible  
+**When** the user clicks "Select folder" and chooses a valid directory via the system dialog  
+**Then** the app transitions to the `overview` screen  
+**And** the status bar shows the selected folder path [S-UX-SA3]
+
+### TC-E2E-FL-03 — Using default data folder transitions to overview [S-CFG-2]
+
+**Given** the first launch screen is visible  
+**When** the user clicks "Use default folder"  
+**Then** the app transitions to the `overview` screen  
+**And** the default data folder (`~/MyLittleMindMapData`) is created on disk
+
+### TC-E2E-FL-04 — Selected folder persisted across app restarts [S-CFG-1]
+
+**Given** a data folder was selected in a previous session  
+**When** the app is restarted  
+**Then** the `first_launch` screen is NOT shown  
+**And** the app goes directly to `overview` with the previously selected folder
+
+### TC-E2E-FL-05 — Status bar shows correct data folder path [S-UX-SA3]
+
+**Given** the app is open with a data folder configured  
+**When** the overview screen is visible  
+**Then** the status bar displays the full path to the data folder
+
+---
+
+## Overview
+
+### TC-E2E-OV-01 — Overview shows 5 tabs [S-UX-OV1]
+
+**Given** the app is in the overview screen  
+**When** no further action is taken  
+**Then** tabs for Spaces, Labels, Views, Recent, and Search are visible
+
+### TC-E2E-OV-02 — Spaces tab is active by default [S-UX-OV1]
+
+**Given** the app just transitioned to overview  
+**When** no tab is clicked  
+**Then** the Spaces tab is selected and a spaces list is shown
+
+### TC-E2E-OV-03 — Create space action is visible [S-UX-SA2]
+
+**Given** the overview screen is visible  
+**When** the Spaces tab is active  
+**Then** a "Create space" button or form is visible
+
+---
+
+## Space Management
+
+### TC-E2E-SP-01 — Create space with name only
+
+**Given** the overview Spaces tab is visible  
+**When** the user fills the space name field with `"my-space"` and submits  
+**Then** `"my-space"` appears in the spaces list  
+**And** the space directory exists on disk
+
+### TC-E2E-SP-02 — Create space with name and description
+
+**Given** the overview Spaces tab is visible  
+**When** the user fills name `"work"` and description `"Work notes"` and submits  
+**Then** `"work"` appears in the list with the description visible
+
+### TC-E2E-SP-03 — Navigate into a space opens note list [S-UX-NLV1]
+
+**Given** a space `"my-space"` exists  
+**When** the user clicks on `"my-space"` in the spaces list  
+**Then** the `note_list` screen is shown for `"my-space"`
+
+### TC-E2E-SP-04 — Delete space removes it from list
+
+**Given** a space `"temp-space"` exists  
+**When** the user deletes `"temp-space"` (via delete button/action)  
+**Then** `"temp-space"` is no longer in the spaces list  
+**And** its directory is removed from disk
+
+---
+
+## Note List
+
+### TC-E2E-NL-01 — Note list shows created notes [S-UX-NLV1]
+
+**Given** space `"space1"` with notes `"note-a"` and `"note-b"` created  
+**When** the user navigates into `"space1"`  
+**Then** both notes appear in the list with their titles
+
+### TC-E2E-NL-02 — Note shows title, description, labels, and date [S-UX-NLV2]
+
+**Given** a note with title, a description paragraph, labels, and timestamps  
+**When** the note list is displayed  
+**Then** the list item shows the title, description excerpt, label badges, and the date
+
+### TC-E2E-NL-03 — Draft badge visible for draft notes
+
+**Given** a note with `draft: true`  
+**When** the note list is displayed  
+**Then** a draft badge is visible on that note's list item
+
+### TC-E2E-NL-04 — Search filters notes by title [S-UX-NLV2]
+
+**Given** a note list with notes `"rust-intro"` and `"python-basics"`  
+**When** the user types `"rust"` in the search input  
+**Then** only `"rust-intro"` is visible in the list
+
+### TC-E2E-NL-05 — Clearing search restores full list [S-UX-NLV2]
+
+**Given** a search query is active  
+**When** the user clears the search input  
+**Then** all notes are shown again
+
+### TC-E2E-NL-06 — Active view filter badge shown
+
+**Given** a view (label filter) is active  
+**When** the note list screen is visible  
+**Then** the active label(s) are shown as a filter badge above the list
+
+### TC-E2E-NL-07 — Clear view button removes filter
+
+**Given** an active label filter is applied  
+**When** the user clicks the clear filter button  
+**Then** the filter badge disappears and all notes in the space are listed
+
+### TC-E2E-NL-08 — Back button returns to overview [S-UX-NLV2]
+
+**Given** the note list screen is visible  
+**When** the user clicks the Back button  
+**Then** the `overview` screen is shown
+
+---
+
+## Note Editor — Navigation and Display
+
+### TC-E2E-NE-01 — Clicking note opens editor [S-UX-NLV5]
+
+**Given** a note in the note list  
+**When** the user clicks on the note  
+**Then** the `note_editor` screen is shown with the note's content in the editor
+
+### TC-E2E-NE-02 — Metadata panel shows title, labels, UUID, dates [S-UX-NE1]
+
+**Given** the note editor is open  
+**When** the metadata panel is visible (or expanded)  
+**Then** the note's title, label list, UUID, created_at, and updated_at are displayed
+
+### TC-E2E-NE-03 — Back button returns to note list
+
+**Given** the note editor is open  
+**When** the user clicks Back  
+**Then** the note list screen is shown
+
+---
+
+## Note Editor — Editing
+
+### TC-E2E-NE-04 — Typing content marks note as dirty [S-UX-NE3]
+
+**Given** the note editor is open  
+**When** the user types in the content area  
+**Then** a dirty indicator (unsaved changes badge) becomes visible
+
+### TC-E2E-NE-05 — Manual save clears dirty indicator [S-UX-NE3]
+
+**Given** the editor has unsaved changes  
+**When** the user clicks the Save button  
+**Then** the dirty indicator disappears  
+**And** the note content is persisted to disk
+
+### TC-E2E-NE-06 — Autosave triggers after typing pause [S-UX-NE4]
+
+**Given** the note editor is open  
+**When** the user types content and stops typing for longer than the debounce period (10 s)  
+**Then** the content is automatically saved to disk without the user pressing Save  
+**And** the cursor position is not moved and the editor is not disrupted [S-UX-NE5]
+
+### TC-E2E-NE-07 — Autosave does not normalize content [S-UX-NE5]
+
+**Given** note content with deliberate trailing spaces and multiple consecutive blank lines  
+**When** autosave fires  
+**Then** the saved content on disk preserves the trailing spaces and blank lines exactly
+
+### TC-E2E-NE-08 — Add label via metadata panel [S-UX-NE1]
+
+**Given** the note editor is open  
+**When** the user types a label `"new-label"` in the label input and confirms  
+**Then** `"new-label"` appears in the label list in the metadata panel  
+**And** after save, the note file on disk contains `new-label` in the front matter
+
+### TC-E2E-NE-09 — Remove label via metadata panel [S-UX-NE1]
+
+**Given** a note with label `"old-label"` in the metadata panel  
+**When** the user removes `"old-label"` via the remove action  
+**Then** `"old-label"` disappears from the label list  
+**And** after save, the front matter no longer contains `old-label`
+
+### TC-E2E-NE-10 — Content command `/:labels` sets labels [S-UX-NE2]
+
+**Given** the note editor is open  
+**When** the user types `/:labels rust learning;` in the content and saves  
+**Then** the note's labels include `"rust"` and `"learning"` (visible in metadata panel)
+
+### TC-E2E-NE-11 — Delete note removes it from list [S-UX-NE3]
+
+**Given** the note editor is open for note `"space1/my-note"`  
+**When** the user clicks Delete and confirms  
+**Then** the note list screen is shown  
+**And** `"my-note"` is no longer in the list
+
+---
+
+## Note Editor — Draft and Publish
+
+### TC-E2E-NE-12 — New note created as draft [S-UX-NE1]
+
+**Given** the user creates a new note  
+**When** the note editor opens  
+**Then** a draft indicator is visible in the metadata panel  
+**And** `metadata.draft == true` in the saved file
+
+### TC-E2E-NE-13 — Publish clears draft flag [S-UX-NE1]
+
+**Given** a draft note is open in the editor  
+**When** the user clicks the Publish button  
+**Then** the draft indicator disappears  
+**And** the saved file has `draft: false` in the front matter
+
+### TC-E2E-NE-14 — Publish action prettifies content only after confirmation [S-UX-NE6]
+
+**Given** a draft note with inconsistent whitespace  
+**When** the user clicks Publish  
+**Then** a confirmation dialog appears before any formatting is applied  
+**And** only after confirmation is the content normalized
+
+---
+
+## Labels and Views
+
+### TC-E2E-LV-01 — Labels tab shows all labels in use [S-UX-OV1]
+
+**Given** notes with labels `["rust", "learning", "project"]` in the data folder  
+**When** the user navigates to the Labels tab in overview  
+**Then** `"rust"`, `"learning"`, and `"project"` appear in the labels list
+
+### TC-E2E-LV-02 — Clicking a label filters notes across spaces [S-DM-L2]
+
+**Given** notes in different spaces both labeled `"rust"`  
+**When** the user clicks the `"rust"` label in the Labels tab  
+**Then** both notes appear in the filtered view regardless of which space they are in
+
+### TC-E2E-LV-03 — Views tab shows saved views [S-UX-OV1]
+
+**Given** views exist in `labels/views.json`  
+**When** the user navigates to the Views tab  
+**Then** the saved views are listed
+
+---
+
+## Error Handling
+
+### TC-E2E-ERR-01 — Inaccessible data folder shows error screen
+
+**Given** the app is configured with a data folder that becomes inaccessible (permissions removed)  
+**When** an operation that accesses storage is triggered  
+**Then** the `error` screen is shown with a descriptive message
+
+### TC-E2E-ERR-02 — "Go home" button from error screen returns to overview
+
+**Given** the error screen is displayed  
+**When** the user clicks the "Go home" button  
+**Then** the app transitions back to the `overview` screen

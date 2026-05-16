@@ -164,6 +164,14 @@ impl Storage for FsStorage {
             child_ids: vec![],
             note_count: 0,
         });
+        // [TC-ST-SP-08] update parent's child_ids when a child space is created
+        if let Some(parent_id) = &space.parent_id {
+            if let Some(parent_entry) = index.spaces.iter_mut().find(|e| &e.id == parent_id) {
+                if !parent_entry.child_ids.contains(&space.id) {
+                    parent_entry.child_ids.push(space.id.clone());
+                }
+            }
+        }
         self.write_index("spaces.json", &index).await?;
         Ok(())
     }
@@ -197,11 +205,15 @@ impl Storage for FsStorage {
     }
 
     async fn delete_space(&self, id: &SpaceId) -> Result<()> {
+        let mut index: SpacesIndex = self.read_index("spaces.json").await?;
+        // [TC-ST-SP-07] return NotFound if space is not in the index
+        if index.get(id).is_none() {
+            return Err(StorageError::NotFound(id.to_string()));
+        }
         let dir = self.space_dir(id);
         if dir.exists() {
             fs::remove_dir_all(&dir).await?;
         }
-        let mut index: SpacesIndex = self.read_index("spaces.json").await?;
         index.remove(id);
         self.write_index("spaces.json", &index).await?;
         Ok(())
@@ -289,6 +301,15 @@ impl Storage for FsStorage {
         let folder = path.with_extension("");
         if folder.exists() {
             fs::remove_dir_all(&folder).await?;
+        }
+        // [TC-ST-ERR-04] decrement note_count in spaces index
+        let space_seg = id.space_segment();
+        if let Ok(space_id) = SpaceId::new(space_seg) {
+            let mut idx: SpacesIndex = self.read_index("spaces.json").await?;
+            if let Some(entry) = idx.spaces.iter_mut().find(|e| e.id == space_id) {
+                entry.note_count = entry.note_count.saturating_sub(1);
+            }
+            self.write_index("spaces.json", &idx).await?;
         }
         self.remove_note_from_indexes(id).await?;
         Ok(())

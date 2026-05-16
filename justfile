@@ -71,3 +71,9 @@ install-js:
 # Full setup: install all deps
 setup: install-js
     @echo "Setup complete!"
+
+# Run E2E tests (builds desktop app then runs WebdriverIO)
+# Prerequisite: cargo install tauri-driver
+e2e:
+    cd product/desktop-app && npm run tauri build
+    cd product/desktop-app && npm run test:e2e

@@ -8,6 +8,15 @@ use crate::ids::{NoteId, SpaceId, ViewId};
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Label(pub String);
 
+impl Label {
+    /// Construct a validated label. [S-DM-L1]
+    pub fn new(s: impl Into<String>) -> Result<Self, crate::ids::IdError> {
+        let s = s.into();
+        crate::ids::validate_label(&s)?;
+        Ok(Label(s))
+    }
+}
+
 /// A space: hierarchical container for notes. [S-DM-S1]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Space {

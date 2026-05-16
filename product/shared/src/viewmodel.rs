@@ -75,6 +75,8 @@ pub struct NoteListItem {
 pub struct NoteEditorViewModel {
     pub id: String,
     pub title: String,
+    /// First non-heading, non-empty line from content. [S-DM-N4]
+    pub description: Option<String>,
     pub content: String,
     pub labels: Vec<String>,
     pub space_id: Option<String>,
@@ -108,9 +110,16 @@ impl From<&Note> for NoteListItem {
 
 impl From<&Note> for NoteEditorViewModel {
     fn from(n: &Note) -> Self {
+        let description = n
+            .content
+            .lines()
+            .find(|l| !l.trim().is_empty() && !l.starts_with('#'))
+            .map(|l| l.trim().to_string());
+
         NoteEditorViewModel {
             id: n.id.to_string(),
             title: n.metadata.title.clone(),
+            description,
             content: n.content.clone(),
             labels: n.metadata.labels.iter().map(|l| l.0.clone()).collect(),
             space_id: n.metadata.space.as_ref().map(|s| s.to_string()),

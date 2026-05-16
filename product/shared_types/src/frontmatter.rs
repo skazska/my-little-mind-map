@@ -255,4 +255,205 @@ Content."#;
             matches!(&meta.references[0].target, NoteReferenceKind::Note { id } if id.as_str() == "space1/target-note")
         );
     }
+
+    // ── TC-DM-FM-02 — Missing optional fields default correctly [S-DM-N5] ───
+
+    #[test]
+    fn missing_optional_fields_default() {
+        let raw = r#"---
+uuid: 550e8400-e29b-41d4-a716-446655440002
+title: minimal-note
+created_at: "2024-01-01T00:00:00Z"
+updated_at: "2024-01-01T00:00:00Z"
+---
+
+Body."#;
+        let (meta, _body) = parse_note_content(raw).unwrap();
+        assert!(meta.space.is_none());
+        assert!(meta.labels.is_empty());
+        assert!(!meta.draft);
+        assert!(meta.references.is_empty());
+    }
+
+    // ── TC-DM-FM-07 — Malformed YAML returns error ───────────────────────────
+
+    #[test]
+    fn malformed_yaml_returns_error() {
+        let raw = "---\n: invalid: yaml: [\n---\n\nBody.";
+        let result = parse_note_content(raw);
+        assert!(
+            matches!(result, Err(FrontMatterError::Yaml(_))),
+            "expected YAML error, got {:?}",
+            result
+        );
+    }
+
+    // ── TC-DM-FM-09 — Draft flag serialises as boolean [S-DM-N5] ─────────────
+
+    #[test]
+    fn draft_flag_round_trip() {
+        let raw = r#"---
+uuid: 550e8400-e29b-41d4-a716-446655440003
+title: draft-note
+draft: true
+created_at: "2024-01-01T00:00:00Z"
+updated_at: "2024-01-01T00:00:00Z"
+---
+
+Draft content."#;
+        let (meta, body) = parse_note_content(raw).unwrap();
+        assert!(meta.draft);
+        let serialized = serialize_note_content(&meta, &body).unwrap();
+        let (meta2, _) = parse_note_content(&serialized).unwrap();
+        assert!(meta2.draft);
+    }
+
+    // ── TC-DM-FM-04 — Multiple reference kinds serialised and parsed [S-DM-NR3]
+
+    #[test]
+    fn multiple_reference_kinds_round_trip() {
+        let raw = r#"---
+uuid: 550e8400-e29b-41d4-a716-446655440004
+title: multi-ref-note
+draft: false
+created_at: "2024-01-01T00:00:00Z"
+updated_at: "2024-01-01T00:00:00Z"
+references:
+  - kind: note
+    target: "space1/other-note"
+    block_id: "section-1"
+    source_block_id: "ref-1"
+  - kind: space
+    target: "sub.parent.root"
+  - kind: external
+    target: "https://example.com"
+  - kind: file
+    target: "attachments/diagram.png"
+---
+
+Content."#;
+        let (meta, body) = parse_note_content(raw).unwrap();
+        assert_eq!(meta.references.len(), 4);
+        // note ref with block IDs
+        assert!(matches!(
+            &meta.references[0].target,
+            NoteReferenceKind::Note { id } if id.as_str() == "space1/other-note"
+        ));
+        assert_eq!(meta.references[0].block_id.as_deref(), Some("section-1"));
+        assert_eq!(meta.references[0].source_block_id.as_deref(), Some("ref-1"));
+        // space ref
+        assert!(matches!(
+            &meta.references[1].target,
+            NoteReferenceKind::Space { id } if id.as_str() == "sub.parent.root"
+        ));
+        // external ref
+        assert!(matches!(
+            &meta.references[2].target,
+            NoteReferenceKind::External { url } if url == "https://example.com"
+        ));
+        // file ref
+        assert!(matches!(
+            &meta.references[3].target,
+            NoteReferenceKind::File { path } if path == "attachments/diagram.png"
+        ));
+
+        // round-trip
+        let serialized = serialize_note_content(&meta, &body).unwrap();
+        let (meta2, _) = parse_note_content(&serialized).unwrap();
+        assert_eq!(meta2.references.len(), 4);
+        assert_eq!(meta.uuid, meta2.uuid);
+    }
+
+    // ── TC-DM-NR-01 — Note reference with block IDs parsed [S-DM-NR5] ────────
+
+    #[test]
+    fn note_reference_block_ids_parsed() {
+        let raw = r#"---
+uuid: 550e8400-e29b-41d4-a716-446655440005
+title: block-ref-note
+draft: false
+created_at: "2024-01-01T00:00:00Z"
+updated_at: "2024-01-01T00:00:00Z"
+references:
+  - kind: note
+    target: "space1/note"
+    block_id: "section-1"
+    source_block_id: "ref-1"
+---
+
+Content."#;
+        let (meta, _) = parse_note_content(raw).unwrap();
+        let r = &meta.references[0];
+        assert_eq!(r.block_id.as_deref(), Some("section-1"));
+        assert_eq!(r.source_block_id.as_deref(), Some("ref-1"));
+    }
+
+    // ── TC-DM-NR-02 — External URL reference parsed [S-DM-NR3] ──────────────
+
+    #[test]
+    fn external_url_reference_parsed() {
+        let raw = r#"---
+uuid: 550e8400-e29b-41d4-a716-446655440006
+title: ext-ref-note
+draft: false
+created_at: "2024-01-01T00:00:00Z"
+updated_at: "2024-01-01T00:00:00Z"
+references:
+  - kind: external
+    target: "https://example.com"
+---
+
+Content."#;
+        let (meta, _) = parse_note_content(raw).unwrap();
+        assert!(matches!(
+            &meta.references[0].target,
+            NoteReferenceKind::External { url } if url == "https://example.com"
+        ));
+    }
+
+    // ── TC-DM-NR-03 — File reference parsed [S-DM-NR3] ───────────────────────
+
+    #[test]
+    fn file_reference_parsed() {
+        let raw = r#"---
+uuid: 550e8400-e29b-41d4-a716-446655440007
+title: file-ref-note
+draft: false
+created_at: "2024-01-01T00:00:00Z"
+updated_at: "2024-01-01T00:00:00Z"
+references:
+  - kind: file
+    target: "attachments/diagram.png"
+---
+
+Content."#;
+        let (meta, _) = parse_note_content(raw).unwrap();
+        assert!(matches!(
+            &meta.references[0].target,
+            NoteReferenceKind::File { path } if path == "attachments/diagram.png"
+        ));
+    }
+
+    // ── TC-DM-NR-04 — Space reference parsed [S-DM-NR3] ─────────────────────
+
+    #[test]
+    fn space_reference_parsed() {
+        let raw = r#"---
+uuid: 550e8400-e29b-41d4-a716-446655440008
+title: space-ref-note
+draft: false
+created_at: "2024-01-01T00:00:00Z"
+updated_at: "2024-01-01T00:00:00Z"
+references:
+  - kind: space
+    target: "sub.parent.root"
+---
+
+Content."#;
+        let (meta, _) = parse_note_content(raw).unwrap();
+        assert!(matches!(
+            &meta.references[0].target,
+            NoteReferenceKind::Space { id } if id.as_str() == "sub.parent.root"
+        ));
+    }
 }
