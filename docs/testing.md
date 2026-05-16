@@ -10,6 +10,7 @@ Test-cases to be stored in `docs/testing/` as markdown files, organized by featu
 4. test coverage: spec coverage, purpose coverage, functionality coverage, edge case coverage.
 5. test case documentation first: write test cases based on specs before test implementation.
 6. test first: implement tests then code.
+7. testing tools and infrastructure allow AI agents perform UI testing.
 
 ## Infrastructure
 
