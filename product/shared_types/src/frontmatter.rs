@@ -7,10 +7,11 @@ use crate::model::{Label, NoteMetadata, NoteReference, NoteReferenceKind};
 
 // ── Serialised form stored in .md front matter ────────────────────────────────
 
+// [S-DM-N5](docs/specs.md###Notes)
 #[derive(Debug, Serialize, Deserialize)]
 struct RawFrontMatter {
     uuid: Uuid,
-    title: String,
+    title: String, 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     space: Option<String>,
     /// Space-separated labels string, e.g. `"rust learning"`. [S-DM-N5]

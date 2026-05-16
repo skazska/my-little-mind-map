@@ -44,12 +44,6 @@ Create a `.env` file in the project root for local overrides (loaded by `justfil
 RUST_LOG=debug
 ```
 
-## code process
-
-[git flow](development/git-flow.md)
-[code standards](development/code-standards.md)
-[documentation](development/documentation.md)
-
 ## Code
 
 [shared core (CRUX)](development/shared-core-crux.md)
@@ -58,6 +52,12 @@ RUST_LOG=debug
 [web app](development/web-app.md)
 [android app](development/android-app.md)
 [iOS app](development/ios-app.md)
+
+## code process
+
+[git flow](development/git-flow.md)
+[code standards](development/code-standards.md)
+[documentation](development/documentation.md)
 
 ## Troubleshooting
 

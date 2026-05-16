@@ -1,8 +1,10 @@
 # Architecture
 
+My Little Mind Map architecture
+
 ## Overview
 
-My Little Mind Map is a cross-platform application for collecting, storing, growing, and managing knowledge contexts.
+Cross-platform
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
@@ -46,11 +48,3 @@ Shell (UI) ──Event──► Core.update() ──Effects──► Shell (exec
      ▲                     │                          │
      └──── ViewModel ◄─────┘     response ────────────┘
 ```
-
-## Folder Structure
-
-TBD
-
-## Tech Choices
-
-TBD
