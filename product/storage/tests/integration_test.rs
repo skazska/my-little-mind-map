@@ -18,6 +18,7 @@ fn sample_space() -> Space {
         description: Some("A space for testing".to_string()),
         labels: vec![Label("testing".to_string())],
         parent_id: None,
+        note_count: 0,
     }
 }
 

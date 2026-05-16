@@ -1,5 +1,5 @@
 import type { Event } from "../types";
-import { openFolderDialog } from "../useApp";
+import { openFolderDialog, getDefaultDataFolder } from "../useApp";
 
 interface Props {
     dispatch: (e: Event) => void;
@@ -13,6 +13,13 @@ export function FirstLaunchScreen({ dispatch }: Props) {
         }
     }
 
+    async function handleUseDefault() {
+        const path = await getDefaultDataFolder();
+        if (path) {
+            dispatch({ type: "data_folder_selected", path });
+        }
+    }
+
     return (
         <div className="screen first-launch">
             <div className="first-launch__card">
@@ -20,6 +27,9 @@ export function FirstLaunchScreen({ dispatch }: Props) {
                 <p>Choose a folder where your notes will be stored locally.</p>
                 <button className="btn btn--primary" onClick={handleSelect}>
                     Choose Data Folder…
+                </button>
+                <button className="btn" onClick={handleUseDefault}>
+                    Use Default (∼/MyLittleMindMapData)
                 </button>
             </div>
         </div>

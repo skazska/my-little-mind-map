@@ -176,6 +176,7 @@ impl Storage for FsStorage {
             description: e.description.clone(),
             labels: e.labels.clone(),
             parent_id: e.parent_id.clone(),
+            note_count: e.note_count,
         }))
     }
 
@@ -190,6 +191,7 @@ impl Storage for FsStorage {
                 description: e.description,
                 labels: e.labels,
                 parent_id: e.parent_id,
+                note_count: e.note_count,
             })
             .collect())
     }

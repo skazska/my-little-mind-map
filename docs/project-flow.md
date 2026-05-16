@@ -8,11 +8,11 @@ Project idea, vision, and goals in `project/IDEA.md`.
 
 ## policies
 
-- **documentation-first**:
-  - refer to guidelines,
+- **document-test-code**:
+  - refer to documentation for guidelines and standards,
   - document what going to do,
   - rich internal linking in documentation,
-  - specs before implementation.
+  - specs -> test cases -> test implementation -> code implementation.
 - **plan changes, not calendar**:
   - no deadlines and time estimates, plan changes and iterations instead.
   - tasks are "units of change", sprints are "transitions between consistent states of the product".

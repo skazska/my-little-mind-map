@@ -1,3 +1,5 @@
+use std::fs as std_fs;
+use std::path::PathBuf;
 use std::sync::Mutex;
 
 use shared::app;
@@ -6,6 +8,56 @@ use shared::event::Event;
 use shared::model::Model;
 use storage::FsStorage;
 use tauri::{Manager, State};
+
+// ── App config (data-folder persistence) ─────────────────────────────────────
+
+/// Minimal config persisted in app_config_dir/config.json. [S-CFG-1]
+#[derive(serde::Serialize, serde::Deserialize, Default)]
+struct AppConfig {
+    data_folder: Option<String>,
+}
+
+fn app_config_path(app: &tauri::AppHandle) -> PathBuf {
+    app.path()
+        .app_config_dir()
+        .unwrap_or_else(|_| PathBuf::from("."))
+        .join("config.json")
+}
+
+/// Read persisted data-folder path from app config dir.
+#[tauri::command]
+fn get_data_folder_config(app: tauri::AppHandle) -> Option<String> {
+    let text = std_fs::read_to_string(app_config_path(&app)).ok()?;
+    let cfg: AppConfig = serde_json::from_str(&text).ok()?;
+    cfg.data_folder
+}
+
+/// Persist data-folder path to app config dir.
+#[tauri::command]
+fn save_data_folder_config(app: tauri::AppHandle, path: String) -> Result<(), String> {
+    let cfg_path = app_config_path(&app);
+    if let Some(parent) = cfg_path.parent() {
+        std_fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    let cfg = AppConfig {
+        data_folder: Some(path),
+    };
+    let text = serde_json::to_string(&cfg).map_err(|e| e.to_string())?;
+    std_fs::write(&cfg_path, text).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+/// Return the default data folder path (~/MyLittleMindMapData). [S-CFG-2]
+#[tauri::command]
+fn get_default_data_folder() -> Result<String, String> {
+    let home = std::env::var("HOME")
+        .or_else(|_| std::env::var("USERPROFILE"))
+        .unwrap_or_else(|_| "/tmp".to_string());
+    Ok(PathBuf::from(home)
+        .join("MyLittleMindMapData")
+        .to_string_lossy()
+        .into_owned())
+}
 
 // ── App state ─────────────────────────────────────────────────────────────────
 
@@ -142,6 +194,15 @@ async fn execute_storage(req: StorageRequest, storage: &FsStorage) -> Event {
                 message: e.to_string(),
             },
         },
+        StorageRequest::LoadNoteForList { id } => match storage.get_note(&id).await {
+            Ok(Some(note)) => Event::NoteListItemLoaded { note },
+            Ok(None) => Event::EffectError {
+                message: format!("note not found: {id}"),
+            },
+            Err(e) => Event::EffectError {
+                message: e.to_string(),
+            },
+        },
         StorageRequest::SaveNote { note } => {
             let id = note.id.clone();
             let result = match storage.get_note(&id).await {
@@ -212,6 +273,9 @@ pub fn run() {
             get_view,
             open_folder_dialog,
             get_settings_path,
+            get_data_folder_config,
+            save_data_folder_config,
+            get_default_data_folder,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

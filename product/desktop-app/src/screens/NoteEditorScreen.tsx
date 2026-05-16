@@ -36,9 +36,9 @@ export function NoteEditorScreen({
     function handleContentChange(value: string) {
         setLocalContent(value);
         setDirty(true);
-        // Auto-save with 1.5 s debounce.
+        // Auto-save with 10 s debounce.
         if (saveTimer.current) clearTimeout(saveTimer.current);
-        saveTimer.current = setTimeout(() => save(value, localLabels), 1500);
+        saveTimer.current = setTimeout(() => save(value, localLabels), 10000);
     }
 
     function save(c: string, l: string[]) {

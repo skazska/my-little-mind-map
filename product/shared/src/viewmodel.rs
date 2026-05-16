@@ -130,7 +130,7 @@ impl From<&Space> for SpaceSummary {
             name: s.name.clone(),
             description: s.description.clone(),
             labels: s.labels.iter().map(|l| l.0.clone()).collect(),
-            note_count: 0, // populated from index when available
+            note_count: s.note_count,
         }
     }
 }

@@ -17,6 +17,10 @@ export function useApp() {
         setBusy(true);
         setError(null);
         try {
+            // Persist the data-folder path when the user selects one. [S-CFG-1]
+            if (event.type === "data_folder_selected") {
+                await invoke("save_data_folder_config", { path: event.path }).catch(() => { });
+            }
             const json = await invoke<string>("dispatch", {
                 eventJson: JSON.stringify(event),
             });
@@ -33,8 +37,9 @@ export function useApp() {
     // Bootstrap the app on mount.
     useEffect(() => {
         (async () => {
-            // Try to load persisted data folder from settings via AppStarted event.
-            await dispatch({ type: "app_started", data_folder: undefined });
+            // Read the persisted data-folder from app config dir. [S-CFG-1]
+            const dataFolder = await invoke<string | null>("get_data_folder_config").catch(() => null);
+            await dispatch({ type: "app_started", data_folder: dataFolder ?? undefined });
         })();
     }, [dispatch]);
 
@@ -46,4 +51,8 @@ export function useApp() {
 export async function openFolderDialog(): Promise<string | null> {
     const result = await invoke<string | null>("open_folder_dialog");
     return result ?? null;
+}
+
+export async function getDefaultDataFolder(): Promise<string | null> {
+    return invoke<string>("get_default_data_folder").catch(() => null);
 }

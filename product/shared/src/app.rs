@@ -64,14 +64,26 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         }
 
         Event::NavigateBack => {
+            let current_screen = model.screen.clone();
             model.current_note = None;
-            match &model.current_space {
-                Some(space) => {
-                    let id = space.id.clone();
-                    model.screen = Screen::NoteList;
-                    vec![Effect::Storage(StorageRequest::LoadNotes { space_id: id })]
+            match current_screen {
+                Screen::NoteEditor => {
+                    // From editor: go back to note list for the current space.
+                    match model.current_space.as_ref().map(|s| s.id.clone()) {
+                        Some(id) => {
+                            model.screen = Screen::NoteList;
+                            vec![Effect::Storage(StorageRequest::LoadNotes { space_id: id })]
+                        }
+                        None => {
+                            model.screen = Screen::Overview(OverviewTab::Spaces);
+                            vec![Effect::Render]
+                        }
+                    }
                 }
-                None => {
+                _ => {
+                    // From note list or any other screen: go to overview.
+                    model.current_space = None;
+                    model.notes.clear();
                     model.screen = Screen::Overview(OverviewTab::Spaces);
                     vec![Effect::Render]
                 }
@@ -91,6 +103,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                     description,
                     labels: vec![],
                     parent_id: None,
+                    note_count: 0,
                 };
                 vec![Effect::Storage(StorageRequest::CreateSpace { space })]
             }
@@ -102,26 +115,34 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
 
         // ── Notes ─────────────────────────────────────────────────────────────
         Event::CreateNote {
-            title,
             space_id,
             parent_id,
-        } => match NoteId::new(format!("{}/{}", space_id.as_str(), slug(&title))) {
-            Err(e) => {
-                model.error = Some(e.to_string());
-                vec![Effect::Render]
+        } => {
+            // Generate a unique slug from the current timestamp. Title will be
+            // synced from the first `# Heading` line when the note is saved. [S-DM-N5]
+            use std::time::{SystemTime, UNIX_EPOCH};
+            let ts = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs();
+            let id_str = format!("{}/untitled-{}", space_id.as_str(), ts);
+            match NoteId::new(id_str) {
+                Err(e) => {
+                    model.error = Some(e.to_string());
+                    vec![Effect::Render]
+                }
+                Ok(id) => {
+                    let meta = NoteMetadata::new("", Some(space_id));
+                    let note = Note {
+                        id,
+                        metadata: meta,
+                        content: String::new(),
+                        parent_id,
+                    };
+                    vec![Effect::Storage(StorageRequest::SaveNote { note })]
+                }
             }
-            Ok(id) => {
-                let mut meta = NoteMetadata::new(title, Some(space_id));
-                meta.draft = true;
-                let note = Note {
-                    id,
-                    metadata: meta,
-                    content: String::new(),
-                    parent_id,
-                };
-                vec![Effect::Storage(StorageRequest::SaveNote { note })]
-            }
-        },
+        }
 
         Event::UpdateNote {
             id,
@@ -130,8 +151,15 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         } => {
             if let Some(note) = model.current_note.as_mut() {
                 if note.id == id {
-                    note.content = apply_label_commands(&content, &mut note.metadata.labels);
-                    note.metadata.labels = labels_from_strings(&labels);
+                    // Start from labels provided by the UI metadata panel.
+                    let mut effective_labels = labels_from_strings(&labels);
+                    // Apply /:labels commands from content (may override panel labels). [S-UX-NE2]
+                    note.content = apply_label_commands(&content, &mut effective_labels);
+                    note.metadata.labels = effective_labels;
+                    // Sync title from first # heading in content. [S-DM-N5]
+                    if let Some(title) = extract_title(&note.content) {
+                        note.metadata.title = slug(&title);
+                    }
                     note.metadata.touch();
                     let updated = note.clone();
                     return vec![Effect::Storage(StorageRequest::SaveNote { note: updated })];
@@ -188,18 +216,19 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
             vec![Effect::Render]
         }
 
-        Event::NoteListLoaded {
-            space_id,
-            note_ids: _,
-        } => {
-            // Keep only the notes we already have for this space; shell will
-            // follow up with LoadNote for each id as needed.
+        Event::NoteListLoaded { space_id, note_ids } => {
             model.current_space = model.spaces.iter().find(|s| s.id == space_id).cloned();
             model
                 .notes
                 .retain(|n| n.id.space_segment() == space_id.as_str());
             model.loading = false;
-            vec![Effect::Render]
+            // Load each note into the list cache. [S-UX-NLV1]
+            let mut effects: Vec<Effect> = note_ids
+                .into_iter()
+                .map(|id| Effect::Storage(StorageRequest::LoadNoteForList { id }))
+                .collect();
+            effects.push(Effect::Render);
+            effects
         }
 
         Event::NoteLoaded { note } => {
@@ -207,6 +236,16 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
             model.screen = Screen::NoteEditor;
             model.loading = false;
             // Upsert in notes list.
+            if let Some(existing) = model.notes.iter_mut().find(|n| n.id == note.id) {
+                *existing = note;
+            } else {
+                model.notes.push(note);
+            }
+            vec![Effect::Render]
+        }
+
+        Event::NoteListItemLoaded { note } => {
+            // Upsert note into the list cache without navigating to the editor.
             if let Some(existing) = model.notes.iter_mut().find(|n| n.id == note.id) {
                 *existing = note;
             } else {
@@ -371,6 +410,15 @@ fn labels_from_strings(labels: &[String]) -> Vec<Label> {
         .collect()
 }
 
+/// Extract the first `# Heading` from markdown content. [S-DM-N5]
+fn extract_title(content: &str) -> Option<String> {
+    content
+        .lines()
+        .find(|l| l.starts_with("# "))
+        .map(|l| l[2..].trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
 /// Process inline `/:labels tag1 tag2;` commands in content. [S-UX-NE2]
 fn apply_label_commands(content: &str, labels: &mut Vec<Label>) -> String {
     let mut result = String::with_capacity(content.len());
@@ -391,7 +439,7 @@ fn apply_label_commands(content: &str, labels: &mut Vec<Label>) -> String {
         result.push_str(line);
         result.push('\n');
     }
-    result.trim_end().to_string()
+    result // [S-UX-NE5] preserve trailing whitespace; no normalization during editing
 }
 
 fn derive_label_summaries(notes: &[Note]) -> Vec<LabelSummary> {
@@ -454,6 +502,7 @@ mod tests {
             description: None,
             labels: vec![],
             parent_id: None,
+            note_count: 0,
         }];
         let effects = update(
             Event::SpacesLoaded {
@@ -491,7 +540,6 @@ mod tests {
         let space_id = SpaceId::new("space1").unwrap();
         let effects = update(
             Event::CreateNote {
-                title: "My Note".into(),
                 space_id,
                 parent_id: None,
             },
@@ -526,6 +574,15 @@ mod tests {
     }
 
     #[test]
+    fn trailing_newlines_preserved_during_autosave() {
+        // [S-UX-NE5] Content fidelity: trailing whitespace must not be stripped.
+        let content = "# My Note\n\nSome content.\n\n";
+        let mut labels = vec![];
+        let result = apply_label_commands(content, &mut labels);
+        assert!(result.ends_with('\n'), "trailing newline must be preserved");
+    }
+
+    #[test]
     fn search_filter_applied_in_view() {
         let mut model = fresh_model();
         model.screen = Screen::NoteList;
@@ -536,6 +593,7 @@ mod tests {
             description: None,
             labels: vec![],
             parent_id: None,
+            note_count: 0,
         });
 
         let mut meta1 = NoteMetadata::new("rust-note", Some(SpaceId::new("space1").unwrap()));

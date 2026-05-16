@@ -57,7 +57,7 @@ RUST_LOG=debug
 
 [git flow](development/git-flow.md)
 [code standards](development/code-standards.md)
-[documentation](development/documentation.md)
+[testing](development/testing.md)
 
 ## Troubleshooting
 

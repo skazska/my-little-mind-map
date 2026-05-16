@@ -29,6 +29,8 @@ pub enum StorageRequest {
     DeleteSpace { id: SpaceId },
     LoadNotes { space_id: SpaceId },
     LoadNote { id: NoteId },
+    /// Load a note into the list cache without navigating to the editor.
+    LoadNoteForList { id: NoteId },
     SaveNote { note: Note },
     DeleteNote { id: NoteId },
 }

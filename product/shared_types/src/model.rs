@@ -17,6 +17,9 @@ pub struct Space {
     pub labels: Vec<Label>,
     /// None for root-level spaces.
     pub parent_id: Option<SpaceId>,
+    /// Number of notes directly in this space (from index). [S-DM-S5]
+    #[serde(default)]
+    pub note_count: usize,
 }
 
 /// A view: a set of labels defining a perspective filter. [S-DM-V1]

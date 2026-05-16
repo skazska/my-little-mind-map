@@ -20,18 +20,7 @@ export function NoteListScreen({
     error,
     dispatch,
 }: Props) {
-    const [newNoteTitle, setNewNoteTitle] = useState("");
-    const [showNew, setShowNew] = useState(false);
     const [localSearch, setLocalSearch] = useState(searchQuery);
-
-    function handleCreateNote(e: React.FormEvent) {
-        e.preventDefault();
-        const title = newNoteTitle.trim();
-        if (!title) return;
-        dispatch({ type: "create_note", title, space_id: spaceId });
-        setNewNoteTitle("");
-        setShowNew(false);
-    }
 
     function handleSearch(q: string) {
         setLocalSearch(q);
@@ -76,7 +65,7 @@ export function NoteListScreen({
                     <h2>Notes</h2>
                     <button
                         className="btn btn--primary"
-                        onClick={() => setShowNew((v) => !v)}
+                        onClick={() => dispatch({ type: "create_note", space_id: spaceId })}
                     >
                         + New Note
                     </button>
@@ -88,30 +77,6 @@ export function NoteListScreen({
                     value={localSearch}
                     onChange={(e) => handleSearch(e.target.value)}
                 />
-
-                {showNew && (
-                    <form className="card form-card" onSubmit={handleCreateNote}>
-                        <input
-                            className="input"
-                            placeholder="Note title"
-                            value={newNoteTitle}
-                            onChange={(e) => setNewNoteTitle(e.target.value)}
-                            autoFocus
-                        />
-                        <div className="form-actions">
-                            <button className="btn btn--primary" type="submit">
-                                Create
-                            </button>
-                            <button
-                                className="btn"
-                                type="button"
-                                onClick={() => setShowNew(false)}
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                )}
 
                 <ul className="card-list">
                     {notes.map((n) => (

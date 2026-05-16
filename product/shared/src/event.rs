@@ -44,8 +44,8 @@ pub enum Event {
     },
 
     // ── Notes ─────────────────────────────────────────────────────────────────
+    /// Create a new draft note; title is derived from content later. [S-DM-N5]
     CreateNote {
-        title: String,
         space_id: SpaceId,
         parent_id: Option<NoteId>,
     },
@@ -79,6 +79,10 @@ pub enum Event {
         note_ids: Vec<NoteId>,
     },
     NoteLoaded {
+        note: Note,
+    },
+    /// A note loaded for the list view (does not navigate to editor).
+    NoteListItemLoaded {
         note: Note,
     },
     NoteSaved {
