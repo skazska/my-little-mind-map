@@ -12,7 +12,7 @@ It includes detailed descriptions of the system architecture, design decisions, 
 - [S-DM-L4] Labels unused: clear automatically.
 - [S-DM-L6] Label content: statistics.
 
-## Views
+### Views
 
 - [S-DM-V1] View: Set of labels. Perspective filtering by labels.
 - [S-DM-V2] View id: labels sorted alphabetically: `view://alabel2-blabel1-label3`.
@@ -154,7 +154,20 @@ data_folder/
 ## Configuration
 
 - [S-CFG-1] Path to data folder and sync settings is platform-specific and stored in app settings.
-- [S-CFG-2] Other settings and preferences are stored in `settings.json` in data folder.
+  - Desktop: stored in app config file (e.g. `~/.config/my-little-mind-map/config.json`).
+  - Web: stored in browser's local storage or indexedDB.
+  - Mobile: stored in app's local storage or secure storage.
+- [S-CFG-2] Defaults for settings are platform-specific:
+  - Desktop:
+    - Default data folder: `~/MyLittleMindMapData`.
+    - Default sync: disabled.
+  - Web:
+    - Default data folder: `MyLittleMindMapData` in browser's local storage or indexedDB.
+    - Default sync: disabled.
+  - Mobile:
+    - Default data folder: `MyLittleMindMapData` in app's local storage or secure storage.
+    - Default sync: disabled.
+- [S-CFG-3] Other settings and preferences are stored in `settings.json` in data folder.
 
 ## Architecture
 
