@@ -28,11 +28,12 @@ export function NoteListScreen({
     }
 
     return (
-        <div className="screen note-list">
+        <div className="screen note-list" data-screen="note_list">
             {/* Sidebar */}
             <aside className="sidebar">
                 <button
                     className="btn btn--back"
+                    data-testid="back-btn"
                     onClick={() => dispatch({ type: "navigate_back" })}
                 >
                     ← Back
@@ -42,13 +43,14 @@ export function NoteListScreen({
                 </div>
                 {activeViewLabels.length > 0 && (
                     <div className="sidebar__filter">
-                        <span className="label">View:</span>
+                        <span data-testid="active-view-badge" className="label">View:</span>
                         {activeViewLabels.map((l) => (
                             <span key={l} className="tag">
                                 {l}
                             </span>
                         ))}
                         <button
+                            data-testid="clear-view-btn"
                             className="btn btn--small"
                             onClick={() => dispatch({ type: "clear_view" })}
                         >
@@ -65,6 +67,7 @@ export function NoteListScreen({
                     <h2>Notes</h2>
                     <button
                         className="btn btn--primary"
+                        data-testid="create-note-btn"
                         onClick={() => dispatch({ type: "create_note", space_id: spaceId })}
                     >
                         + New Note
@@ -76,6 +79,7 @@ export function NoteListScreen({
                     placeholder="Search notes…"
                     value={localSearch}
                     onChange={(e) => handleSearch(e.target.value)}
+                    data-testid="note-list-search"
                 />
 
                 <ul className="card-list">
@@ -83,17 +87,19 @@ export function NoteListScreen({
                         <li
                             key={n.id}
                             className="card card--clickable"
+                            data-testid="note-list-item"
+                            data-title={n.title}
                             onClick={() => dispatch({ type: "navigate_to_note", id: n.id })}
                         >
-                            <div className="card__title">
+                            <div className="card__title" data-testid="note-title">
                                 {n.title}
-                                {n.draft && <span className="badge badge--draft">Draft</span>}
+                                {n.draft && <span className="badge badge--draft" data-testid="draft-badge">Draft</span>}
                             </div>
                             {n.description && (
                                 <div className="card__desc">{n.description}</div>
                             )}
                             <div className="card__meta">
-                                <span className="card__date">{n.updated_at.slice(0, 10)}</span>
+                                <span className="card__date" data-testid="note-date">{n.updated_at.slice(0, 10)}</span>
                                 {n.labels.length > 0 && (
                                     <span className="tag-list">
                                         {n.labels.map((l) => (

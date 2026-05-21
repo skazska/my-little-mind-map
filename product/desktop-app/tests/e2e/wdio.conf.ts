@@ -20,12 +20,12 @@ import * as fs from 'node:fs'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const ROOT = path.resolve(__dirname, '..', '..')
+/** Workspace root (four levels up from tests/e2e). */
+const WORKSPACE_ROOT = path.resolve(__dirname, '..', '..', '..', '..')
 
-/** Path to the compiled Tauri binary. */
+/** Path to the compiled Tauri binary (built to workspace-level target/). */
 const APP_BINARY = path.join(
-    ROOT,
-    'src-tauri',
+    WORKSPACE_ROOT,
     'target',
     'release',
     os.platform() === 'win32' ? 'desktop-app.exe' : 'desktop-app',

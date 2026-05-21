@@ -50,6 +50,9 @@ function App() {
           labels={viewModel.labels}
           spaceId={viewModel.space_id}
           draft={viewModel.draft}
+          uuid={viewModel.uuid}
+          created_at={viewModel.created_at}
+          updated_at={viewModel.updated_at}
           error={viewModel.error}
           dispatch={dispatch}
         />
@@ -57,11 +60,12 @@ function App() {
 
     case "error":
       return (
-        <div className="screen error-screen">
+        <div className="screen error-screen" data-screen="error">
           <h2>Something went wrong</h2>
           <p>{viewModel.message}</p>
           <button
             className="btn btn--primary"
+            data-testid="go-home-btn"
             onClick={() => dispatch({ type: "navigate_overview", tab: "spaces" })}
           >
             Go home

@@ -21,14 +21,14 @@ export function FirstLaunchScreen({ dispatch }: Props) {
     }
 
     return (
-        <div className="screen first-launch">
+        <div className="screen first-launch" data-screen="first_launch">
             <div className="first-launch__card">
                 <h1>My Little Mind Map</h1>
                 <p>Choose a folder where your notes will be stored locally.</p>
-                <button className="btn btn--primary" onClick={handleSelect}>
+                <button className="btn btn--primary" data-testid="select-folder-btn" onClick={handleSelect}>
                     Choose Data Folder…
                 </button>
-                <button className="btn" onClick={handleUseDefault}>
+                <button className="btn" data-testid="use-default-folder-btn" onClick={handleUseDefault}>
                     Use Default (∼/MyLittleMindMapData)
                 </button>
             </div>

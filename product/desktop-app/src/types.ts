@@ -49,6 +49,9 @@ export interface NoteEditorViewModel {
     labels: string[];
     space_id?: string;
     draft: boolean;
+    uuid: string;
+    created_at: string;
+    updated_at: string;
     error?: string;
 }
 
@@ -57,7 +60,7 @@ export type ViewModel =
     | { screen: "first_launch" }
     | { screen: "overview"; active_tab: OverviewTab; spaces: SpaceSummary[]; labels: LabelSummary[]; search_query: string; data_folder?: string; error?: string }
     | { screen: "note_list"; space_id: string; space_name: string; notes: NoteListItem[]; search_query: string; active_view_labels: string[]; error?: string }
-    | { screen: "note_editor"; id: string; title: string; content: string; labels: string[]; space_id?: string; draft: boolean; error?: string }
+    | { screen: "note_editor"; id: string; title: string; content: string; labels: string[]; space_id?: string; draft: boolean; uuid: string; created_at: string; updated_at: string; error?: string }
     | { screen: "error"; message: string };
 
 // ── Event types (mirrors product/shared/src/event.rs) ─────────────────────────
