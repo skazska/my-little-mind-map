@@ -65,13 +65,15 @@ export function NoteListScreen({
                 {error && <div className="banner banner--error">{error}</div>}
                 <div className="tab-content__header">
                     <h2>Notes</h2>
-                    <button
-                        className="btn btn--primary"
-                        data-testid="create-note-btn"
-                        onClick={() => dispatch({ type: "create_note", space_id: spaceId })}
-                    >
-                        + New Note
-                    </button>
+                    {spaceId !== "__view__" && (
+                        <button
+                            className="btn btn--primary"
+                            data-testid="create-note-btn"
+                            onClick={() => dispatch({ type: "create_note", space_id: spaceId })}
+                        >
+                            + New Note
+                        </button>
+                    )}
                 </div>
 
                 <input

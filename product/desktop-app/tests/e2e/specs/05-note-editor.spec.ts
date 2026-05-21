@@ -241,6 +241,11 @@ describe('Note Editor', () => {
         await typeInEditor('\n/:labels rust learning;')
         await saveNote()
 
+        // Wait for the /:labels command to be processed and labels to appear in the UI.
+        await browser.waitUntil(
+            async () => (await visibleLabels()).includes('rust'),
+            { timeout: UI_TIMEOUT_MS, timeoutMsg: 'Labels from /:labels command not visible after save' },
+        )
         const labels = await visibleLabels()
         expect(labels).toContain('rust')
         expect(labels).toContain('learning')
@@ -288,12 +293,9 @@ describe('Note Editor', () => {
      * TC-E2E-NE-13 — Publish clears draft flag [S-UX-NE1]
      */
     it('TC-E2E-NE-13: publishing a note clears the draft indicator and flag on disk', async () => {
-        // Open draft-note (already in editor from previous test, but re-open safely)
-        const screenEl = await $('[data-screen]')
-        const screenId = await screenEl.getAttribute('data-screen')
-        if (screenId !== 'note_editor') {
-            await openNote('draft-note')
-        }
+        // Always open draft-note explicitly to ensure the component has the correct
+        // note id (handles async rename race from previous test's saveNote()).
+        await openNote('draft-note')
 
         await publishNote()
 
@@ -322,7 +324,7 @@ describe('Note Editor', () => {
         // Trigger publish — a confirmation dialog must appear
         const publishBtn = await $('[data-testid="publish-note-btn"]')
         await publishBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-        await publishBtn.click()
+        await browser.execute((el) => (el as HTMLElement).click(), publishBtn)
 
         const dialog = await $('[data-testid="publish-confirm-dialog"], [role="dialog"]')
         await expect(dialog).toBeDisplayed()

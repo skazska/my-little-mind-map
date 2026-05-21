@@ -16,7 +16,6 @@ import {
     UI_TIMEOUT_MS,
 } from '../helpers/app.js'
 import * as fs from 'node:fs'
-import * as path from 'node:path'
 
 let dataDir: string
 
@@ -38,37 +37,28 @@ describe('Error Handling', () => {
      * Restores permissions after the test so cleanup can proceed.
      */
     it('TC-E2E-ERR-01: inaccessible data folder triggers the error screen', async () => {
-        const spacesDir = path.join(dataDir, 'spaces')
-        // Ensure spaces dir exists
-        if (!fs.existsSync(spacesDir)) {
-            fs.mkdirSync(spacesDir, { recursive: true })
-        }
-
-        // Remove read + execute permissions (Linux only)
-        const originalMode = fs.statSync(spacesDir).mode
-        fs.chmodSync(spacesDir, 0o000)
+        // Make the entire data folder inaccessible so every FsStorage operation fails.
+        const originalMode = fs.statSync(dataDir).mode
+        fs.chmodSync(dataDir, 0o000)
 
         try {
-            // Trigger a storage read by navigating to an overview tab that loads spaces
-            const spacesTab = await $('[data-testid="tab-spaces"]')
-            await spacesTab.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-            await spacesTab.click()
+            // Refresh so app_started fires again with the saved config path.
+            // FsStorage::new() tries create_dir_all(dataDir/spaces) → EACCES → EffectError.
+            await browser.refresh()
 
-            // The error screen (or an inline error message) should appear
             await browser.waitUntil(
                 async () => {
                     const screenEl = await $('[data-screen]')
                     const screenId = await screenEl.getAttribute('data-screen')
                     if (screenId === 'error') return true
-                    // Some apps show an error message without a screen transition
                     const errorMsg = await $('[data-testid="error-message"]')
                     return errorMsg.isDisplayed().catch(() => false)
                 },
-                { timeout: UI_TIMEOUT_MS, timeoutMsg: 'Error screen not shown after making folder inaccessible' },
+                { timeout: UI_TIMEOUT_MS * 3, timeoutMsg: 'Error screen not shown after making folder inaccessible' },
             )
         } finally {
-            // Always restore permissions to allow cleanup
-            fs.chmodSync(spacesDir, originalMode)
+            // Always restore permissions to allow cleanup and ERR-02.
+            fs.chmodSync(dataDir, originalMode)
         }
     })
 

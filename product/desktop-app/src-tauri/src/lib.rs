@@ -205,6 +205,34 @@ async fn execute_storage(req: StorageRequest, storage: &FsStorage) -> Event {
         },
         StorageRequest::SaveNote { note } => {
             let id = note.id.clone();
+            let title_slug = note.metadata.title.as_str();
+            let id_name = id.name();
+
+            // If the note has been given a title-based slug that differs from its
+            // current id (e.g. created as "untitled-{ts}" but titled "test-note"),
+            // rename the file to match the title. [S-DM-N5]
+            if !title_slug.is_empty() && title_slug != id_name {
+                let space_seg = id.space_segment();
+                let new_id_str = format!("{}/{}", space_seg, title_slug);
+                if let Ok(new_id) = shared_types::ids::NoteId::new(new_id_str) {
+                    // Only rename if the target file does not already exist.
+                    let target_free = matches!(
+                        storage.get_note(&new_id).await,
+                        Ok(None)
+                    );
+                    if target_free {
+                        let mut new_note = note.clone();
+                        new_note.id = new_id.clone();
+                        if storage.create_note(&new_note).await.is_ok() {
+                            // Remove the old file (ignore errors if already gone).
+                            let _ = storage.delete_note(&id).await;
+                            return Event::NoteSaved { id: new_id };
+                        }
+                        // Rename failed; fall through to normal create/update below.
+                    }
+                }
+            }
+
             let result = match storage.get_note(&id).await {
                 Ok(None) => storage.create_note(&note).await,
                 _ => storage.update_note(&note).await,
@@ -218,6 +246,16 @@ async fn execute_storage(req: StorageRequest, storage: &FsStorage) -> Event {
         }
         StorageRequest::DeleteNote { id } => match storage.delete_note(&id).await {
             Ok(()) => Event::NoteDeleted { id },
+            Err(e) => Event::EffectError {
+                message: e.to_string(),
+            },
+        },
+        StorageRequest::LoadLabels => match storage.get_labels_index().await {
+            Ok(index) => {
+                let mut labels: Vec<String> = index.entries.into_keys().collect();
+                labels.sort();
+                Event::LabelsLoaded { labels }
+            }
             Err(e) => Event::EffectError {
                 message: e.to_string(),
             },

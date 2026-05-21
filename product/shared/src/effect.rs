@@ -43,6 +43,7 @@ pub enum StorageRequest {
     LoadNoteForList {
         id: NoteId,
     },
+    LoadLabels,
     SaveNote {
         note: Note,
     },

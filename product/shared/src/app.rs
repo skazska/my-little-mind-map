@@ -49,7 +49,8 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         // ── Navigation ────────────────────────────────────────────────────────
         Event::NavigateOverview { tab } => {
             model.screen = Screen::Overview(tab_request_to_tab(tab));
-            vec![Effect::Render]
+            model.error = None; // clear any error when explicitly navigating to overview
+            vec![Effect::Storage(StorageRequest::LoadLabels), Effect::Render]
         }
 
         Event::NavigateToSpace { id } => {
@@ -60,6 +61,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
 
         Event::NavigateToNote { id } => {
             model.loading = true;
+            model.note_opening = true;
             vec![Effect::Storage(StorageRequest::LoadNote { id })]
         }
 
@@ -67,6 +69,8 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
             let current_screen = model.screen.clone();
             model.current_note = None;
             model.error = None; // [TC-AL-ERR-02] dismiss error on back navigation
+            model.cross_space_view = false;
+            model.note_opening = false; // cancel any in-flight note open
             match current_screen {
                 Screen::NoteEditor => {
                     // From editor: go back to note list for the current space.
@@ -86,7 +90,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                     model.current_space = None;
                     model.notes.clear();
                     model.screen = Screen::Overview(OverviewTab::Spaces);
-                    vec![Effect::Render]
+                    vec![Effect::Storage(StorageRequest::LoadLabels), Effect::Render]
                 }
             }
         }
@@ -140,6 +144,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                         content: String::new(),
                         parent_id,
                     };
+                    model.note_opening = true; // the save response will open the new note
                     vec![Effect::Storage(StorageRequest::SaveNote { note })]
                 }
             }
@@ -189,11 +194,30 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         // ── Filtering ─────────────────────────────────────────────────────────
         Event::SetActiveView { labels } => {
             model.active_view_labels = labels;
-            vec![Effect::Render]
+            // Cross-space mode: show matching notes from ALL spaces. [S-DM-L2]
+            model.cross_space_view = true;
+            // Do NOT clear model.notes — show already-cached notes immediately.
+            // Fire LoadNotes for all spaces to bring in any notes not yet cached.
+            model.screen = Screen::NoteList;
+            if model.spaces.is_empty() {
+                return vec![Effect::Render];
+            }
+            let mut effects: Vec<Effect> = model
+                .spaces
+                .iter()
+                .map(|s| {
+                    Effect::Storage(StorageRequest::LoadNotes {
+                        space_id: s.id.clone(),
+                    })
+                })
+                .collect();
+            effects.push(Effect::Render);
+            effects
         }
 
         Event::ClearView => {
             model.active_view_labels.clear();
+            model.cross_space_view = false;
             vec![Effect::Render]
         }
 
@@ -217,11 +241,21 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
             vec![Effect::Render]
         }
 
+        Event::LabelsLoaded { labels } => {
+            model.labels = labels;
+            vec![Effect::Render]
+        }
+
         Event::NoteListLoaded { space_id, note_ids } => {
-            model.current_space = model.spaces.iter().find(|s| s.id == space_id).cloned();
-            model
-                .notes
-                .retain(|n| n.id.space_segment() == space_id.as_str());
+            if model.cross_space_view {
+                // Cross-space mode: accumulate notes from multiple spaces. [S-DM-L2]
+                // Do not overwrite current_space or clear notes from other spaces.
+            } else {
+                model.current_space = model.spaces.iter().find(|s| s.id == space_id).cloned();
+                model
+                    .notes
+                    .retain(|n| n.id.space_segment() == space_id.as_str());
+            }
             model.loading = false;
             // Load each note into the list cache. [S-UX-NLV1]
             let mut effects: Vec<Effect> = note_ids
@@ -233,14 +267,60 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         }
 
         Event::NoteLoaded { note } => {
-            model.current_note = Some(note.clone());
-            model.screen = Screen::NoteEditor;
             model.loading = false;
-            // Upsert in notes list.
-            if let Some(existing) = model.notes.iter_mut().find(|n| n.id == note.id) {
-                *existing = note;
+            if model.note_opening {
+                // Explicit navigation: open the editor. [S-UX-NE1]
+                if let Some(existing) = model.notes.iter_mut().find(|n| n.id == note.id) {
+                    *existing = note.clone();
+                } else {
+                    model.notes.push(note.clone());
+                }
+                model.current_note = Some(note);
+                model.screen = Screen::NoteEditor;
+                model.note_opening = false;
+            } else if model.current_note.as_ref().map(|n| &n.id) == Some(&note.id) {
+                // In-editor reload (e.g. autosave): same id — refresh without screen change.
+                if let Some(existing) = model.notes.iter_mut().find(|n| n.id == note.id) {
+                    *existing = note.clone();
+                } else {
+                    model.notes.push(note.clone());
+                }
+                model.current_note = Some(note);
+            } else if model.screen == Screen::NoteEditor {
+                // Check for a rename: same title+space but new title-based id.
+                let is_rename = model
+                    .current_note
+                    .as_ref()
+                    .map(|cur| {
+                        !note.metadata.title.is_empty()
+                            && cur.metadata.title == note.metadata.title
+                            && cur.id.space_segment() == note.id.space_segment()
+                            && note.id.name() == note.metadata.title.as_str()
+                    })
+                    .unwrap_or(false);
+                if is_rename {
+                    // Remove old stale id from list, insert new note.
+                    let old_id = model.current_note.as_ref().map(|n| n.id.clone());
+                    if let Some(old) = old_id {
+                        model.notes.retain(|n| n.id != old);
+                    }
+                    model.notes.push(note.clone());
+                    model.current_note = Some(note);
+                } else {
+                    // Background save or other load: upsert in list, no screen change.
+                    if let Some(existing) = model.notes.iter_mut().find(|n| n.id == note.id) {
+                        *existing = note.clone();
+                    } else {
+                        model.notes.push(note.clone());
+                    }
+                }
             } else {
-                model.notes.push(note);
+                // Not in editor (e.g. after NavigateBack): just upsert in list.
+                if let Some(existing) = model.notes.iter_mut().find(|n| n.id == note.id) {
+                    *existing = note.clone();
+                } else {
+                    model.notes.push(note.clone());
+                }
             }
             vec![Effect::Render]
         }
@@ -314,7 +394,19 @@ pub fn view(model: &Model) -> ViewModel {
         Screen::Overview(tab) => ViewModel::Overview(OverviewViewModel {
             active_tab: tab.clone(),
             spaces: model.spaces.iter().map(SpaceSummary::from).collect(),
-            labels: derive_label_summaries(&model.notes),
+            // Use loaded label index if available, fall back to deriving from cached notes. [S-DM-L1]
+            labels: if model.labels.is_empty() {
+                derive_label_summaries(&model.notes)
+            } else {
+                model
+                    .labels
+                    .iter()
+                    .map(|l| LabelSummary {
+                        label: l.clone(),
+                        note_count: 0,
+                    })
+                    .collect()
+            },
             search_query: model.search_query.clone(),
             data_folder: model.data_folder.clone(),
             error: model.error.clone(),
@@ -322,14 +414,24 @@ pub fn view(model: &Model) -> ViewModel {
 
         Screen::NoteList => {
             let space = model.current_space.as_ref();
-            let space_id = space.map(|s| s.id.to_string()).unwrap_or_default();
-            let space_name = space.map(|s| s.name.clone()).unwrap_or_default();
+            let (space_id, space_name) = if model.cross_space_view {
+                ("__view__".to_string(), "Active View".to_string())
+            } else {
+                (
+                    space.map(|s| s.id.to_string()).unwrap_or_default(),
+                    space.map(|s| s.name.clone()).unwrap_or_default(),
+                )
+            };
 
-            let mut notes: Vec<_> = model
-                .notes
-                .iter()
-                .filter(|n| n.id.space_segment() == space_id)
-                .collect();
+            let mut notes: Vec<_> = if model.cross_space_view {
+                model.notes.iter().collect()
+            } else {
+                model
+                    .notes
+                    .iter()
+                    .filter(|n| n.id.space_segment() == space_id)
+                    .collect()
+            };
 
             // Apply label filter. [S-DM-V1]
             if !model.active_view_labels.is_empty() {
@@ -958,6 +1060,7 @@ mod tests {
     #[test]
     fn note_loaded_transitions_to_editor() {
         let mut model = fresh_model();
+        model.note_opening = true; // simulate prior NavigateToNote
         let mut meta = NoteMetadata::new("loaded-note", Some(SpaceId::new("space1").unwrap()));
         meta.draft = false;
         let note = Note {

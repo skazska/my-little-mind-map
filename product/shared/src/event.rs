@@ -74,6 +74,9 @@ pub enum Event {
     SpacesLoaded {
         spaces: Vec<Space>,
     },
+    LabelsLoaded {
+        labels: Vec<String>,
+    },
     NoteListLoaded {
         space_id: SpaceId,
         note_ids: Vec<NoteId>,

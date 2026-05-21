@@ -94,6 +94,11 @@ export async function resetAppState(): Promise<void> {
             fs.rmSync(configFile)
         }
     }
+    // Clean the default data directory so notes from previous runs don't leak.
+    const defaultDataDir = path.join(os.homedir(), 'MyLittleMindMapData')
+    if (fs.existsSync(defaultDataDir)) {
+        fs.rmSync(defaultDataDir, { recursive: true, force: true })
+    }
     await browser.refresh()
     await waitForScreen('first_launch')
 }
@@ -126,7 +131,14 @@ export async function waitForSpacesList(): Promise<void> {
 
 /** Create a space via the overview form. */
 export async function createSpace(name: string, description?: string): Promise<void> {
+    // Open the creation form if it is not already visible.
     const nameInput = await $('[data-testid="create-space-name"]')
+    const isOpen = await nameInput.isDisplayed().catch(() => false)
+    if (!isOpen) {
+        const toggleBtn = await $('[data-testid="create-space-btn"]')
+        await toggleBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+        await browser.execute((el) => (el as HTMLElement).click(), toggleBtn)
+    }
     await nameInput.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
     await nameInput.setValue(name)
 
@@ -177,20 +189,42 @@ export async function createNote(title: string): Promise<void> {
     await waitForScreen('note_editor')
     const editor = await $('[data-testid="note-editor-content"]')
     await editor.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await editor.setValue(`# ${title}\n\n`)
+    // Use native setter so React onChange fires and dirty flag is set.
+    await browser.execute((el: HTMLTextAreaElement, text: string) => {
+        const nativeSetter = Object.getOwnPropertyDescriptor(
+            HTMLTextAreaElement.prototype,
+            'value',
+        )?.set
+        nativeSetter?.call(el, text)
+        el.dispatchEvent(new Event('input', { bubbles: true }))
+    }, editor, `# ${title}\n\n`)
 }
 
 /** Type text into the search input on the note list. */
 export async function searchNotes(query: string): Promise<void> {
     const input = await $('[data-testid="note-list-search"]')
     await input.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await input.setValue(query)
+    await browser.execute((el: HTMLInputElement, text: string) => {
+        const nativeSetter = Object.getOwnPropertyDescriptor(
+            HTMLInputElement.prototype,
+            'value',
+        )?.set
+        nativeSetter?.call(el, text)
+        el.dispatchEvent(new Event('input', { bubbles: true }))
+    }, input, query)
 }
 
 /** Clear the search input. */
 export async function clearSearch(): Promise<void> {
     const input = await $('[data-testid="note-list-search"]')
-    await input.clearValue()
+    await browser.execute((el: HTMLInputElement) => {
+        const nativeSetter = Object.getOwnPropertyDescriptor(
+            HTMLInputElement.prototype,
+            'value',
+        )?.set
+        nativeSetter?.call(el, '')
+        el.dispatchEvent(new Event('input', { bubbles: true }))
+    }, input)
 }
 
 /** Return all visible note titles in the list. */
@@ -211,6 +245,13 @@ export async function clickBack(): Promise<void> {
 
 /** Click on a note in the note list to open the editor. */
 export async function openNote(noteTitle: string): Promise<void> {
+    // If we're not on note_list, navigate back first
+    const screenEl = await $('[data-screen]')
+    const currentScreen = await screenEl.getAttribute('data-screen')
+    if (currentScreen !== 'note_list') {
+        await clickBack()
+        await waitForScreen('note_list')
+    }
     const item = await $(`[data-testid="note-list-item"][data-title="${noteTitle}"]`)
     await item.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
     await browser.execute((el) => (el as HTMLElement).click(), item)
@@ -221,7 +262,18 @@ export async function openNote(noteTitle: string): Promise<void> {
 export async function typeInEditor(content: string): Promise<void> {
     const editor = await $('[data-testid="note-editor-content"]')
     await editor.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await editor.addValue(content)
+    await browser.execute(
+        (el: HTMLTextAreaElement, text: string) => {
+            const nativeSetter = Object.getOwnPropertyDescriptor(
+                HTMLTextAreaElement.prototype,
+                'value',
+            )?.set
+            nativeSetter?.call(el, el.value + text)
+            el.dispatchEvent(new Event('input', { bubbles: true }))
+        },
+        editor,
+        content,
+    )
 }
 
 /** Click the Save button in the note editor. */
@@ -231,11 +283,15 @@ export async function saveNote(): Promise<void> {
     await browser.execute((el) => (el as HTMLElement).click(), btn)
 }
 
-/** Click the Publish button in the note editor. */
+/** Click the Publish button in the note editor and confirm the dialog. */
 export async function publishNote(): Promise<void> {
     const btn = await $('[data-testid="publish-note-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
     await browser.execute((el) => (el as HTMLElement).click(), btn)
+    // Confirm the publish dialog.
+    const confirmBtn = await $('[data-testid="publish-confirm-ok"]')
+    await confirmBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+    await browser.execute((el) => (el as HTMLElement).click(), confirmBtn)
 }
 
 /** Click the Delete button in the note editor. */

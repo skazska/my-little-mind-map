@@ -15,6 +15,12 @@ pub struct Model {
     pub labels: Vec<String>,
     pub search_query: String,
     pub active_view_labels: Vec<String>,
+    /// When true, the note list shows notes from all spaces filtered by `active_view_labels`.
+    /// Set by `SetActiveView`; cleared by `NavigateBack`, `NavigateOverview`, `ClearView`.
+    pub cross_space_view: bool,
+    /// When true, the next `NoteLoaded` response should navigate to the editor.
+    /// Set by `CreateNote` and `NavigateToNote`; cleared by `NavigateBack` and `NoteLoaded`.
+    pub note_opening: bool,
     pub data_folder: Option<String>,
     pub error: Option<String>,
     pub loading: bool,

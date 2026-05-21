@@ -86,6 +86,7 @@ export function OverviewScreen({
                             <h2>Spaces</h2>
                             <button
                                 className="btn btn--primary"
+                                data-testid="create-space-btn"
                                 onClick={() => setShowNewSpace((v) => !v)}
                             >
                                 + New Space
@@ -193,14 +194,21 @@ export function OverviewScreen({
                     </div>
                 )}
 
-                {(activeTab === "views" ||
-                    activeTab === "recent" ||
-                    activeTab === "search") && (
-                        <div className="tab-content">
-                            <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
-                            <p className="empty">Coming soon.</p>
-                        </div>
-                    )}
+                {activeTab === "views" && (
+                    <div className="tab-content">
+                        <h2>Views</h2>
+                        <ul className="card-list" data-testid="views-list">
+                            <li className="empty">No saved views yet.</li>
+                        </ul>
+                    </div>
+                )}
+
+                {(activeTab === "recent" || activeTab === "search") && (
+                    <div className="tab-content">
+                        <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
+                        <p className="empty">Coming soon.</p>
+                    </div>
+                )}
             </main>
         </div>
     );
