@@ -13,7 +13,6 @@ import {
     createNote,
     createSpace,
     navigateIntoSpace,
-    openNote,
     searchNotes,
     useDefaultFolder,
     visibleNoteTitles,

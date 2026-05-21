@@ -13,7 +13,6 @@ import {
     createNote,
     createSpace,
     navigateIntoSpace,
-    openNote,
     saveNote,
     useDefaultFolder,
     UI_TIMEOUT_MS,

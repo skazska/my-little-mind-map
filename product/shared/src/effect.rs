@@ -23,16 +23,32 @@ pub enum Effect {
 #[serde(tag = "op", rename_all = "snake_case")]
 pub enum StorageRequest {
     LoadSettings,
-    SaveSettings { settings: Settings },
+    SaveSettings {
+        settings: Settings,
+    },
     LoadSpaces,
-    CreateSpace { space: Space },
-    DeleteSpace { id: SpaceId },
-    LoadNotes { space_id: SpaceId },
-    LoadNote { id: NoteId },
+    CreateSpace {
+        space: Space,
+    },
+    DeleteSpace {
+        id: SpaceId,
+    },
+    LoadNotes {
+        space_id: SpaceId,
+    },
+    LoadNote {
+        id: NoteId,
+    },
     /// Load a note into the list cache without navigating to the editor.
-    LoadNoteForList { id: NoteId },
-    SaveNote { note: Note },
-    DeleteNote { id: NoteId },
+    LoadNoteForList {
+        id: NoteId,
+    },
+    SaveNote {
+        note: Note,
+    },
+    DeleteNote {
+        id: NoteId,
+    },
 }
 
 // ── HTTP requests (future) ────────────────────────────────────────────────────

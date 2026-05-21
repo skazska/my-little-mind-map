@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import type { Event } from "../types";
 
 interface Props {
@@ -26,12 +26,14 @@ export function NoteEditorScreen({
   const [dirty, setDirty] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Sync incoming content (when note reloads after save).
-  useEffect(() => {
+  // Reset local state when navigating to a different note.
+  const [prevId, setPrevId] = useState(id);
+  if (prevId !== id) {
+    setPrevId(id);
     setLocalContent(content);
     setLocalLabels(labels);
     setDirty(false);
-  }, [id, content, labels]);
+  }
 
   function handleContentChange(value: string) {
     setLocalContent(value);

@@ -9,7 +9,6 @@ import {
     assertScreen,
     getStatusBarPath,
     useDefaultFolder,
-    waitForScreen,
     UI_TIMEOUT_MS,
 } from '../helpers/app.js'
 
@@ -56,7 +55,6 @@ describe('First Launch', () => {
      * This test validates the persistence artifact on disk instead.
      */
     it('TC-E2E-FL-04: settings file is written after folder selection', async () => {
-        const { execSync } = await import('node:child_process')
         await useDefaultFolder()
         await assertScreen('overview')
         // Retrieve the data dir from the status bar so we know where to look.

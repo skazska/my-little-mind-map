@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+import type React from "react";
 import type { Event, ViewModel } from "./types";
 
 // ── WASM lazy-load ────────────────────────────────────────────────────────────
@@ -132,55 +133,84 @@ function executeStorageEffect(req: Record<string, unknown>): Event {
     }
 }
 
+// ── WASM event-loop helpers ───────────────────────────────────────────────────
+
+type AppHandle = InstanceType<WasmModule["AppHandle"]>;
+
+/** Dispatch one event through the WASM handle, process all storage effects, and
+ *  return the updated view-model JSON string. Pure computation – no React state. */
+async function runEvent(
+    handleRef: React.MutableRefObject<AppHandle | null>,
+    event: Event,
+): Promise<string> {
+    if (!handleRef.current) {
+        const mod = await loadWasm();
+        handleRef.current = new mod.AppHandle();
+    }
+    const handle = handleRef.current;
+
+    // Step 1: dispatch event → get effects JSON.
+    const effectsJson = handle.dispatch(JSON.stringify(event));
+    const effects = JSON.parse(effectsJson) as Array<Record<string, unknown>>;
+
+    // Step 2: execute effects, collect responses.
+    const responses: Event[] = [];
+    for (const eff of effects) {
+        if (eff.type === "storage") {
+            responses.push(executeStorageEffect(eff));
+        }
+        // Render and Http effects are ignored (render is implicit; no HTTP in POC).
+    }
+
+    // Step 3: feed responses back.
+    for (const resp of responses) {
+        const moreJson = handle.dispatch(JSON.stringify(resp));
+        const more = JSON.parse(moreJson) as Array<Record<string, unknown>>;
+        for (const eff of more) {
+            if (eff.type === "storage") {
+                const resp2 = executeStorageEffect(eff as Record<string, unknown>);
+                handle.dispatch(JSON.stringify(resp2));
+            }
+        }
+    }
+
+    // Step 4: return view.
+    return handle.view();
+}
+
 // ── Core hook ─────────────────────────────────────────────────────────────────
 
 export function useApp() {
     const [viewModel, setViewModel] = useState<ViewModel>({ screen: "loading" });
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const handleRef = useRef<InstanceType<WasmModule["AppHandle"]> | null>(null);
+    const handleRef = useRef<AppHandle | null>(null);
+
+    // Bootstrap: initialize WASM and send the first event.
+    // State is updated via .then()/.catch() callbacks (not directly in the effect body).
+    useEffect(() => {
+        let cancelled = false;
+
+        runEvent(handleRef, { type: "app_started", data_folder: "browser" })
+            .then(vmJson => {
+                if (!cancelled) setViewModel(JSON.parse(vmJson) as ViewModel);
+            })
+            .catch(e => {
+                const msg = e instanceof Error ? e.message : String(e);
+                if (!cancelled) {
+                    setError(msg);
+                    setViewModel({ screen: "error", message: msg });
+                }
+            });
+
+        return () => { cancelled = true; };
+    }, []);
 
     const dispatch = useCallback(async (event: Event) => {
         setBusy(true);
         setError(null);
         try {
-            // Lazy-init WASM handle.
-            if (!handleRef.current) {
-                const mod = await loadWasm();
-                handleRef.current = new mod.AppHandle();
-            }
-            const handle = handleRef.current;
-
-            // Step 1: dispatch event → get effects JSON.
-            const effectsJson = handle.dispatch(JSON.stringify(event));
-            const effects = JSON.parse(effectsJson) as Array<Record<string, unknown>>;
-
-            // Step 2: execute effects, collect responses.
-            // Effect JSON shape: {"type": "storage", "op": "load_settings", ...}
-            // (Effect uses #[serde(tag = "type")] and StorageRequest uses #[serde(tag = "op")],
-            //  so both tags appear in the same flat object.)
-            const responses: Event[] = [];
-            for (const eff of effects) {
-                if (eff.type === "storage") {
-                    responses.push(executeStorageEffect(eff));
-                }
-                // Render and Http effects are ignored (render is implicit; no HTTP in POC).
-            }
-
-            // Step 3: feed responses back.
-            for (const resp of responses) {
-                const moreJson = handle.dispatch(JSON.stringify(resp));
-                const more = JSON.parse(moreJson) as Array<Record<string, unknown>>;
-                for (const eff of more) {
-                    if (eff.type === "storage") {
-                        const resp2 = executeStorageEffect(eff as Record<string, unknown>);
-                        handle.dispatch(JSON.stringify(resp2));
-                    }
-                }
-            }
-
-            // Step 4: get view.
-            const vmJson = handle.view();
+            const vmJson = await runEvent(handleRef, event);
             setViewModel(JSON.parse(vmJson) as ViewModel);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
@@ -190,11 +220,6 @@ export function useApp() {
             setBusy(false);
         }
     }, []);
-
-    // Bootstrap: send AppStarted with no data_folder (web uses localStorage).
-    useEffect(() => {
-        dispatch({ type: "app_started", data_folder: "browser" });
-    }, [dispatch]);
 
     return { viewModel, dispatch, busy, error };
 }

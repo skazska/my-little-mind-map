@@ -228,7 +228,10 @@ async fn space_directory_created_on_disk() {
     storage.create_space(&space).await.unwrap();
 
     let expected = tmp.path().join("spaces").join("test-space");
-    assert!(expected.is_dir(), "space directory not found at {expected:?}");
+    assert!(
+        expected.is_dir(),
+        "space directory not found at {expected:?}"
+    );
 }
 
 /// TC-ST-SP-03 — Nested space directory uses reversed dot notation [S-ST-DM4]
@@ -251,7 +254,10 @@ async fn nested_space_directory_reversed_dot() {
         .join("root")
         .join("parent")
         .join("sub");
-    assert!(expected.is_dir(), "nested space dir not found at {expected:?}");
+    assert!(
+        expected.is_dir(),
+        "nested space dir not found at {expected:?}"
+    );
 }
 
 /// TC-ST-SP-05 — Get non-existent space returns None
@@ -427,7 +433,10 @@ async fn delete_note_removes_companion_folder() {
         .join("spaces")
         .join("test-space")
         .join("parent-note");
-    assert!(companion_dir.is_dir(), "companion dir must exist before delete");
+    assert!(
+        companion_dir.is_dir(),
+        "companion dir must exist before delete"
+    );
 
     storage.delete_note(&parent.id).await.unwrap();
 
@@ -575,7 +584,10 @@ async fn references_index_forward_on_create() {
     storage.create_note(&note).await.unwrap();
 
     let refs = storage.get_references_index().await.unwrap();
-    let forward = refs.forward.get(note.id.as_str()).expect("forward entry must exist");
+    let forward = refs
+        .forward
+        .get(note.id.as_str())
+        .expect("forward entry must exist");
     assert!(
         forward.iter().any(|e| e.note_id == target_id.as_str()),
         "forward ref to target must be present"
@@ -642,7 +654,10 @@ async fn references_index_rebuilt_on_update() {
     );
 
     // New target must be present
-    let new_back = refs.backward.get(new_target.as_str()).expect("new backlink must exist");
+    let new_back = refs
+        .backward
+        .get(new_target.as_str())
+        .expect("new backlink must exist");
     assert!(
         new_back.iter().any(|e| e.note_id == note.id.as_str()),
         "new backlink must be present"
@@ -701,7 +716,10 @@ async fn definitions_indexed_on_create() {
     storage.create_note(&note).await.unwrap();
 
     let defs = storage.get_definitions_index().await.unwrap();
-    let entries = defs.entries.get("widget").expect("definition must be indexed");
+    let entries = defs
+        .entries
+        .get("widget")
+        .expect("definition must be indexed");
     assert!(entries.iter().any(|e| e.note_id == note.id));
 }
 
@@ -726,7 +744,10 @@ async fn definitions_removed_on_delete() {
 
     let defs = storage.get_definitions_index().await.unwrap();
     let entries = defs.entries.get("gadget").cloned().unwrap_or_default();
-    assert!(entries.is_empty(), "definition must be removed on note delete");
+    assert!(
+        entries.is_empty(),
+        "definition must be removed on note delete"
+    );
 }
 
 // ── Settings — additional (TC-ST-SET-01, TC-ST-SET-03) ───────────────────────
@@ -803,7 +824,10 @@ async fn concurrent_reads_do_not_error() {
 
     for handle in handles {
         let result = handle.await.unwrap();
-        assert!(result.unwrap().is_some(), "concurrent read must return Some(note)");
+        assert!(
+            result.unwrap().is_some(),
+            "concurrent read must return Some(note)"
+        );
     }
 }
 
@@ -828,5 +852,8 @@ async fn note_count_accurate_after_create_and_delete() {
         .iter()
         .find(|e| e.id == space.id)
         .expect("space must be in index");
-    assert_eq!(entry.note_count, 2, "note_count must be 2 (3 created, 1 deleted)");
+    assert_eq!(
+        entry.note_count, 2,
+        "note_count must be 2 (3 created, 1 deleted)"
+    );
 }

@@ -10,7 +10,6 @@ import {
     clickOverviewTab,
     useDefaultFolder,
     waitForSpacesList,
-    UI_TIMEOUT_MS,
 } from '../helpers/app.js'
 
 describe('Overview', () => {
