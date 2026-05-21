@@ -23,20 +23,20 @@ Inspired by personal knowledge management, note-taking, and project management t
 
 ## Repo structure
 
-- `docs/`: documentation and guidelines
-  - architecture: architecture overview
-  - development: development guidelines, setup, code standards, git flow, etc.
-  - project-flow: project management guidelines (planning, requirements, decisions, etc.)
-  - specs: specifications
-  - tests: testing guidelines and test cases
+- `docs/`: documentation and guidelines for this project.
+  - architecture: architecture overview (.md and folder)
+  - development: development guidelines (.md and folder).
+  - project-flow: project management guidelines (.md and folder).
+  - specs: specifications (.md and folder)
+  - tests: testing guidelines and test cases (.md and folder)
 - `project/`: project-management
-  - IDEA: initial project idea, vision, goals
-  - PLAN: high-level project plan and roadmap
+  - IDEA.md: initial project idea, vision, goals
+  - PLAN.md: high-level project plan and roadmap
   - folders for each plan milestone
-    - status
-    - results and learnings
-    - requirements
-    - decisions
+    - status (.md and folder)
+    - results (.md and folder)
+    - requirements (.md and folder)
+    - decisions (.md and folder)
     - phases/sprints
       - tasks, issues, etc.
 - `product/`: product implementation
