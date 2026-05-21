@@ -2,7 +2,9 @@
 
 ## Project Overview
 
-Multi-platform (mobile, desktop, web) + backend service for collecting, storing, and managing context around topics through interconnected artifacts.
+Multi-platform (mobile, desktop, web) + backend service advanced features.
+
+Multi-app: desktop, web, mobile (iOS + Android).
 
 Inspired by personal knowledge management, note-taking, and project management tools, but with a focus on text-centric approach and rich interlinking of artifacts and topics.
 

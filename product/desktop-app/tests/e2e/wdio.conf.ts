@@ -12,9 +12,13 @@
  */
 
 import { spawn, type ChildProcess } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import * as os from 'node:os'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const ROOT = path.resolve(__dirname, '..', '..')
 
