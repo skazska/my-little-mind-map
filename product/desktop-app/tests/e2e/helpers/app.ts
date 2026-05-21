@@ -5,6 +5,27 @@
  * Elements are located by `data-testid` attributes (WDIO selector `[data-testid="…"]`).
  *
  * `data-testid` values used here must be present in the frontend components.
+ *
+ * ## Click pattern
+ *
+ * All interactive clicks use `browser.execute((el) => el.click(), element)` rather
+ * than the WebdriverIO `element.click()` shorthand.  The reason: WebDriver's
+ * synthesised click command (HTTP POST /element/:id/click) does NOT fire through
+ * the browser's normal event path in Tauri/WebKit on Linux.  React's synthetic
+ * event system uses delegated listeners on the document root, so events that
+ * bypass the real DOM event pipeline are invisible to React handlers and no
+ * state transition occurs.  Calling `.click()` directly on the DOM node from
+ * within the page context (`browser.execute`) fires a real, trusted Event that
+ * React's delegation picks up correctly.
+ *
+ * ## App config isolation
+ *
+ * `wdio.conf.ts` spawns `tauri-driver` with a fresh `XDG_CONFIG_HOME` temp dir
+ * (set as `E2E_XDG_CONFIG_HOME` in the Node process env).  This prevents any
+ * real user config (`~/.config/com.my-little-mind-map.desktop/config.json`) from
+ * leaking into the test run and causing the app to skip the first-launch screen.
+ * `resetAppState()` deletes the config file within that dir so individual tests
+ * can start from a clean state without restarting the process.
  */
 
 import * as os from 'node:os'
@@ -81,8 +102,6 @@ export async function resetAppState(): Promise<void> {
 export async function useDefaultFolder(): Promise<void> {
     const btn = await $('[data-testid="use-default-folder-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    // Use execute() so the click fires from the page context, which ensures
-    // React's synthetic event delegation picks it up in Tauri/WebKit on Linux.
     await browser.execute((el) => (el as HTMLElement).click(), btn)
 }
 
@@ -153,7 +172,7 @@ export async function isSpaceVisible(spaceName: string): Promise<boolean> {
 export async function createNote(title: string): Promise<void> {
     const btn = await $('[data-testid="create-note-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await btn.click()
+    await browser.execute((el) => (el as HTMLElement).click(), btn)
     // The editor opens; wait for it, then type the title as the first heading.
     await waitForScreen('note_editor')
     const editor = await $('[data-testid="note-editor-content"]')

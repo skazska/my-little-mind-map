@@ -28,6 +28,16 @@ sudo apt-get install -y \
   libjavascriptcoregtk-4.1-dev
 ```
 
+### Linux (Ubuntu/Debian) — E2E testing dependencies
+
+Required to run `just e2e`. `webkit2gtk-driver` provides `/usr/bin/WebKitWebDriver`,
+which `tauri-driver` wraps to expose a WebDriver session for the Tauri webview.
+
+```bash
+sudo apt-get install -y webkit2gtk-driver
+cargo install tauri-driver
+```
+
 ## macOS — Tauri system dependencies
 
 Xcode Command Line Tools (usually already installed):

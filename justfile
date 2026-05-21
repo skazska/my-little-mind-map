@@ -72,8 +72,21 @@ install-js:
 setup: install-js
     @echo "Setup complete!"
 
-# Run E2E tests (builds desktop app then runs WebdriverIO)
-# Prerequisite: cargo install tauri-driver
-e2e:
-    cd product/desktop-app && npm run tauri build
+# Run E2E tests via WebdriverIO against the Tauri desktop app.
+#
+# Prerequisites (one-time setup):
+#   cargo install tauri-driver           # WebDriver bridge for Tauri
+#   sudo apt install webkit2gtk-driver   # provides /usr/bin/WebKitWebDriver (Linux only)
+#
+# By default a full release build runs first.  Pass rebuild=false to skip the
+# Tauri build when the binary is already up to date — useful during iterative
+# test development to avoid waiting for a full release compile each run.
+#
+#   just e2e              # build + test  (safe, always correct)
+#   just e2e rebuild=false  # test only   (fast, assumes binary is current)
+e2e rebuild="true":
+    #!/usr/bin/env bash
+    if [[ "{{rebuild}}" == "true" ]]; then
+        cd product/desktop-app && npm run tauri build
+    fi
     cd product/desktop-app && npm run test:e2e
