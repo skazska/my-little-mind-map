@@ -12,6 +12,7 @@ import {
     deleteSpace,
     isSpaceVisible,
     navigateIntoSpace,
+    resetAppState,
     useDefaultFolder,
     UI_TIMEOUT_MS,
 } from '../helpers/app.js'
@@ -22,6 +23,7 @@ let dataDir: string
 
 describe('Space Management', () => {
     before(async () => {
+        await resetAppState()
         await useDefaultFolder()
         await assertScreen('overview')
         const statusPath = await $('[data-testid="status-bar-path"]')

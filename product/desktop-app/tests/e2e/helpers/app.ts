@@ -53,11 +53,37 @@ export async function assertScreen(
 
 // ── First launch helpers ───────────────────────────────────────────────────────
 
+/**
+ * Reset the app to the first-launch screen.
+ *
+ * Deletes the app config file from the isolated E2E XDG config home (so
+ * `get_data_folder_config` returns null), then refreshes the WebView to
+ * trigger a fresh `app_started` dispatch with no `data_folder`.  Must be
+ * called in `beforeEach` for every test that needs a clean first-launch state.
+ */
+export async function resetAppState(): Promise<void> {
+    const xdgConfigHome = process.env['E2E_XDG_CONFIG_HOME']
+    if (xdgConfigHome) {
+        const configFile = path.join(
+            xdgConfigHome,
+            'com.my-little-mind-map.desktop',
+            'config.json',
+        )
+        if (fs.existsSync(configFile)) {
+            fs.rmSync(configFile)
+        }
+    }
+    await browser.refresh()
+    await waitForScreen('first_launch')
+}
+
 /** Click "Use default folder" on the first launch screen. */
 export async function useDefaultFolder(): Promise<void> {
     const btn = await $('[data-testid="use-default-folder-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await btn.click()
+    // Use execute() so the click fires from the page context, which ensures
+    // React's synthetic event delegation picks it up in Tauri/WebKit on Linux.
+    await browser.execute((el) => (el as HTMLElement).click(), btn)
 }
 
 // ── Overview helpers ───────────────────────────────────────────────────────────
@@ -68,7 +94,7 @@ export async function clickOverviewTab(
 ): Promise<void> {
     const el = await $(`[data-testid="tab-${tab}"]`)
     await el.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await el.click()
+    await browser.execute((domEl) => (domEl as HTMLElement).click(), el)
 }
 
 /** Wait for the spaces list to be visible. */
@@ -91,14 +117,15 @@ export async function createSpace(name: string, description?: string): Promise<v
     }
 
     const submitBtn = await $('[data-testid="create-space-submit"]')
-    await submitBtn.click()
+    await submitBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+    await browser.execute((el) => (el as HTMLElement).click(), submitBtn)
 }
 
 /** Navigate into a space by clicking its list item. */
 export async function navigateIntoSpace(spaceName: string): Promise<void> {
     const item = await $(`[data-testid="space-item"][data-name="${spaceName}"]`)
     await item.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await item.click()
+    await browser.execute((el) => (el as HTMLElement).click(), item)
 }
 
 /** Delete a space via its list item action button. */
@@ -107,7 +134,7 @@ export async function deleteSpace(spaceName: string): Promise<void> {
         `[data-testid="space-item"][data-name="${spaceName}"] [data-testid="delete-space-btn"]`,
     )
     await deleteBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await deleteBtn.click()
+    await browser.execute((el) => (el as HTMLElement).click(), deleteBtn)
 }
 
 /** Check whether a space appears in the spaces list. */
@@ -158,7 +185,7 @@ export async function visibleNoteTitles(): Promise<string[]> {
 export async function clickBack(): Promise<void> {
     const btn = await $('[data-testid="back-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await btn.click()
+    await browser.execute((el) => (el as HTMLElement).click(), btn)
 }
 
 // ── Note editor helpers ────────────────────────────────────────────────────────
@@ -167,7 +194,7 @@ export async function clickBack(): Promise<void> {
 export async function openNote(noteTitle: string): Promise<void> {
     const item = await $(`[data-testid="note-list-item"][data-title="${noteTitle}"]`)
     await item.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await item.click()
+    await browser.execute((el) => (el as HTMLElement).click(), item)
     await waitForScreen('note_editor')
 }
 
@@ -182,21 +209,21 @@ export async function typeInEditor(content: string): Promise<void> {
 export async function saveNote(): Promise<void> {
     const btn = await $('[data-testid="save-note-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await btn.click()
+    await browser.execute((el) => (el as HTMLElement).click(), btn)
 }
 
 /** Click the Publish button in the note editor. */
 export async function publishNote(): Promise<void> {
     const btn = await $('[data-testid="publish-note-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await btn.click()
+    await browser.execute((el) => (el as HTMLElement).click(), btn)
 }
 
 /** Click the Delete button in the note editor. */
 export async function deleteNote(): Promise<void> {
     const btn = await $('[data-testid="delete-note-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await btn.click()
+    await browser.execute((el) => (el as HTMLElement).click(), btn)
 }
 
 /** Add a label via the metadata panel label input. */
@@ -213,7 +240,7 @@ export async function removeLabel(label: string): Promise<void> {
         `[data-testid="label-chip"][data-label="${label}"] [data-testid="label-remove-btn"]`,
     )
     await removeBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await removeBtn.click()
+    await browser.execute((el) => (el as HTMLElement).click(), removeBtn)
 }
 
 /** Return all visible label names in the metadata panel. */
@@ -244,5 +271,5 @@ export async function getStatusBarPath(): Promise<string> {
 export async function goHome(): Promise<void> {
     const btn = await $('[data-testid="go-home-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await btn.click()
+    await browser.execute((el) => (el as HTMLElement).click(), btn)
 }

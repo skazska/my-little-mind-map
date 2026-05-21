@@ -13,6 +13,7 @@ import {
     createNote,
     createSpace,
     navigateIntoSpace,
+    resetAppState,
     saveNote,
     useDefaultFolder,
     UI_TIMEOUT_MS,
@@ -20,6 +21,7 @@ import {
 
 describe('Labels and Views', () => {
     before(async () => {
+        await resetAppState()
         await useDefaultFolder()
         await assertScreen('overview')
 

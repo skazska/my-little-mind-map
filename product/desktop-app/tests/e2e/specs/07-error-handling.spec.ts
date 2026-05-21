@@ -11,6 +11,7 @@
 import {
     assertScreen,
     goHome,
+    resetAppState,
     useDefaultFolder,
     UI_TIMEOUT_MS,
 } from '../helpers/app.js'
@@ -21,6 +22,7 @@ let dataDir: string
 
 describe('Error Handling', () => {
     before(async () => {
+        await resetAppState()
         await useDefaultFolder()
         await assertScreen('overview')
 

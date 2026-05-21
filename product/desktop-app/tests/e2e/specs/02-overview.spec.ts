@@ -8,12 +8,14 @@
 import {
     assertScreen,
     clickOverviewTab,
+    resetAppState,
     useDefaultFolder,
     waitForSpacesList,
 } from '../helpers/app.js'
 
 describe('Overview', () => {
     before(async () => {
+        await resetAppState()
         await useDefaultFolder()
         await assertScreen('overview')
     })

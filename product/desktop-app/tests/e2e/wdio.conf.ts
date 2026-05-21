@@ -33,6 +33,10 @@ const APP_BINARY = path.join(
 
 let tauriDriver: ChildProcess
 
+/** Temporary XDG_CONFIG_HOME used by the app process during E2E runs.
+ *  Stored here so `onComplete` can remove it. */
+let e2eXdgConfigHome: string | undefined
+
 export const config: WebdriverIO.Config = {
     // ── Runner ────────────────────────────────────────────────────────────────
     runner: 'local',
@@ -47,6 +51,10 @@ export const config: WebdriverIO.Config = {
         {
             // Tauri apps use the `wry` browser name.
             browserName: 'wry',
+            // Disable WebdriverIO's BiDi (webSocketUrl) auto-injection.
+            // WebKitWebDriver on Linux does not support BiDi and rejects
+            // sessions that request it with "Failed to match capabilities".
+            'wdio:enforceWebDriverClassic': true,
             'tauri:options': {
                 application: APP_BINARY,
             },
@@ -71,14 +79,26 @@ export const config: WebdriverIO.Config = {
      * and exposes a WebDriver endpoint on port 4444.
      */
     onPrepare: () => {
+        // Create a fresh, isolated config home so the app never reads the
+        // developer's real config (which would have a stored data_folder and
+        // cause first-launch tests to be skipped).
+        e2eXdgConfigHome = fs.mkdtempSync(path.join(os.tmpdir(), 'mlmm-e2e-xdg-'))
+        process.env['E2E_XDG_CONFIG_HOME'] = e2eXdgConfigHome
+
         tauriDriver = spawn('tauri-driver', [], {
             stdio: [null, process.stdout, process.stderr],
+            env: { ...process.env, XDG_CONFIG_HOME: e2eXdgConfigHome },
         })
+        // Give tauri-driver time to start WebKitWebDriver and bind port 4444.
+        return new Promise((resolve) => setTimeout(resolve, 2000))
     },
 
-    /** Clean up tauri-driver after all tests complete. */
+    /** Clean up tauri-driver and the temporary XDG config dir after all tests. */
     onComplete: () => {
         if (tauriDriver) tauriDriver.kill()
+        if (e2eXdgConfigHome && fs.existsSync(e2eXdgConfigHome)) {
+            fs.rmSync(e2eXdgConfigHome, { recursive: true, force: true })
+        }
     },
 
     /**

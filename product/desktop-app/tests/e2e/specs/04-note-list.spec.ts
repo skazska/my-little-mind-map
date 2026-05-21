@@ -13,6 +13,7 @@ import {
     createNote,
     createSpace,
     navigateIntoSpace,
+    resetAppState,
     searchNotes,
     useDefaultFolder,
     visibleNoteTitles,
@@ -21,6 +22,7 @@ import {
 
 describe('Note List', () => {
     before(async () => {
+        await resetAppState()
         await useDefaultFolder()
         await assertScreen('overview')
         await clickOverviewTab('spaces')

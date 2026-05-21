@@ -18,6 +18,7 @@ import {
     openNote,
     publishNote,
     removeLabel,
+    resetAppState,
     saveNote,
     typeInEditor,
     useDefaultFolder,
@@ -32,6 +33,7 @@ let dataDir: string
 
 describe('Note Editor', () => {
     before(async () => {
+        await resetAppState()
         await useDefaultFolder()
         await assertScreen('overview')
 

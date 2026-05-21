@@ -5,14 +5,21 @@
  * Spec refs: [S-UX-SA4], [S-CFG-1], [S-CFG-2], [S-UX-SA3]
  */
 
+import * as nodePath from 'node:path'
+import * as nodeFs from 'node:fs'
 import {
     assertScreen,
     getStatusBarPath,
+    resetAppState,
     useDefaultFolder,
     UI_TIMEOUT_MS,
 } from '../helpers/app.js'
 
 describe('First Launch', () => {
+    beforeEach(async () => {
+        await resetAppState()
+    })
+
     /**
      * TC-E2E-FL-01 — First launch shows folder selection screen [S-UX-SA4]
      */
@@ -59,9 +66,9 @@ describe('First Launch', () => {
         await assertScreen('overview')
         // Retrieve the data dir from the status bar so we know where to look.
         const dataDir = await getStatusBarPath()
-        const settingsPath = require('node:path').join(dataDir.trim(), 'settings.json')
+        const settingsPath = nodePath.join(dataDir.trim(), 'settings.json')
         await browser.waitUntil(
-            () => require('node:fs').existsSync(settingsPath),
+            () => nodeFs.existsSync(settingsPath),
             { timeout: UI_TIMEOUT_MS, timeoutMsg: 'settings.json not created after folder selection' },
         )
     })
