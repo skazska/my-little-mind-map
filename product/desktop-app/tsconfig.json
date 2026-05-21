@@ -1,25 +1,60 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    // ── Target ───────────────────────────────────────────────────────────────
+    // Tauri embeds a modern WebView (WebView2 on Windows/Linux, WKWebView on
+    // macOS) — ES2023 is fully supported. Unlocks Array.at(), structuredClone(),
+    // Error.cause, etc. No polyfilling needed.
+    "target": "ES2023",
+    // ES2023 already includes DOM.Iterable so no extra lib entry needed.
+    "lib": [
+      "ES2023",
+      "DOM"
+    ],
+    // Emit ES module syntax (import/export). Correct for Vite's esbuild pipeline.
     "module": "ESNext",
+    // Type Vite env globals (import.meta.env, import.meta.hot, etc.)
+    // without needing /// <reference types="vite/client" /> in every file.
+    "types": [
+      "vite/client"
+    ],
+    // Skip type-checking of .d.ts files in node_modules. Safe standard practice.
     "skipLibCheck": true,
-
-    /* Bundler mode */
+    // ── Bundler mode ─────────────────────────────────────────────────────────
+    // Resolve imports the way Vite (esbuild/rollup) does, not Node.js resolution.
     "moduleResolution": "bundler",
+    // Allow explicit .ts/.tsx extensions in import paths (required by bundler
+    // resolution — the bundler strips them to .js at build time).
     "allowImportingTsExtensions": true,
+    // Allow JSON imports: import data from './data.json'.
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    // TS 5.0+ replacement for "isolatedModules". Enforces "import type" for
+    // type-only imports so esbuild can safely erase them in a single-file pass
+    // without a full type-checker run. Also implies allowSyntheticDefaultImports.
+    "verbatimModuleSyntax": true,
+    // Treat every file as an ES module even without import/export statements.
+    // Prevents accidental global-scope pollution in a bundled project.
+    "moduleDetection": "force",
+    // Don't emit JS — Vite handles all transpilation and bundling.
     "noEmit": true,
+    // React 17+ JSX transform: no need to import React in every file.
     "jsx": "react-jsx",
-
-    /* Linting */
+    // ── Linting ───────────────────────────────────────────────────────────────
+    // Enables ~15 strict sub-flags in one: strictNullChecks, noImplicitAny,
+    // strictFunctionTypes, strictPropertyInitialization, etc.
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    // TS 5.5+: disallow const enum and legacy namespace syntax. Guarantees all
+    // syntax is safely erasable by esbuild without a full TS parse step.
+    "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

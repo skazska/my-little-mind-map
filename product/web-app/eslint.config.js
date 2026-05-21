@@ -18,5 +18,12 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // Allow _-prefixed names to be intentionally unused (standard convention).
+      '@typescript-eslint/no-unused-vars': ['error', {
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+      }],
+    },
   },
 ])

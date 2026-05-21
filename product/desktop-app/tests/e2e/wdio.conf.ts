@@ -95,7 +95,7 @@ export const config: WebdriverIO.Config = {
      * Before each test suite: create a temporary data directory and export its
      * path so the app helper can pass it to the Tauri app.
      */
-    beforeSuite: (suite) => {
+    beforeSuite: (_suite) => {
         const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mlmm-e2e-'))
         process.env['E2E_DATA_DIR'] = tmpDir
     },
@@ -103,7 +103,7 @@ export const config: WebdriverIO.Config = {
     /**
      * After each suite: remove the temporary data directory.
      */
-    afterSuite: (suite) => {
+    afterSuite: (_suite) => {
         const dir = process.env['E2E_DATA_DIR']
         if (dir && fs.existsSync(dir)) {
             fs.rmSync(dir, { recursive: true, force: true })

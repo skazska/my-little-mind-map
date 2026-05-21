@@ -1,24 +1,41 @@
 {
   "compilerOptions": {
+    // Incremental build cache for "tsc -b". Stored in node_modules to avoid
+    // polluting the source tree.
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-    "target": "es2023",
-    "lib": ["ES2023"],
-    "module": "esnext",
-    "types": ["node"],
+    // Required for TypeScript project references — enables incremental builds
+    // and allows the root tsconfig to reference this one.
+    "composite": true,
+    "target": "ES2023",
+    "lib": [
+      "ES2023"
+    ],
+    "module": "ESNext",
+    // Type Node.js globals (process, __dirname, Buffer, etc.) used in
+    // vite.config.ts and other build-time scripts.
+    "types": [
+      "node"
+    ],
     "skipLibCheck": true,
-
-    /* Bundler mode */
+    // ── Bundler mode ─────────────────────────────────────────────────────────
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    // See tsconfig.app.json for rationale. Replaces allowSyntheticDefaultImports.
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    "noEmit": true,
-
-    /* Linting */
+    // composite:true requires emit to be enabled (noEmit:true would conflict).
+    // emitDeclarationOnly satisfies both composite and allowImportingTsExtensions.
+    // outDir keeps emitted .d.ts files out of the source tree.
+    "emitDeclarationOnly": true,
+    "outDir": "./node_modules/.tmp/tsc-out",
+    // ── Linting ───────────────────────────────────────────────────────────────
+    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts"
+  ]
 }
