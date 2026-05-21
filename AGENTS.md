@@ -60,6 +60,7 @@ Inspired by personal knowledge management, note-taking, and project management t
 - **Git Flow**: See `docs/development/git-flow.md`
 - **CI/CD**: GitHub Actions
 
+
 ## MCP services
 
 io.github.github/github-mcp-server

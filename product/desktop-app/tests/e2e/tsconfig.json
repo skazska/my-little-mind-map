@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        // Target Node.js runtime (wdio runs in Node, not the browser)
+        "target": "ES2022",
+        "module": "ESNext",
+        // bundler resolution follows package.json exports maps (needed for
+        // @wdio/globals/types subpath and node: protocol imports)
+        "moduleResolution": "bundler",
+        // Pull in @types/node (node:* built-ins) and WebdriverIO globals /
+        // namespace (browser, $, $$, WebdriverIO.Config, …)
+        "types": [
+            "node",
+            "@wdio/globals/types",
+            "mocha"
+        ],
+        "strict": true,
+        "skipLibCheck": true,
+        "noEmit": true
+    },
+    "include": [
+        "**/*.ts"
+    ]
+}

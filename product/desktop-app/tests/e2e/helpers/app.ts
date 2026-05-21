@@ -150,7 +150,8 @@ export async function clearSearch(): Promise<void> {
 /** Return all visible note titles in the list. */
 export async function visibleNoteTitles(): Promise<string[]> {
     const items = await $$('[data-testid="note-list-item"]')
-    return Promise.all(items.map((item) => item.getAttribute('data-title')))
+    const attrs = await items.map((item) => item.getAttribute('data-title'))
+    return attrs.filter((v): v is string => v !== null)
 }
 
 /** Click Back from the note list. */
@@ -218,7 +219,8 @@ export async function removeLabel(label: string): Promise<void> {
 /** Return all visible label names in the metadata panel. */
 export async function visibleLabels(): Promise<string[]> {
     const chips = await $$('[data-testid="label-chip"]')
-    return Promise.all(chips.map((c) => c.getAttribute('data-label')))
+    const attrs = await chips.map((c) => c.getAttribute('data-label'))
+    return attrs.filter((v): v is string => v !== null)
 }
 
 /** Check whether the "dirty" (unsaved changes) indicator is visible. */

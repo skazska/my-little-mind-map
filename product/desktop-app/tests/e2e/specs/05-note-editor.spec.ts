@@ -258,9 +258,8 @@ describe('Note Editor', () => {
         await deleteNote()
 
         await assertScreen('note_list')
-        const titles = await $$('[data-testid="note-list-item"]').then((items) =>
-            Promise.all(items.map((i) => i.getAttribute('data-title'))),
-        )
+        const noteItems = await $$('[data-testid="note-list-item"]')
+        const titles = await noteItems.map((i) => i.getAttribute('data-title'))
         expect(titles).not.toContain('disposable-note')
     })
 

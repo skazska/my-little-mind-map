@@ -45,7 +45,6 @@ export const config: WebdriverIO.Config = {
     // ── Capabilities ─────────────────────────────────────────────────────────
     capabilities: [
         {
-            maxInstances: 1,
             // Tauri apps use the `wry` browser name.
             browserName: 'wry',
             'tauri:options': {
@@ -63,15 +62,6 @@ export const config: WebdriverIO.Config = {
 
     // ── Reporters ─────────────────────────────────────────────────────────────
     reporters: ['spec'],
-
-    // ── TS transpilation ──────────────────────────────────────────────────────
-    autoCompileOpts: {
-        autoCompile: true,
-        tsNodeOpts: {
-            project: path.join(ROOT, 'tsconfig.json'),
-            transpileOnly: true,
-        },
-    },
 
     // ── Lifecycle hooks ───────────────────────────────────────────────────────
 

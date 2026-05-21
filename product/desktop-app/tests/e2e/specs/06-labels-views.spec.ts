@@ -80,7 +80,7 @@ describe('Labels and Views', () => {
         await clickOverviewTab('labels')
 
         const labelItems = await $$('[data-testid="label-list-item"]')
-        const names = await Promise.all(labelItems.map((el) => el.getAttribute('data-label')))
+        const names = await labelItems.map((el) => el.getAttribute('data-label'))
 
         expect(names).toContain('rust')
     })
@@ -97,7 +97,7 @@ describe('Labels and Views', () => {
         await browser.waitUntil(
             async () => {
                 const items = await $$('[data-testid="note-list-item"]')
-                const titles = await Promise.all(items.map((i) => i.getAttribute('data-title')))
+                const titles = await items.map((i) => i.getAttribute('data-title'))
                 return titles.includes('note-in-space1') && titles.includes('note-in-space2')
             },
             { timeout: UI_TIMEOUT_MS, timeoutMsg: 'Cross-space label filter did not show both notes' },
