@@ -29,8 +29,10 @@ Test-cases to be stored in `docs/testing/` as markdown files, organized by featu
 # Unit + integration (Rust)
 cargo test
 
-# E2E (requires tauri-driver on PATH, app built in debug mode)
-just e2e        # or: npx wdio run wdio.conf.ts
+# E2E — all platforms
+just e2e              # or individually:
+just e2e-desktop      # desktop only  (or: cd product/desktop-app && npx wdio run tests/e2e/wdio.conf.ts)
+just e2e-web          # web only      (or: cd product/web-app    && npx wdio run tests/e2e/wdio.conf.ts)
 
 # Static analysis
 cargo clippy --all-targets --all-features

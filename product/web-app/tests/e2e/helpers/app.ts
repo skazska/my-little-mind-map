@@ -297,6 +297,8 @@ export async function deleteNote(): Promise<void> {
     const btn = await $('[data-testid="delete-note-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
     await btn.click()
+    // Confirm the native browser confirm() dialog triggered by the delete action.
+    await browser.acceptAlert()
 }
 
 /** Add a label via the metadata panel label input. */

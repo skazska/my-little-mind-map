@@ -8,7 +8,7 @@ crate-type = ["cdylib", "rlib"]
 
 [features]
 default = []
-wasm    = ["wasm-bindgen", "serde-wasm-bindgen", "console_error_panic_hook", "getrandom"]
+wasm    = ["wasm-bindgen", "serde-wasm-bindgen", "console_error_panic_hook", "getrandom", "js-sys"]
 
 [dependencies]
 shared_types = { path = "../shared_types" }
@@ -21,3 +21,4 @@ wasm-bindgen             = { version = "0.2",  optional = true }
 serde-wasm-bindgen       = { version = "0.6",  optional = true }
 console_error_panic_hook = { version = "0.1",  optional = true }
 getrandom                = { version = "0.2",  features = ["js"], optional = true }
+js-sys                   = { version = "0.3",  optional = true }

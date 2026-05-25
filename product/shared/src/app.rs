@@ -125,11 +125,16 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         } => {
             // Generate a unique slug from the current timestamp. Title will be
             // synced from the first `# Heading` line when the note is saved. [S-DM-N5]
-            use std::time::{SystemTime, UNIX_EPOCH};
-            let ts = SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap_or_default()
-                .as_secs();
+            #[cfg(target_arch = "wasm32")]
+            let ts = js_sys::Date::now() as u64;
+            #[cfg(not(target_arch = "wasm32"))]
+            let ts = {
+                use std::time::{SystemTime, UNIX_EPOCH};
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_secs()
+            };
             let id_str = format!("{}/untitled-{}", space_id.as_str(), ts);
             match NoteId::new(id_str) {
                 Err(e) => {

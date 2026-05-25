@@ -28,14 +28,39 @@ sudo apt-get install -y \
   libjavascriptcoregtk-4.1-dev
 ```
 
-### Linux (Ubuntu/Debian) — E2E testing dependencies
+### E2E testing dependencies
 
-Required to run `just e2e`. `webkit2gtk-driver` provides `/usr/bin/WebKitWebDriver`,
-which `tauri-driver` wraps to expose a WebDriver session for the Tauri webview.
+#### Desktop (`just e2e-desktop`)
+
+`webkit2gtk-driver` provides `/usr/bin/WebKitWebDriver`, which `tauri-driver` wraps to expose a WebDriver session for the Tauri webview.
+
+Linux (Ubuntu/Debian):
 
 ```bash
 sudo apt-get install -y webkit2gtk-driver
 cargo install tauri-driver
+```
+
+#### Web (`just e2e-web`)
+
+Chrome and `chromedriver` must be available on PATH. `chromedriver` is bundled as an npm dev dependency (`chromedriver` package) — it is installed automatically with `npm install` in `product/web-app`. A matching Google Chrome (or Chromium) browser must also be installed:
+
+Linux (Ubuntu/Debian):
+
+```bash
+# Google Chrome
+wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+sudo apt-get update && sudo apt-get install -y google-chrome-stable
+
+# Or Chromium (lighter alternative)
+sudo apt-get install -y chromium-browser
+```
+
+macOS:
+
+```bash
+brew install --cask google-chrome
 ```
 
 ## macOS — Tauri system dependencies

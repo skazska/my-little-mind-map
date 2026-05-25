@@ -82,10 +82,11 @@ setup: install-js
 # Tauri build when the binary is already up to date — useful during iterative
 # test development to avoid waiting for a full release compile each run.
 #
-#   just e2e              # build + test  (safe, always correct)
-#   just e2e rebuild=false  # test only   (fast, assumes binary is current)
-e2e rebuild="true":
+#   just e2e-desktop              # build + test  (safe, always correct)
+#   just e2e-desktop rebuild=false  # test only   (fast, assumes binary is current)
+e2e-desktop rebuild="true":
     #!/usr/bin/env bash
+    set -e
     if [[ "{{rebuild}}" == "true" ]]; then
         cd product/desktop-app && npm run tauri build
     fi
@@ -109,3 +110,14 @@ e2e-web rebuild="true":
         just build-wasm
     fi
     cd product/web-app && npm run test:e2e
+
+# Run E2E tests for all platforms (desktop + web).
+#
+# Builds both the Tauri desktop app and the WASM package before testing.
+# Pass rebuild=false to skip builds when the binaries are already up to date.
+#
+#   just e2e               # build all + test all  (safe, always correct)
+#   just e2e rebuild=false   # test all              (fast, skips builds)
+e2e rebuild="true":
+    just e2e-desktop rebuild={{rebuild}}
+    just e2e-web rebuild={{rebuild}}
