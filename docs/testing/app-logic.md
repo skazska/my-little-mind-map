@@ -3,7 +3,7 @@
 Unit and integration tests for the shared core — event dispatch, state transitions, `update()` + `view()` functions, and cross-cutting logic.
 
 **Layer**: Unit / Integration (`shared/`, `cargo test`)
-**Spec coverage**: [S-DM-N4], [S-DM-N5], [S-DM-L1], [S-DM-L4], [S-UX-NE1], [S-UX-NE2], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-CFG-1], [S-CFG-2], [S-CFG-3]
+**Spec coverage**: [S-DM-N4], [S-DM-N5], [S-DM-L1], [S-DM-L3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-CFG-1], [S-CFG-2], [S-CFG-3]
 
 ---
 

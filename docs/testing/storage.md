@@ -3,7 +3,7 @@
 Integration tests for filesystem-backed storage — CRUD operations, file layout, and index synchronization.
 
 **Layer**: Integration (`storage/tests/integration_test.rs`, `tokio::test`, `tempfile::TempDir`)
-**Spec coverage**: [S-DM-L4], [S-ST-DM1], [S-ST-DM2], [S-ST-DM3], [S-ST-DM4]
+**Spec coverage**: [S-DM-L3], [S-ST-DM1], [S-ST-DM2], [S-ST-DM3], [S-ST-DM4]
 
 ---
 
@@ -140,15 +140,15 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **Given** a note with label `"old-label"` that is updated to have label `"new-label"` (removing `"old-label"`)  
 **When** `update_note(&note)` is called  
 **Then** `get_labels_index()` maps `"new-label"` → `[note_id]`  
-**And** `"old-label"` is no longer present (unused labels auto-pruned) [S-DM-L4]
+**And** `"old-label"` is no longer present (unused labels auto-pruned) [S-DM-L3]
 
-### TC-ST-LI-03 — Labels index cleaned on note delete [S-DM-L4]
+### TC-ST-LI-03 — Labels index cleaned on note delete [S-DM-L3]
 
 **Given** only one note with label `"unique-label"`  
 **When** `delete_note(&note_id)` is called  
 **Then** `get_labels_index()` does not contain `"unique-label"` at all
 
-### TC-ST-LI-04 — Label shared by multiple notes remains after partial delete [S-DM-L4]
+### TC-ST-LI-04 — Label shared by multiple notes remains after partial delete [S-DM-L3]
 
 **Given** two notes both labeled `"shared"`  
 **When** one note is deleted  
@@ -164,13 +164,13 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 
 ## References Index
 
-### TC-ST-RI-01 — Forward reference stored on note create [S-DM-NR5]
+### TC-ST-RI-01 — Forward reference stored on note create [S-DM-NR4]
 
 **Given** a note with a reference to `"space1/target-note"` in its metadata  
 **When** `create_note(&note)` is called  
 **Then** `get_references_index()` has a forward entry: `source_note_id → target_note_id`
 
-### TC-ST-RI-02 — Backlink stored on note create [S-DM-NR5]
+### TC-ST-RI-02 — Backlink stored on note create [S-DM-NR4]
 
 **Given** a note with a reference to `"space1/target-note"` in its metadata  
 **When** `create_note(&note)` is called  

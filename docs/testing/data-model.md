@@ -3,7 +3,7 @@
 Unit tests for type validation, ID construction, label rules, and front matter serialization.
 
 **Layer**: Unit (`#[cfg(test)]` inline or `shared_types/tests/`)
-**Spec coverage**: [S-DM-L1], [S-DM-L2], [S-DM-N1], [S-DM-N2], [S-DM-N3], [S-DM-N4], [S-DM-N5], [S-DM-S1], [S-DM-S2], [S-DM-S3], [S-DM-NR1], [S-DM-NR2], [S-DM-NR3], [S-DM-NR5], [S-DM-ND1], [S-DM-ND2], [S-DM-ND3]
+**Spec coverage**: [S-DM-L1], [S-DM-L2], [S-DM-N1], [S-DM-N2], [S-DM-N3], [S-DM-N4], [S-DM-N5], [S-DM-S1], [S-DM-S2], [S-DM-S3], [S-DM-NR1], [S-DM-NR2], [S-DM-NR3], [S-DM-NR4], [S-DM-ND1], [S-DM-ND2], [S-DM-ND3]
 
 ---
 
@@ -240,7 +240,7 @@ Unit tests for type validation, ID construction, label rules, and front matter s
 
 ## Note References
 
-### TC-DM-NR-01 — Note reference with block IDs parsed [S-DM-NR5]
+### TC-DM-NR-01 — Note reference with block IDs parsed [S-DM-NR4]
 
 **Given** a reference entry `kind: note, target: space1/note, block_id: section-1, source_block_id: ref-1`  
 **When** parsed from front matter  
