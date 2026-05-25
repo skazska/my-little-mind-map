@@ -155,6 +155,13 @@ function executeStorageEffect(req: Record<string, unknown>): Event {
             saveData(d);
             return { type: "note_deleted", id: req.id } as unknown as Event;
         }
+        case "delete_draft": {
+            const notes = (d.notes ?? {}) as Record<string, unknown>;
+            delete notes[String(req.id)];
+            d.notes = notes;
+            saveData(d);
+            return { type: "note_deleted", id: req.id } as unknown as Event;
+        }
         default:
             return {
                 type: "effect_error",

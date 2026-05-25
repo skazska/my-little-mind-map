@@ -22,6 +22,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
             if data_folder.is_some() {
                 model.data_folder = data_folder;
                 model.loading = true;
+                model.startup_open_default_note = true;
                 vec![
                     Effect::Storage(StorageRequest::LoadSettings),
                     Effect::Storage(StorageRequest::LoadSpaces),
@@ -35,6 +36,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         Event::DataFolderSelected { path } => {
             model.data_folder = Some(path.clone());
             model.loading = true;
+            model.startup_open_default_note = true;
             vec![
                 Effect::Storage(StorageRequest::SaveSettings {
                     settings: shared_types::model::Settings {
@@ -48,18 +50,21 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
 
         // ── Navigation ────────────────────────────────────────────────────────
         Event::NavigateOverview { tab } => {
+            model.startup_open_default_note = false;
             model.screen = Screen::Overview(tab_request_to_tab(tab));
             model.error = None; // clear any error when explicitly navigating to overview
             vec![Effect::Storage(StorageRequest::LoadLabels), Effect::Render]
         }
 
         Event::NavigateToSpace { id } => {
+            model.startup_open_default_note = false;
             model.screen = Screen::NoteList;
             model.loading = true;
             vec![Effect::Storage(StorageRequest::LoadNotes { space_id: id })]
         }
 
         Event::NavigateToNote { id } => {
+            model.startup_open_default_note = false;
             model.loading = true;
             model.note_opening = true;
             vec![Effect::Storage(StorageRequest::LoadNote { id })]
@@ -68,9 +73,11 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         Event::NavigateBack => {
             let current_screen = model.screen.clone();
             model.current_note = None;
+            model.current_note_persisted = false;
             model.error = None; // [TC-AL-ERR-02] dismiss error on back navigation
             model.cross_space_view = false;
             model.note_opening = false; // cancel any in-flight note open
+            model.startup_open_default_note = false;
             match current_screen {
                 Screen::NoteEditor => {
                     // From editor: go back to note list for the current space.
@@ -122,38 +129,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         Event::CreateNote {
             space_id,
             parent_id,
-        } => {
-            // Generate a unique slug from the current timestamp. Title will be
-            // synced from the first `# Heading` line when the note is saved. [S-DM-N5]
-            #[cfg(target_arch = "wasm32")]
-            let ts = js_sys::Date::now() as u64;
-            #[cfg(not(target_arch = "wasm32"))]
-            let ts = {
-                use std::time::{SystemTime, UNIX_EPOCH};
-                SystemTime::now()
-                    .duration_since(UNIX_EPOCH)
-                    .unwrap_or_default()
-                    .as_secs()
-            };
-            let id_str = format!("{}/untitled-{}", space_id.as_str(), ts);
-            match NoteId::new(id_str) {
-                Err(e) => {
-                    model.error = Some(e.to_string());
-                    vec![Effect::Render]
-                }
-                Ok(id) => {
-                    let meta = NoteMetadata::new("", Some(space_id));
-                    let note = Note {
-                        id,
-                        metadata: meta,
-                        content: String::new(),
-                        parent_id,
-                    };
-                    model.note_opening = true; // the save response will open the new note
-                    vec![Effect::Storage(StorageRequest::SaveNote { note })]
-                }
-            }
-        }
+        } => open_new_note(model, space_id, parent_id),
 
         Event::UpdateNote {
             id,
@@ -164,7 +140,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                 if note.id == id {
                     // [S-UX-NE4] no empty drafts: do not persist empty content.
                     if content.is_empty() {
-                        if note.metadata.draft {
+                        if note.metadata.draft && model.current_note_persisted {
                             // An existing draft must be deleted from storage.
                             return vec![Effect::Storage(StorageRequest::DeleteDraft { id })];
                         }
@@ -180,6 +156,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                     if let Some(title) = extract_title(&note.content) {
                         note.metadata.title = slug(&title);
                     }
+                    note.metadata.draft = true;
                     note.metadata.touch();
                     let updated = note.clone();
                     return vec![Effect::Storage(StorageRequest::SaveNote { note: updated })];
@@ -251,6 +228,16 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         Event::SpacesLoaded { spaces } => {
             model.spaces = spaces;
             model.loading = false;
+            if model.startup_open_default_note {
+                if model.spaces.is_empty() {
+                    return vec![Effect::Storage(StorageRequest::CreateSpace {
+                        space: default_space(),
+                    })];
+                }
+                let space_id = default_space_id_from(&model.spaces);
+                model.startup_open_default_note = false;
+                return open_new_note(model, space_id, None);
+            }
             model.screen = Screen::Overview(OverviewTab::Spaces);
             vec![Effect::Render]
         }
@@ -292,6 +279,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                 model.current_note = Some(note);
                 model.screen = Screen::NoteEditor;
                 model.note_opening = false;
+                model.current_note_persisted = true;
             } else if model.current_note.as_ref().map(|n| &n.id) == Some(&note.id) {
                 // In-editor reload (e.g. autosave): same id — refresh without screen change.
                 if let Some(existing) = model.notes.iter_mut().find(|n| n.id == note.id) {
@@ -300,6 +288,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                     model.notes.push(note.clone());
                 }
                 model.current_note = Some(note);
+                model.current_note_persisted = true;
             } else if model.screen == Screen::NoteEditor {
                 // Check for a rename: same title+space but new title-based id.
                 let is_rename = model
@@ -320,6 +309,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                     }
                     model.notes.push(note.clone());
                     model.current_note = Some(note);
+                    model.current_note_persisted = true;
                 } else {
                     // Background save or other load: upsert in list, no screen change.
                     if let Some(existing) = model.notes.iter_mut().find(|n| n.id == note.id) {
@@ -360,6 +350,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
             model.notes.retain(|n| n.id != id);
             if model.current_note.as_ref().map(|n| &n.id) == Some(&id) {
                 model.current_note = None;
+                model.current_note_persisted = false;
                 model.screen = Screen::NoteList;
             }
             vec![Effect::Render]
@@ -368,6 +359,11 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         Event::SpaceCreated { space } => {
             if !model.spaces.iter().any(|s| s.id == space.id) {
                 model.spaces.push(space);
+            }
+            if model.startup_open_default_note {
+                model.startup_open_default_note = false;
+                let space_id = default_space_id_from(&model.spaces);
+                return open_new_note(model, space_id, None);
             }
             model.screen = Screen::Overview(OverviewTab::Spaces);
             vec![Effect::Render]
@@ -583,6 +579,71 @@ fn derive_label_summaries(notes: &[Note]) -> Vec<LabelSummary> {
     summaries
 }
 
+fn default_space() -> Space {
+    Space {
+        id: SpaceId::new("my").expect("default space id is valid"),
+        name: "My".into(),
+        description: None,
+        labels: vec![],
+        parent_id: None,
+        note_count: 0,
+    }
+}
+
+fn default_space_id_from(spaces: &[Space]) -> SpaceId {
+    let default_id = SpaceId::new("my").expect("default space id is valid");
+    if spaces.iter().any(|space| space.id == default_id) {
+        default_id
+    } else {
+        spaces
+            .first()
+            .map(|space| space.id.clone())
+            .unwrap_or(default_id)
+    }
+}
+
+fn open_new_note(model: &mut Model, space_id: SpaceId, parent_id: Option<NoteId>) -> Vec<Effect> {
+    let id_str = format!("{}/untitled-{}", space_id.as_str(), timestamp_slug());
+    match NoteId::new(id_str) {
+        Err(e) => {
+            model.error = Some(e.to_string());
+            vec![Effect::Render]
+        }
+        Ok(id) => {
+            let note = Note {
+                id,
+                metadata: NoteMetadata::new("", Some(space_id.clone())),
+                content: String::new(),
+                parent_id,
+            };
+            model.current_space = model.spaces.iter().find(|s| s.id == space_id).cloned();
+            model.current_note = Some(note.clone());
+            model.current_note_persisted = false;
+            model.note_opening = false;
+            model.loading = false;
+            model.screen = Screen::NoteEditor;
+            if !model.notes.iter().any(|n| n.id == note.id) {
+                model.notes.push(note);
+            }
+            vec![Effect::Render]
+        }
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn timestamp_slug() -> u128 {
+    js_sys::Date::now() as u128
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn timestamp_slug() -> u128 {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis()
+}
+
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 #[cfg(test)]
@@ -657,9 +718,17 @@ mod tests {
     }
 
     #[test]
-    fn create_note_produces_save_effect() {
+    fn create_note_opens_unsaved_editor_without_storage_effect() {
         let mut model = fresh_model();
         let space_id = SpaceId::new("space1").unwrap();
+        model.spaces = vec![Space {
+            id: space_id.clone(),
+            name: "Space1".into(),
+            description: None,
+            labels: vec![],
+            parent_id: None,
+            note_count: 0,
+        }];
         let effects = update(
             Event::CreateNote {
                 space_id,
@@ -667,9 +736,56 @@ mod tests {
             },
             &mut model,
         );
-        assert!(effects
-            .iter()
-            .any(|e| matches!(e, Effect::Storage(StorageRequest::SaveNote { .. }))));
+        assert!(matches!(model.screen, Screen::NoteEditor));
+        assert!(model.current_note.is_some());
+        assert!(!model.current_note_persisted);
+        assert!(effects.iter().any(|e| matches!(e, Effect::Render)));
+        assert!(
+            !effects
+                .iter()
+                .any(|e| matches!(e, Effect::Storage(StorageRequest::SaveNote { .. }))),
+            "empty new note must not be saved until it has content"
+        );
+    }
+
+    #[test]
+    fn startup_with_no_spaces_creates_default_space() {
+        let mut model = fresh_model();
+        model.startup_open_default_note = true;
+        let effects = update(Event::SpacesLoaded { spaces: vec![] }, &mut model);
+        assert!(effects.iter().any(|e| matches!(
+            e,
+            Effect::Storage(StorageRequest::CreateSpace { space })
+                if space.id == SpaceId::new("my").unwrap() && space.name == "My"
+        )));
+    }
+
+    #[test]
+    fn startup_with_existing_space_opens_new_note_editor() {
+        let mut model = fresh_model();
+        model.startup_open_default_note = true;
+        let space = Space {
+            id: SpaceId::new("my").unwrap(),
+            name: "My".into(),
+            description: None,
+            labels: vec![],
+            parent_id: None,
+            note_count: 0,
+        };
+        let effects = update(
+            Event::SpacesLoaded {
+                spaces: vec![space],
+            },
+            &mut model,
+        );
+        assert!(matches!(model.screen, Screen::NoteEditor));
+        assert_eq!(
+            model.current_space.as_ref().map(|s| s.id.as_str()),
+            Some("my")
+        );
+        assert!(model.current_note.is_some());
+        assert!(!model.current_note_persisted);
+        assert!(effects.iter().any(|e| matches!(e, Effect::Render)));
     }
 
     #[test]
@@ -924,6 +1040,7 @@ mod tests {
         };
         model.current_note = Some(note);
         model.screen = Screen::NoteEditor;
+        model.current_note_persisted = true;
         model
     }
 

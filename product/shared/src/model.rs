@@ -21,6 +21,10 @@ pub struct Model {
     /// When true, the next `NoteLoaded` response should navigate to the editor.
     /// Set by `CreateNote` and `NavigateToNote`; cleared by `NavigateBack` and `NoteLoaded`.
     pub note_opening: bool,
+    /// When true, startup should open a new note in the default space after spaces load.
+    pub startup_open_default_note: bool,
+    /// Whether the currently loaded note has a backing file in storage.
+    pub current_note_persisted: bool,
     pub data_folder: Option<String>,
     pub error: Option<String>,
     pub loading: bool,

@@ -315,6 +315,10 @@ impl Storage for FsStorage {
         Ok(())
     }
 
+    async fn delete_draft(&self, id: &NoteId) -> Result<()> {
+        self.delete_note(id).await
+    }
+
     // ── Indexes ───────────────────────────────────────────────────────────────
 
     async fn get_spaces_index(&self) -> Result<SpacesIndex> {

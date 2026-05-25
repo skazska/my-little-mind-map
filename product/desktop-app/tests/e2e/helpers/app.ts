@@ -104,10 +104,29 @@ export async function resetAppState(): Promise<void> {
 }
 
 /** Click "Use default folder" on the first launch screen. */
-export async function useDefaultFolder(): Promise<void> {
+export async function useDefaultFolder(options?: { stayOnStartupDestination?: boolean }): Promise<void> {
     const btn = await $('[data-testid="use-default-folder-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
     await browser.execute((el) => (el as HTMLElement).click(), btn)
+    if (options?.stayOnStartupDestination) return
+
+    await browser.waitUntil(
+        async () => {
+            const screen = await $('[data-screen]')
+            return (await screen.getAttribute('data-screen').catch(() => null)) !== null
+        },
+        { timeout: UI_TIMEOUT_MS, timeoutMsg: 'No screen visible after selecting default folder' },
+    )
+    const screen = await $('[data-screen]')
+    const currentScreen = await screen.getAttribute('data-screen')
+    if (currentScreen === 'note_editor') {
+        await clickBack()
+        await waitForScreen('note_list')
+        await clickBack()
+    } else if (currentScreen === 'note_list') {
+        await clickBack()
+    }
+    await waitForScreen('overview')
 }
 
 // ── Overview helpers ───────────────────────────────────────────────────────────

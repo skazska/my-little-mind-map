@@ -88,9 +88,9 @@ e2e-desktop rebuild="true":
     #!/usr/bin/env bash
     set -e
     if [[ "{{rebuild}}" == "true" ]]; then
-        cd product/desktop-app && npm run tauri build
+        (cd product/desktop-app && npm run tauri build)
     fi
-    cd product/desktop-app && npm run test:e2e
+    (cd product/desktop-app && npm run test:e2e)
 
 # Run E2E tests for the web app via WebdriverIO + Chrome.
 #

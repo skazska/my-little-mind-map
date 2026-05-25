@@ -28,7 +28,7 @@ export function NoteListScreen({
     e.preventDefault();
     const title = newNoteTitle.trim();
     if (!title) return;
-    dispatch({ type: "create_note", title, space_id: spaceId });
+    dispatch({ type: "create_note", space_id: spaceId });
     setNewNoteTitle("");
     setShowNew(false);
   }

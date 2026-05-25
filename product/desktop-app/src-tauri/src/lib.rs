@@ -84,25 +84,24 @@ async fn dispatch(state: State<'_, AppState>, event_json: String) -> Result<Stri
         (effects, folder)
     };
 
-    // Step 2: execute effects (no lock held).
-    let responses = execute_effects(effects, data_folder.as_deref()).await;
-
-    // Step 3: feed responses back.
-    for resp in responses {
-        let (more_effects, folder2) = {
-            let mut model = state.model.lock().map_err(|e| e.to_string())?;
-            let more = app::update(resp, &mut model);
-            let f2 = model.data_folder.clone();
-            (more, f2)
-        };
-        let resps2 = execute_effects(more_effects, folder2.as_deref()).await;
-        for r2 in resps2 {
-            let mut model = state.model.lock().map_err(|e| e.to_string())?;
-            app::update(r2, &mut model);
+    // Step 2: execute effects and feed response events until the core is idle.
+    let mut pending = vec![(effects, data_folder)];
+    while let Some((effects_to_run, folder)) = pending.pop() {
+        let responses = execute_effects(effects_to_run, folder.as_deref()).await;
+        for resp in responses {
+            let (more_effects, folder2) = {
+                let mut model = state.model.lock().map_err(|e| e.to_string())?;
+                let more = app::update(resp, &mut model);
+                let f2 = model.data_folder.clone();
+                (more, f2)
+            };
+            if !more_effects.is_empty() {
+                pending.push((more_effects, folder2));
+            }
         }
     }
 
-    // Step 4: build view (lock held briefly).
+    // Step 3: build view (lock held briefly).
     let vm_json = {
         let model = state.model.lock().map_err(|e| e.to_string())?;
         let vm = app::view(&model);
@@ -216,10 +215,7 @@ async fn execute_storage(req: StorageRequest, storage: &FsStorage) -> Event {
                 let new_id_str = format!("{}/{}", space_seg, title_slug);
                 if let Ok(new_id) = shared_types::ids::NoteId::new(new_id_str) {
                     // Only rename if the target file does not already exist.
-                    let target_free = matches!(
-                        storage.get_note(&new_id).await,
-                        Ok(None)
-                    );
+                    let target_free = matches!(storage.get_note(&new_id).await, Ok(None));
                     if target_free {
                         let mut new_note = note.clone();
                         new_note.id = new_id.clone();
@@ -245,6 +241,12 @@ async fn execute_storage(req: StorageRequest, storage: &FsStorage) -> Event {
             }
         }
         StorageRequest::DeleteNote { id } => match storage.delete_note(&id).await {
+            Ok(()) => Event::NoteDeleted { id },
+            Err(e) => Event::EffectError {
+                message: e.to_string(),
+            },
+        },
+        StorageRequest::DeleteDraft { id } => match storage.delete_draft(&id).await {
             Ok(()) => Event::NoteDeleted { id },
             Err(e) => Event::EffectError {
                 message: e.to_string(),

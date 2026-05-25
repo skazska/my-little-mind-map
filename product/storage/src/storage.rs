@@ -30,6 +30,7 @@ pub trait Storage: Send + Sync {
     async fn list_notes(&self, space_id: &SpaceId) -> Result<Vec<NoteId>>;
     async fn update_note(&self, note: &Note) -> Result<()>;
     async fn delete_note(&self, id: &NoteId) -> Result<()>;
+    async fn delete_draft(&self, id: &NoteId) -> Result<()>;
 
     // ── Indexes ───────────────────────────────────────────────────────────────
 

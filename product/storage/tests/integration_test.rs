@@ -123,6 +123,24 @@ async fn delete_note() {
 }
 
 #[tokio::test]
+async fn delete_draft_removes_note_file_and_indexes() {
+    let (_tmp, storage) = make_storage().await;
+    let space = sample_space();
+    storage.create_space(&space).await.unwrap();
+
+    let mut note = sample_note(&space.id, "draft-to-delete");
+    note.metadata.draft = true;
+    storage.create_note(&note).await.unwrap();
+    storage.delete_draft(&note.id).await.unwrap();
+
+    assert!(storage.get_note(&note.id).await.unwrap().is_none());
+    let labels = storage.get_labels_index().await.unwrap();
+    assert!(labels.notes_for_label("rust").is_empty());
+    let spaces = storage.list_spaces().await.unwrap();
+    assert_eq!(spaces[0].note_count, 0);
+}
+
+#[tokio::test]
 async fn labels_index_updated_on_create() {
     let (_tmp, storage) = make_storage().await;
     let space = sample_space();

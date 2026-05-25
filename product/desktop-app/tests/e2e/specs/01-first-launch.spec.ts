@@ -101,11 +101,11 @@ describe('First Launch', () => {
             async () => {
                 const items = await $$('[data-testid="space-item"]')
                 for (const item of items) {
-                    if ((await item.getAttribute('data-name')) === 'my') return true
+                    if ((await item.getAttribute('data-name')) === 'My') return true
                 }
                 return false
             },
-            { timeout: UI_TIMEOUT_MS, timeoutMsg: 'default space "my" not visible in spaces list' },
+            { timeout: UI_TIMEOUT_MS, timeoutMsg: 'default space "My" not visible in spaces list' },
         )
     })
 
@@ -113,7 +113,7 @@ describe('First Launch', () => {
      * TC-E2E-FL-07 — App opens new note when no prior context [S-UX-SA3]
      */
     it('TC-E2E-FL-07: app shows notes view with a new note editor on first launch', async () => {
-        await useDefaultFolder()
+        await useDefaultFolder({ stayOnStartupDestination: true })
         // After first launch with no intent, the app should land on the notes view
         // with a new draft note editor active.
         const noteEditorOrNotesView = await browser.waitUntil(
@@ -126,6 +126,6 @@ describe('First Launch', () => {
             },
             { timeout: UI_TIMEOUT_MS, timeoutMsg: 'neither note_editor nor note_list visible after launch' },
         )
-        expect(['note_editor', 'note_list', 'overview']).toContain(noteEditorOrNotesView)
+        expect(noteEditorOrNotesView).toBe('note_editor')
     })
 })

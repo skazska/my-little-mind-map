@@ -72,8 +72,8 @@ export async function resetAndBootstrap(): Promise<void> {
     })
     await browser.refresh()
 
-    // The web app either shows first_launch (if it needs setup) or overview.
-    // In CI / with empty localStorage it goes straight to overview.
+    // The web app either shows first_launch (if it needs setup) or the strict
+    // no-intent startup destination from the core.
     await browser.waitUntil(
         async () => {
             const screen = await $('[data-screen]')
@@ -88,6 +88,26 @@ export async function resetAndBootstrap(): Promise<void> {
         const btn = await $('[data-testid="use-default-folder-btn"]')
         await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
         await btn.click()
+    }
+    await navigateToOverviewFromStartup()
+}
+
+async function navigateToOverviewFromStartup(): Promise<void> {
+    await browser.waitUntil(
+        async () => {
+            const screen = await $('[data-screen]')
+            return (await screen.getAttribute('data-screen').catch(() => null)) !== null
+        },
+        { timeout: UI_TIMEOUT_MS, timeoutMsg: 'No screen visible after bootstrap' },
+    )
+    const screenEl = await $('[data-screen]')
+    const screenId = await screenEl.getAttribute('data-screen')
+    if (screenId === 'note_editor') {
+        await clickBack()
+        await waitForScreen('note_list')
+        await clickBack()
+    } else if (screenId === 'note_list') {
+        await clickBack()
     }
     await waitForScreen('overview')
 }

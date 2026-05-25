@@ -2,7 +2,7 @@
  * TC-E2E-FL — First Launch / initial state
  *
  * Web-specific: the web app uses localStorage (not a file-picker dialog).
- * With empty localStorage the app goes directly to the overview screen;
+ * With empty localStorage the app uses the core's no-intent startup path;
  * there is no folder-picker step.
  */
 
@@ -30,22 +30,20 @@ describe('First Launch (web)', () => {
     })
 
     /**
-     * TC-E2E-FL-01 — With empty storage the app renders the overview screen.
+     * TC-E2E-FL-01 — With empty storage the app opens a new note editor.
      *
      * The web app initialises its storage in the browser and immediately shows
-     * the overview (no external folder-picker interaction is required).
+     * the strict no-intent startup destination from the shared core.
      */
-    it('TC-E2E-FL-01: app renders overview on first load with empty localStorage', async () => {
+    it('TC-E2E-FL-01: app opens a new note editor on first load with empty localStorage', async () => {
         const screenEl = await $('[data-screen]')
         const screenId = await screenEl.getAttribute('data-screen')
-        // Accept either 'overview' (data already initialised) or 'first_launch'
-        // followed by a button click.  Most environments land on 'overview'.
         if (screenId === 'first_launch') {
             const btn = await $('[data-testid="use-default-folder-btn"]')
             await btn.waitForDisplayed({ timeout: helpers.UI_TIMEOUT_MS })
             await btn.click()
         }
-        await helpers.waitForScreen('overview')
+        await helpers.waitForScreen('note_editor')
     })
 
     /**

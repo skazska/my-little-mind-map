@@ -71,7 +71,7 @@ export type Event =
   | { type: "navigate_back" }
   | { type: "create_space"; name: string; description?: string }
   | { type: "delete_space"; id: string }
-  | { type: "create_note"; title: string; space_id: string; parent_id?: string }
+  | { type: "create_note"; space_id: string; parent_id?: string }
   | { type: "update_note"; id: string; content: string; labels: string[] }
   | { type: "publish_note"; id: string }
   | { type: "delete_note"; id: string }

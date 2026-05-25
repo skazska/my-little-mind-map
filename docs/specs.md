@@ -116,15 +116,9 @@ data_folder/
 
 ### App frame and navigation
 
-#### Starting the app
-
-- [S-UX-SA1] Select or create data folder on first launch, with option to skip to default.
-- [S-UX-SA2] If no space exists create default space `My`
-- [S-UX-SA3] If no intention provided on launch, default content is new note in notes view with default space.
-
 #### Main Frame
 
-- [S-UX-MF1] Main frame: navigation, actions, main content area, status bar.
+- [S-UX-MF1] Navigation, actions, main content area, status bar.
   - Status bar: data folder path, sync status, version.
   - Actions: Settings, New Note, Search.
   - Navigation:
@@ -132,7 +126,14 @@ data_folder/
     - switch: spaces, labels, notes views, recent activity, search.
     - context-based navigation.
   - Content area: context-based.
-- [S-UX-MF2] Main frame: responsive layout, adapts to screen size and orientation.
+- [S-UX-MF2] Responsive layout, adapts to screen size and orientation.
+- [S-UX-MF3] All elements (navigation, actions, content) allways visible and accessible except cases when otherwise stated explicitly.
+
+#### Starting the app
+
+- [S-UX-SA1] Select or create data folder on first launch, with option to skip to default, main frame elements are not visible until a data folder is selected.
+- [S-UX-SA2] If no space exists create default space `My`
+- [S-UX-SA3] If no intention provided on launch, default content area is new note in notes view with default space.
 
 ### Spaces tab
 
