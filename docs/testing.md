@@ -71,6 +71,15 @@ Tauri WebDriver exposes the app window via WebDriver protocol. AI agents can int
 | Functionality coverage | All branches of conditional logic tested |
 | Edge case coverage | Invalid input, missing files, concurrent ops, encoding edge cases |
 
+### e2e testing unification
+
+Each platform's E2E tests should cover the same user flows and scenarios, ensuring consistent behavior across platforms.
+
+It is reasonable to:
+
+- have reusable test scenarios defined in a platform-agnostic way.
+- have reusable code for test implementation across platforms, with platform-specific details abstracted away.
+
 ### Test case files
 
 | File | Layer | Covers |
