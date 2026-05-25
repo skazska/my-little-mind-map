@@ -3,6 +3,10 @@
 This section contains technical specifications for the MyLittleMindMap product.
 It includes detailed descriptions of the system architecture, design decisions, data models, APIs, and other technical aspects that guide the development and implementation of the product.
 
+## Unification
+
+Most of the specifications are unified across all platforms, with platform-specific details documented in the architecture and UX sections. The core logic and data model are shared across platforms, while the UI and storage implementations may differ.
+
 ## Data Model
 
 ### Labels
@@ -108,7 +112,7 @@ data_folder/
            |- note2.md <ref://space2/note2>
 ```
 
-## UX
+## Common UX
 
 ### Starting the app
 

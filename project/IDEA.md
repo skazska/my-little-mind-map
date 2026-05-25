@@ -83,7 +83,7 @@ Start now, and keep improving it iteratively.
 
 Obsidian: writing markdown, linking notes, graph view, sync. Looks great.
 Google Keep: quick notes, checklists, reminders, upload images, audio, drawings.
-Notion: relations (like for angles).
+Notion: relations (like for views).
 Roam Research: bidirectional links, daily notes (- useful?), query language (- powerful?).
 Logseq: outlining (Nested hierarchical notes - bullets within bullets), backlinks (like bidirectional), block references (referencing parts), local-first sync.
 Miro: visual collaboration, mind mapping, whiteboarding.
@@ -94,7 +94,7 @@ Text centered, text is a keystone artifact, other artifacts must be referenced i
 Note content is the source of truth, indexes, relations, references, and classifications are derived from it and must stay in sync with it.
 Classification is required.
 Topics are items of classifications.
-Angles are perspectives on topics, they can be used to group topics and artifacts in different ways.
+Views are perspectives on topics, they can be used to group topics and artifacts in different ways.
 Local first, sync to backend service, but can work without it.
 Single-user data ownership.
 
