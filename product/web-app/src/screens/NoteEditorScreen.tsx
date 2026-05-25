@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { Event } from "../types";
 
 interface Props {
@@ -24,6 +24,7 @@ export function NoteEditorScreen({
   const [localContent, setLocalContent] = useState(content);
   const [localLabels, setLocalLabels] = useState<string[]>(labels);
   const [dirty, setDirty] = useState(false);
+  const [confirmPublish, setConfirmPublish] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Reset local state when navigating to a different note.
@@ -34,6 +35,15 @@ export function NoteEditorScreen({
     setLocalLabels(labels);
     setDirty(false);
   }
+
+  // Sync localLabels from server after a save completes (e.g. /:labels command
+  // processing updates labels through content rather than through the panel).
+  useEffect(() => {
+    if (!dirty) {
+      setLocalLabels(labels);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [labels]);
 
   function handleContentChange(value: string) {
     setLocalContent(value);
@@ -53,7 +63,18 @@ export function NoteEditorScreen({
     save(localContent, localLabels);
   }
 
+  function handleBack() {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    if (dirty) save(localContent, localLabels);
+    dispatch({ type: "navigate_back" });
+  }
+
   function handlePublish() {
+    setConfirmPublish(true);
+  }
+
+  function confirmPublishAction() {
+    setConfirmPublish(false);
     handleSaveNow();
     dispatch({ type: "publish_note", id });
   }
@@ -79,27 +100,38 @@ export function NoteEditorScreen({
   }
 
   return (
-    <div className="screen note-editor">
+    <div className="screen note-editor" data-screen="note_editor">
       {/* Toolbar */}
       <header className="toolbar">
         <button
           className="btn btn--back"
-          onClick={() => dispatch({ type: "navigate_back" })}
+          data-testid="back-btn"
+          onClick={handleBack}
         >
           ← Back
         </button>
-        <h2 className="toolbar__title">{title}</h2>
+        <h2 className="toolbar__title" data-testid="metadata-title">{title}</h2>
         <div className="toolbar__actions">
-          {dirty && <span className="badge badge--unsaved">Unsaved</span>}
-          <button className="btn" onClick={handleSaveNow} disabled={!dirty}>
+          {dirty && <span className="badge badge--unsaved" data-testid="dirty-indicator">Unsaved</span>}
+          {draft && <span className="badge badge--draft" data-testid="draft-indicator">Draft</span>}
+          <button
+            className="btn"
+            data-testid="save-note-btn"
+            onClick={handleSaveNow}
+            disabled={!dirty}
+          >
             Save
           </button>
           {draft && (
-            <button className="btn btn--primary" onClick={handlePublish}>
+            <button
+              className="btn btn--primary"
+              data-testid="publish-note-btn"
+              onClick={handlePublish}
+            >
               Publish
             </button>
           )}
-          <button className="btn btn--danger" onClick={handleDelete}>
+          <button className="btn btn--danger" data-testid="delete-note-btn" onClick={handleDelete}>
             Delete
           </button>
         </div>
@@ -107,12 +139,43 @@ export function NoteEditorScreen({
 
       {error && <div className="banner banner--error">{error}</div>}
 
+      {/* Publish confirmation dialog [S-UX-NE6] */}
+      {confirmPublish && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-testid="publish-confirm-dialog"
+          className="dialog-overlay"
+        >
+          <div className="dialog">
+            <p>Publish this note? Formatting will be applied to the content.</p>
+            <div className="dialog__actions">
+              <button
+                className="btn btn--primary"
+                data-testid="publish-confirm-ok"
+                onClick={confirmPublishAction}
+              >
+                Publish
+              </button>
+              <button
+                className="btn"
+                data-testid="publish-confirm-cancel"
+                onClick={() => setConfirmPublish(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Editor + Metadata panel */}
       <div className="editor-layout">
         {/* Markdown editor */}
         <div className="editor-pane">
           <textarea
             className="editor-textarea"
+            data-testid="note-editor-content"
             value={localContent}
             onChange={(e) => handleContentChange(e.target.value)}
             placeholder={`Start writing…\n\nTip: use /:labels tag1 tag2; on a line to set labels.`}
@@ -126,10 +189,11 @@ export function NoteEditorScreen({
             <h3>Labels</h3>
             <div className="tag-list">
               {localLabels.map((l) => (
-                <span key={l} className="tag tag--removable">
+                <span key={l} className="tag tag--removable" data-testid="label-chip" data-label={l}>
                   {l}
                   <button
                     className="tag__remove"
+                    data-testid="label-remove-btn"
                     onClick={() => removeLabel(l)}
                     title="Remove"
                   >
@@ -169,6 +233,7 @@ function AddLabelInput({ onAdd }: { onAdd: (l: string) => void }) {
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
+      data-testid="metadata-label-input"
     />
   );
 }

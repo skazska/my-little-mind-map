@@ -39,11 +39,12 @@ export function NoteListScreen({
   }
 
   return (
-    <div className="screen note-list">
+    <div className="screen note-list" data-screen="note_list">
       {/* Sidebar */}
       <aside className="sidebar">
         <button
           className="btn btn--back"
+          data-testid="back-btn"
           onClick={() => dispatch({ type: "navigate_back" })}
         >
           ← Back
@@ -52,7 +53,7 @@ export function NoteListScreen({
           <span className="sidebar__title">{spaceName}</span>
         </div>
         {activeViewLabels.length > 0 && (
-          <div className="sidebar__filter">
+          <div className="sidebar__filter" data-testid="active-view-badge">
             <span className="label">View:</span>
             {activeViewLabels.map((l) => (
               <span key={l} className="tag">
@@ -61,6 +62,7 @@ export function NoteListScreen({
             ))}
             <button
               className="btn btn--small"
+              data-testid="clear-view-btn"
               onClick={() => dispatch({ type: "clear_view" })}
             >
               ✕
@@ -76,6 +78,7 @@ export function NoteListScreen({
           <h2>Notes</h2>
           <button
             className="btn btn--primary"
+            data-testid="create-note-btn"
             onClick={() => setShowNew((v) => !v)}
           >
             + New Note
@@ -87,6 +90,7 @@ export function NoteListScreen({
           placeholder="Search notes…"
           value={localSearch}
           onChange={(e) => handleSearch(e.target.value)}
+          data-testid="note-list-search"
         />
 
         {showNew && (
@@ -96,10 +100,11 @@ export function NoteListScreen({
               placeholder="Note title"
               value={newNoteTitle}
               onChange={(e) => setNewNoteTitle(e.target.value)}
+              data-testid="create-note-title-input"
               autoFocus
             />
             <div className="form-actions">
-              <button className="btn btn--primary" type="submit">
+              <button className="btn btn--primary" type="submit" data-testid="create-note-submit">
                 Create
               </button>
               <button
@@ -118,17 +123,19 @@ export function NoteListScreen({
             <li
               key={n.id}
               className="card card--clickable"
+              data-testid="note-list-item"
+              data-title={n.title}
               onClick={() => dispatch({ type: "navigate_to_note", id: n.id })}
             >
               <div className="card__title">
-                {n.title}
-                {n.draft && <span className="badge badge--draft">Draft</span>}
+                <span data-testid="note-title">{n.title}</span>
+                {n.draft && <span className="badge badge--draft" data-testid="draft-badge">Draft</span>}
               </div>
               {n.description && (
                 <div className="card__desc">{n.description}</div>
               )}
               <div className="card__meta">
-                <span className="card__date">{n.updated_at.slice(0, 10)}</span>
+                <span className="card__date" data-testid="note-date">{n.updated_at.slice(0, 10)}</span>
                 {n.labels.length > 0 && (
                   <span className="tag-list">
                     {n.labels.map((l) => (

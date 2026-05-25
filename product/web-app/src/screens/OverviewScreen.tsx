@@ -47,7 +47,7 @@ export function OverviewScreen({
   }
 
   return (
-    <div className="screen overview">
+    <div className="screen overview" data-screen="overview">
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar__header">
@@ -58,6 +58,8 @@ export function OverviewScreen({
             <button
               key={t.id}
               className={`sidebar__tab${activeTab === t.id ? " sidebar__tab--active" : ""}`}
+              data-testid={`tab-${t.id}`}
+              aria-selected={activeTab === t.id ? "true" : "false"}
               onClick={() => dispatch({ type: "navigate_overview", tab: t.id })}
             >
               {t.label}
@@ -66,7 +68,7 @@ export function OverviewScreen({
         </nav>
         {dataFolder && (
           <div className="sidebar__footer" title={dataFolder}>
-            📁 {dataFolder.split("/").pop()}
+            <span data-testid="status-bar-path" className="sidebar__path">{dataFolder}</span>
           </div>
         )}
       </aside>
@@ -81,6 +83,7 @@ export function OverviewScreen({
               <h2>Spaces</h2>
               <button
                 className="btn btn--primary"
+                data-testid="create-space-btn"
                 onClick={() => setShowNewSpace((v) => !v)}
               >
                 + New Space
@@ -94,6 +97,7 @@ export function OverviewScreen({
                   placeholder="Space name"
                   value={newSpaceName}
                   onChange={(e) => setNewSpaceName(e.target.value)}
+                  data-testid="create-space-name"
                   autoFocus
                 />
                 <input
@@ -101,9 +105,10 @@ export function OverviewScreen({
                   placeholder="Description (optional)"
                   value={newSpaceDesc}
                   onChange={(e) => setNewSpaceDesc(e.target.value)}
+                  data-testid="create-space-description"
                 />
                 <div className="form-actions">
-                  <button className="btn btn--primary" type="submit">
+                  <button className="btn btn--primary" type="submit" data-testid="create-space-submit">
                     Create
                   </button>
                   <button
@@ -117,11 +122,13 @@ export function OverviewScreen({
               </form>
             )}
 
-            <ul className="card-list">
+            <ul className="card-list" data-testid="spaces-list">
               {spaces.map((s) => (
                 <li
                   key={s.id}
                   className="card card--clickable"
+                  data-testid="space-item"
+                  data-name={s.name}
                   onClick={() => dispatch({ type: "navigate_to_space", id: s.id })}
                 >
                   <div className="card__title">{s.name}</div>
@@ -140,6 +147,13 @@ export function OverviewScreen({
                       </span>
                     )}
                   </div>
+                  <button
+                    className="btn btn--danger btn--small"
+                    data-testid="delete-space-btn"
+                    onClick={(e) => { e.stopPropagation(); dispatch({ type: "delete_space", id: s.id }); }}
+                  >
+                    Delete
+                  </button>
                 </li>
               ))}
               {spaces.length === 0 && (
@@ -157,6 +171,8 @@ export function OverviewScreen({
                 <li
                   key={l.label}
                   className="card card--clickable"
+                  data-testid="label-list-item"
+                  data-label={l.label}
                   onClick={() =>
                     dispatch({ type: "set_active_view", labels: [l.label] })
                   }
@@ -174,14 +190,21 @@ export function OverviewScreen({
           </div>
         )}
 
-        {(activeTab === "views" ||
-          activeTab === "recent" ||
-          activeTab === "search") && (
-            <div className="tab-content">
-              <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
-              <p className="empty">Coming soon.</p>
-            </div>
-          )}
+        {activeTab === "views" && (
+          <div className="tab-content">
+            <h2>Views</h2>
+            <ul className="card-list" data-testid="views-list">
+              <li className="empty">No views yet.</li>
+            </ul>
+          </div>
+        )}
+
+        {(activeTab === "recent" || activeTab === "search") && (
+          <div className="tab-content">
+            <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
+            <p className="empty">Coming soon.</p>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -1,30 +1,19 @@
 /**
- * TC-E2E-NL — Note List tests
+ * TC-E2E-NL — Note List tests (web)
  *
  * Covers: TC-E2E-NL-01..08
  * Spec refs: [S-UX-NLV1], [S-UX-NLV2]
  */
 
-import {
-    assertScreen,
-    clickOverviewTab,
-    createSpace,
-    navigateIntoSpace,
-    resetAppState,
-    useDefaultFolder,
-    UI_TIMEOUT_MS,
-} from '../helpers/app.js'
-import { helpers } from '../helpers/app.js'
+import { helpers, UI_TIMEOUT_MS } from '../helpers/app.js'
 import { runNoteListSpec } from '../../../../e2e-shared/scenarios/note-list.js'
 
 describe('Note List', () => {
     before(async () => {
-        await resetAppState()
-        await useDefaultFolder()
-        await assertScreen('overview')
-        await clickOverviewTab('spaces')
+        await helpers.resetAndBootstrap()
+        await helpers.clickOverviewTab('spaces')
 
-        await createSpace('space1')
+        await helpers.createSpace('space1')
         await browser.waitUntil(
             async () => {
                 const items = await $$('[data-testid="space-item"]')
@@ -35,8 +24,8 @@ describe('Note List', () => {
             },
             { timeout: UI_TIMEOUT_MS },
         )
-        await navigateIntoSpace('space1')
-        await assertScreen('note_list')
+        await helpers.navigateIntoSpace('space1')
+        await helpers.assertScreen('note_list')
     })
 
     runNoteListSpec(helpers)

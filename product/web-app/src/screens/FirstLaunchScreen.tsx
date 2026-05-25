@@ -9,12 +9,13 @@ interface Props {
 // the data_folder), but is kept as a safety net.
 export function FirstLaunchScreen({ dispatch }: Props) {
     return (
-        <div className="screen first-launch">
+        <div className="screen first-launch" data-screen="first_launch">
             <div className="first-launch__card">
                 <h1>My Little Mind Map</h1>
                 <p>Your notes will be stored in this browser's local storage.</p>
                 <button
                     className="btn btn--primary"
+                    data-testid="use-default-folder-btn"
                     onClick={() => dispatch({ type: "data_folder_selected", path: "browser" })}
                 >
                     Get Started

@@ -1,58 +1,40 @@
 /**
- * E2E test helpers for interacting with the My Little Mind Map desktop app.
+ * E2E test helpers for the My Little Mind Map web app.
  *
  * All helper functions use WebdriverIO's global `browser` / `$` / `$$`.
- * Elements are located by `data-testid` attributes (WDIO selector `[data-testid="…"]`).
- *
- * `data-testid` values used here must be present in the frontend components.
+ * Elements are located by `data-testid` attributes.
  *
  * ## Click pattern
  *
- * All interactive clicks use `browser.execute((el) => el.click(), element)` rather
- * than the WebdriverIO `element.click()` shorthand.  The reason: WebDriver's
- * synthesised click command (HTTP POST /element/:id/click) does NOT fire through
- * the browser's normal event path in Tauri/WebKit on Linux.  React's synthetic
- * event system uses delegated listeners on the document root, so events that
- * bypass the real DOM event pipeline are invisible to React handlers and no
- * state transition occurs.  Calling `.click()` directly on the DOM node from
- * within the page context (`browser.execute`) fires a real, trusted Event that
- * React's delegation picks up correctly.
+ * Unlike the desktop app (Tauri/WebKit), Chrome does fire events through the
+ * normal DOM event pipeline when WebdriverIO calls `element.click()`.  We
+ * therefore use the simpler `element.click()` approach everywhere and do NOT
+ * need the `browser.execute((el) => el.click(), el)` workaround.
  *
- * ## App config isolation
+ * ## State isolation
  *
- * `wdio.conf.ts` spawns `tauri-driver` with a fresh `XDG_CONFIG_HOME` temp dir
- * (set as `E2E_XDG_CONFIG_HOME` in the Node process env).  This prevents any
- * real user config (`~/.config/com.my-little-mind-map.desktop/config.json`) from
- * leaking into the test run and causing the app to skip the first-launch screen.
- * `resetAppState()` deletes the config file within that dir so individual tests
- * can start from a clean state without restarting the process.
+ * The app stores its configuration and space/note data in the browser's
+ * localStorage under keys prefixed with `mlmm:`.  `resetAndBootstrap()` wipes
+ * those keys and refreshes the page so each suite begins from a clean state
+ * without reloading the Vite dev server.
+ *
+ * ## Note creation
+ *
+ * The web UI shows a title form before creating a note (unlike the desktop app
+ * which opens the editor immediately).  `createNote(title)` handles this extra
+ * step and then types the Markdown heading into the editor, just as the desktop
+ * helper does, so shared scenarios work identically on both platforms.
  */
 
-import * as os from 'node:os'
-import * as fs from 'node:fs'
-import * as path from 'node:path'
+import type { E2eHelpers } from '../../../../e2e-shared/helpers.js'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-/** Default autosave debounce period in the app (seconds). */
-export const AUTOSAVE_DEBOUNCE_S = 10
+/** Default autosave debounce period in the web app (seconds). */
+export const AUTOSAVE_DEBOUNCE_S = 1.5
 
 /** Timeout used for standard UI assertions (ms). */
 export const UI_TIMEOUT_MS = 5_000
-
-// ── Data directory management ─────────────────────────────────────────────────
-
-/** Create a fresh temporary directory for one E2E test suite. */
-export function createTempDataDir(): string {
-    return fs.mkdtempSync(path.join(os.tmpdir(), 'mlmm-e2e-'))
-}
-
-/** Remove a temporary directory created by {@link createTempDataDir}. */
-export function removeTempDataDir(dir: string): void {
-    if (fs.existsSync(dir)) {
-        fs.rmSync(dir, { recursive: true, force: true })
-    }
-}
 
 // ── Screen helpers ─────────────────────────────────────────────────────────────
 
@@ -72,56 +54,56 @@ export async function assertScreen(
     await waitForScreen(screenId)
 }
 
-// ── First launch helpers ───────────────────────────────────────────────────────
+// ── Bootstrap ──────────────────────────────────────────────────────────────────
 
 /**
- * Reset the app to the first-launch screen.
- *
- * Deletes the app config file from the isolated E2E XDG config home (so
- * `get_data_folder_config` returns null), then refreshes the WebView to
- * trigger a fresh `app_started` dispatch with no `data_folder`.  Must be
- * called in `beforeEach` for every test that needs a clean first-launch state.
+ * Reset to a clean state: wipe MLMM localStorage entries, refresh, and
+ * click through first-launch if shown.
  */
-export async function resetAppState(): Promise<void> {
-    const xdgConfigHome = process.env['E2E_XDG_CONFIG_HOME']
-    if (xdgConfigHome) {
-        const configFile = path.join(
-            xdgConfigHome,
-            'com.my-little-mind-map.desktop',
-            'config.json',
-        )
-        if (fs.existsSync(configFile)) {
-            fs.rmSync(configFile)
+export async function resetAndBootstrap(): Promise<void> {
+    // Wipe MLMM state from localStorage.
+    await browser.execute(() => {
+        const keys: string[] = []
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i)
+            if (k && k.startsWith('mlmm:')) keys.push(k)
         }
-    }
-    // Clean the default data directory so notes from previous runs don't leak.
-    const defaultDataDir = path.join(os.homedir(), 'MyLittleMindMapData')
-    if (fs.existsSync(defaultDataDir)) {
-        fs.rmSync(defaultDataDir, { recursive: true, force: true })
-    }
+        keys.forEach((k) => localStorage.removeItem(k))
+    })
     await browser.refresh()
-    await waitForScreen('first_launch')
-}
 
-/** Click "Use default folder" on the first launch screen. */
-export async function useDefaultFolder(): Promise<void> {
-    const btn = await $('[data-testid="use-default-folder-btn"]')
-    await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), btn)
+    // The web app either shows first_launch (if it needs setup) or overview.
+    // In CI / with empty localStorage it goes straight to overview.
+    await browser.waitUntil(
+        async () => {
+            const screen = await $('[data-screen]')
+            return screen.isExisting()
+        },
+        { timeout: 10_000, timeoutMsg: 'App did not render after refresh' },
+    )
+
+    const screenEl = await $('[data-screen]')
+    const screenId = await screenEl.getAttribute('data-screen')
+    if (screenId === 'first_launch') {
+        const btn = await $('[data-testid="use-default-folder-btn"]')
+        await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+        await btn.click()
+    }
+    await waitForScreen('overview')
 }
 
 // ── Overview helpers ───────────────────────────────────────────────────────────
 
-/** Click a named tab in the overview screen. */
+/** Click one of the overview tabs by its id. */
 export async function clickOverviewTab(
     tab: 'spaces' | 'labels' | 'views' | 'recent' | 'search',
 ): Promise<void> {
-    const el = await $(`[data-testid="tab-${tab}"]`)
-    await el.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((domEl) => (domEl as HTMLElement).click(), el)
+    const btn = await $(`[data-testid="tab-${tab}"]`)
+    await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+    await btn.click()
 }
 
-/** Wait for the spaces list to be visible. */
+/** Wait for the spaces list to be present. */
 export async function waitForSpacesList(): Promise<void> {
     const list = await $('[data-testid="spaces-list"]')
     await list.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
@@ -131,13 +113,12 @@ export async function waitForSpacesList(): Promise<void> {
 
 /** Create a space via the overview form. */
 export async function createSpace(name: string, description?: string): Promise<void> {
-    // Open the creation form if it is not already visible.
     const nameInput = await $('[data-testid="create-space-name"]')
     const isOpen = await nameInput.isDisplayed().catch(() => false)
     if (!isOpen) {
         const toggleBtn = await $('[data-testid="create-space-btn"]')
         await toggleBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-        await browser.execute((el) => (el as HTMLElement).click(), toggleBtn)
+        await toggleBtn.click()
     }
     await nameInput.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
     await nameInput.setValue(name)
@@ -149,23 +130,23 @@ export async function createSpace(name: string, description?: string): Promise<v
 
     const submitBtn = await $('[data-testid="create-space-submit"]')
     await submitBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), submitBtn)
+    await submitBtn.click()
 }
 
 /** Navigate into a space by clicking its list item. */
 export async function navigateIntoSpace(spaceName: string): Promise<void> {
     const item = await $(`[data-testid="space-item"][data-name="${spaceName}"]`)
     await item.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), item)
+    await item.click()
 }
 
-/** Delete a space via its list item action button. */
+/** Delete a space via its delete button. */
 export async function deleteSpace(spaceName: string): Promise<void> {
     const deleteBtn = await $(
         `[data-testid="space-item"][data-name="${spaceName}"] [data-testid="delete-space-btn"]`,
     )
     await deleteBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), deleteBtn)
+    await deleteBtn.click()
 }
 
 /** Check whether a space appears in the spaces list. */
@@ -180,12 +161,27 @@ export async function isSpaceVisible(spaceName: string): Promise<boolean> {
 
 // ── Note list helpers ──────────────────────────────────────────────────────────
 
-/** Create a new note from the note list screen. */
+/**
+ * Create a new note.
+ *
+ * The web UI shows a title form before opening the editor.  This helper
+ * fills that form, submits it, waits for the editor, then types the Markdown
+ * heading so the note gets a proper title (matching the desktop helper).
+ */
 export async function createNote(title: string): Promise<void> {
     const btn = await $('[data-testid="create-note-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), btn)
-    // The editor opens; wait for it, then type the title as the first heading.
+    await btn.click()
+
+    // Fill the title form shown by the web UI.
+    const titleInput = await $('[data-testid="create-note-title-input"]')
+    await titleInput.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+    await titleInput.setValue(title)
+
+    const submitBtn = await $('[data-testid="create-note-submit"]')
+    await submitBtn.click()
+
+    // Wait for the editor, then type the heading to set the title in content.
     await waitForScreen('note_editor')
     const editor = await $('[data-testid="note-editor-content"]')
     await editor.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
@@ -201,7 +197,7 @@ export async function createNote(title: string): Promise<void> {
     }, editor, `# ${title}\n\n`)
 }
 
-/** Type text into the search input on the note list. */
+/** Type text into the search input. */
 export async function searchNotes(query: string): Promise<void> {
     const input = await $('[data-testid="note-list-search"]')
     await input.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
@@ -237,18 +233,17 @@ export async function visibleNoteTitles(): Promise<string[]> {
     return attrs.filter((v): v is string => v !== null)
 }
 
-/** Click Back from the note list. */
+/** Click Back from the note list or note editor. */
 export async function clickBack(): Promise<void> {
     const btn = await $('[data-testid="back-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), btn)
+    await btn.click()
 }
 
 // ── Note editor helpers ────────────────────────────────────────────────────────
 
 /** Click on a note in the note list to open the editor. */
 export async function openNote(noteTitle: string): Promise<void> {
-    // If we're not on note_list, navigate back first
     const screenEl = await $('[data-screen]')
     const currentScreen = await screenEl.getAttribute('data-screen')
     if (currentScreen !== 'note_list') {
@@ -257,11 +252,11 @@ export async function openNote(noteTitle: string): Promise<void> {
     }
     const item = await $(`[data-testid="note-list-item"][data-title="${noteTitle}"]`)
     await item.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), item)
+    await item.click()
     await waitForScreen('note_editor')
 }
 
-/** Type content in the note editor content area. */
+/** Type additional content in the note editor. */
 export async function typeInEditor(content: string): Promise<void> {
     const editor = await $('[data-testid="note-editor-content"]')
     await editor.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
@@ -284,25 +279,24 @@ export async function typeInEditor(content: string): Promise<void> {
 export async function saveNote(): Promise<void> {
     const btn = await $('[data-testid="save-note-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), btn)
+    await btn.click()
 }
 
-/** Click the Publish button in the note editor and confirm the dialog. */
+/** Click the Publish button and confirm the dialog. */
 export async function publishNote(): Promise<void> {
     const btn = await $('[data-testid="publish-note-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), btn)
-    // Confirm the publish dialog.
+    await btn.click()
     const confirmBtn = await $('[data-testid="publish-confirm-ok"]')
     await confirmBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), confirmBtn)
+    await confirmBtn.click()
 }
 
 /** Click the Delete button in the note editor. */
 export async function deleteNote(): Promise<void> {
     const btn = await $('[data-testid="delete-note-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), btn)
+    await btn.click()
 }
 
 /** Add a label via the metadata panel label input. */
@@ -313,13 +307,13 @@ export async function addLabel(label: string): Promise<void> {
     await browser.keys(['Enter'])
 }
 
-/** Remove a label via the metadata panel. */
+/** Remove a label via its chip remove button. */
 export async function removeLabel(label: string): Promise<void> {
     const removeBtn = await $(
         `[data-testid="label-chip"][data-label="${label}"] [data-testid="label-remove-btn"]`,
     )
     await removeBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), removeBtn)
+    await removeBtn.click()
 }
 
 /** Return all visible label names in the metadata panel. */
@@ -329,19 +323,19 @@ export async function visibleLabels(): Promise<string[]> {
     return attrs.filter((v): v is string => v !== null)
 }
 
-/** Check whether the "dirty" (unsaved changes) indicator is visible. */
+/** Check whether the "dirty" indicator is visible. */
 export async function isDirtyIndicatorVisible(): Promise<boolean> {
     const el = await $('[data-testid="dirty-indicator"]')
     return el.isDisplayed()
 }
 
-// ── Status bar helpers ─────────────────────────────────────────────────────────
+// ── Labels tab helpers ─────────────────────────────────────────────────────────
 
-/** Return the data folder path shown in the status bar. */
-export async function getStatusBarPath(): Promise<string> {
-    const el = await $('[data-testid="status-bar-path"]')
-    await el.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    return el.getText()
+/** Click a label item in the Labels tab to activate the cross-space view. */
+export async function clickLabelItem(label: string): Promise<void> {
+    const item = await $(`[data-testid="label-list-item"][data-label="${label}"]`)
+    await item.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+    await item.click()
 }
 
 // ── Error screen helpers ───────────────────────────────────────────────────────
@@ -350,39 +344,13 @@ export async function getStatusBarPath(): Promise<string> {
 export async function goHome(): Promise<void> {
     const btn = await $('[data-testid="go-home-btn"]')
     await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), btn)
-}
-
-// ── Cross-space label helpers ──────────────────────────────────────────────────
-
-/** Click a label item in the Labels tab to activate the cross-space view. */
-export async function clickLabelItem(label: string): Promise<void> {
-    const item = await $(`[data-testid="label-list-item"][data-label="${label}"]`)
-    await item.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
-    await browser.execute((el) => (el as HTMLElement).click(), item)
-}
-
-// ── Shared-interface bootstrap helper ─────────────────────────────────────────
-
-/**
- * Satisfy the E2eHelpers `resetAndBootstrap()` contract for the desktop app.
- *
- * Deletes the app config from the isolated XDG dir, refreshes the WebView,
- * and clicks "Use default folder" to arrive at the overview screen.
- */
-export async function resetAndBootstrap(): Promise<void> {
-    await resetAppState()
-    await useDefaultFolder()
-    await waitForScreen('overview')
+    await btn.click()
 }
 
 // ── E2eHelpers conformance object ─────────────────────────────────────────────
-// Import the interface only as a type so this file has no runtime dependency
-// on the shared module — the object is only used for compile-time checking.
-import type { E2eHelpers } from '../../../../e2e-shared/helpers.js'
 
 /**
- * Desktop implementation of E2eHelpers.
+ * Web implementation of E2eHelpers.
  *
  * Pass this to shared scenario functions:
  *   describe('Overview', () => runOverviewSpec(helpers))

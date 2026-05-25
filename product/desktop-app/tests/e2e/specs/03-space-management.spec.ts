@@ -3,25 +3,30 @@
  *
  * Covers: TC-E2E-SP-01..04
  * Spec refs: [S-UX-SA2], [S-UX-NLV1]
+ *
+ * UI assertions run via the shared scenario. Desktop-specific disk-layout
+ * verification runs in the additional describe block below.
  */
 
 import {
     assertScreen,
     clickOverviewTab,
     createSpace,
-    deleteSpace,
     isSpaceVisible,
-    navigateIntoSpace,
     resetAppState,
     useDefaultFolder,
     UI_TIMEOUT_MS,
 } from '../helpers/app.js'
+import { helpers } from '../helpers/app.js'
+import { runSpaceManagementSpec } from '../../../../e2e-shared/scenarios/space-management.js'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
 let dataDir: string
 
-describe('Space Management', () => {
+describe('Space Management', () => runSpaceManagementSpec(helpers))
+
+describe('Space Management — disk layout', () => {
     before(async () => {
         await resetAppState()
         await useDefaultFolder()
@@ -32,74 +37,25 @@ describe('Space Management', () => {
         await clickOverviewTab('spaces')
     })
 
-    /**
-     * TC-E2E-SP-01 — Create space with name only
-     */
-    it('TC-E2E-SP-01: creating a space adds it to the list and creates a directory', async () => {
-        await createSpace('my-space')
-
-        await browser.waitUntil(() => isSpaceVisible('my-space'), {
-            timeout: UI_TIMEOUT_MS,
-            timeoutMsg: '"my-space" not visible in spaces list',
-        })
-
-        // Directory should exist on disk
-        const spaceDir = path.join(dataDir, 'spaces', 'my-space')
+    it('TC-E2E-SP-01-disk: creating a space creates a directory on disk', async () => {
+        await createSpace('disk-space')
+        await browser.waitUntil(() => isSpaceVisible('disk-space'), { timeout: UI_TIMEOUT_MS })
+        const spaceDir = path.join(dataDir, 'spaces', 'disk-space')
         expect(fs.existsSync(spaceDir)).toBe(true)
     })
 
-    /**
-     * TC-E2E-SP-02 — Create space with name and description
-     */
-    it('TC-E2E-SP-02: creating a space with description shows description in list', async () => {
-        await createSpace('work', 'Work notes')
+    it('TC-E2E-SP-04-disk: deleting a space removes its directory from disk', async () => {
+        await createSpace('disk-temp')
+        await browser.waitUntil(() => isSpaceVisible('disk-temp'), { timeout: UI_TIMEOUT_MS })
+        const spaceDir = path.join(dataDir, 'spaces', 'disk-temp')
 
-        await browser.waitUntil(() => isSpaceVisible('work'), {
-            timeout: UI_TIMEOUT_MS,
-            timeoutMsg: '"work" not visible in spaces list',
-        })
+        const deleteBtn = await $(
+            '[data-testid="space-item"][data-name="disk-temp"] [data-testid="delete-space-btn"]',
+        )
+        await deleteBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+        await browser.execute((el) => (el as HTMLElement).click(), deleteBtn)
 
-        // Description should be visible somewhere in the space list item
-        const item = await $('[data-testid="space-item"][data-name="work"]')
-        const text = await item.getText()
-        expect(text).toContain('Work notes')
-    })
-
-    /**
-     * TC-E2E-SP-03 — Navigate into a space opens note list [S-UX-NLV1]
-     */
-    it('TC-E2E-SP-03: clicking a space opens the note list screen', async () => {
-        await navigateIntoSpace('my-space')
-        await assertScreen('note_list')
-    })
-
-    /**
-     * TC-E2E-SP-04 — Delete space removes it from list and from disk
-     */
-    it('TC-E2E-SP-04: deleting a space removes it from the list and disk', async () => {
-        // Ensure we're back at overview first
-        const backBtn = await $('[data-testid="back-btn"]')
-        if (await backBtn.isDisplayed()) {
-            await backBtn.click()
-            await assertScreen('overview')
-        }
-        await clickOverviewTab('spaces')
-
-        // Create a temporary space to delete
-        await createSpace('temp-space')
-        await browser.waitUntil(() => isSpaceVisible('temp-space'), {
-            timeout: UI_TIMEOUT_MS,
-        })
-
-        const spaceDir = path.join(dataDir, 'spaces', 'temp-space')
-
-        await deleteSpace('temp-space')
-
-        await browser.waitUntil(async () => !(await isSpaceVisible('temp-space')), {
-            timeout: UI_TIMEOUT_MS,
-            timeoutMsg: '"temp-space" still visible after delete',
-        })
-
+        await browser.waitUntil(async () => !(await isSpaceVisible('disk-temp')), { timeout: UI_TIMEOUT_MS })
         expect(fs.existsSync(spaceDir)).toBe(false)
     })
 })

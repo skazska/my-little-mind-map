@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "wdio run tests/e2e/wdio.conf.ts"
   },
   "dependencies": {
     "react": "^19.2.5",
@@ -17,16 +18,25 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "@wdio/cli": "^9.14.0",
+    "@wdio/globals": "^9.14.0",
+    "@wdio/local-runner": "^9.14.0",
+    "@wdio/mocha-framework": "^9.14.0",
+    "@wdio/spec-reporter": "^9.14.0",
+    "wdio-chromedriver-service": "^8.1.1",
     "eslint": "^10.2.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "ts-node": "^10.9.2",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
-    "vite": "^8.0.10"
+    "vite": "^8.0.10",
+    "webdriverio": "^9.14.0"
   }
 }

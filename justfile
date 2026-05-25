@@ -90,3 +90,22 @@ e2e rebuild="true":
         cd product/desktop-app && npm run tauri build
     fi
     cd product/desktop-app && npm run test:e2e
+
+# Run E2E tests for the web app via WebdriverIO + Chrome.
+#
+# A Vite dev server is spawned automatically by wdio.conf.ts before the tests
+# run and torn down when they finish; you do NOT need to start it manually.
+#
+# By default, the WASM package is rebuilt first to ensure the web app picks up
+# any Rust core changes.  Pass rebuild=false to skip this when iterating on
+# tests or UI only.
+#
+#   just e2e-web              # build wasm + test  (safe, always correct)
+#   just e2e-web rebuild=false  # test only          (fast, skips wasm build)
+e2e-web rebuild="true":
+    #!/usr/bin/env bash
+    set -e
+    if [[ "{{rebuild}}" == "true" ]]; then
+        just build-wasm
+    fi
+    cd product/web-app && npm run test:e2e
