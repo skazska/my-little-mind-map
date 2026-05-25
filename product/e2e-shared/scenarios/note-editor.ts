@@ -9,7 +9,7 @@
  *   TC-E2E-NE-07  Content-preservation check (requires storage read)
  *   TC-E2E-NE-14  Publish confirmation dialog (custom React dialog vs native confirm())
  *
- * Spec refs: [S-UX-NLV5], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4]
+ * Spec refs: [S-UX-NVT2], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4]
  *
  * Call inside a `describe('Note Editor', ...)` block.
  * Wrapper's `before()` should:
@@ -26,7 +26,7 @@ export function runNoteEditorSpec(h: E2eHelpers): void {
     // ── Navigation & Display ─────────────────────────────────────────────────
 
     /**
-     * TC-E2E-NE-01 — Clicking note opens editor [S-UX-NLV5]
+     * TC-E2E-NE-01 — Clicking note opens editor [S-UX-NVT2]
      */
     it('TC-E2E-NE-01: clicking a note in the list opens the note editor', async () => {
         await h.openNote('test-note')

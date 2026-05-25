@@ -2,7 +2,7 @@
  * TC-E2E-LV — Labels and Views tests
  *
  * Covers: TC-E2E-LV-01..03
- * Spec refs: [S-UX-OV3], [S-UX-LV1], [S-UX-LV2]
+ * Spec refs: [S-UX-LT1], [S-UX-LT2], [S-UX-NVT1], [S-DM-L2]
  */
 
 import {

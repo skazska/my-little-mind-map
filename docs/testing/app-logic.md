@@ -137,6 +137,19 @@ Unit and integration tests for the shared core — event dispatch, state transit
 **When** `update(DeleteNote { id: "space1/note1" }, &mut model)` is called  
 **Then** effects include `StorageRequest::DeleteNote { id: "space1/note1" }`
 
+### TC-AL-N-11 — UpdateNote with empty content does not emit SaveNote for draft [S-UX-NE4]
+
+**Given** a model with a new (unsaved) note loaded and no existing draft  
+**When** `update(UpdateNote { id: "space1/note1", content: "", labels: [] }, &mut model)` is called  
+**Then** effects do NOT include any `StorageRequest::SaveNote` or `StorageRequest::SaveDraft`
+
+### TC-AL-N-12 — UpdateNote with empty content when draft exists emits DeleteDraft [S-UX-NE4]
+
+**Given** a model with note `"space1/note1"` that has `metadata.draft == true` on disk  
+**When** `update(UpdateNote { id: "space1/note1", content: "", labels: [] }, &mut model)` is called  
+**Then** effects include `StorageRequest::DeleteDraft { id: "space1/note1" }`  
+**And** effects do NOT include `StorageRequest::SaveNote` or `StorageRequest::SaveDraft`
+
 ### TC-AL-N-09 — NoteDeleted triggers navigation back
 
 **Given** a model currently on the note editor screen  

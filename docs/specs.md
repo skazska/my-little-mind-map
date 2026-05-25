@@ -114,31 +114,47 @@ data_folder/
 
 ## Common UX
 
-### Starting the app
+### App frame and navigation
 
-- [S-UX-SA1] overview options: spaces, labels, views, recent activity, search.
-- [S-UX-SA2] Actions: create space and note.
-- [S-UX-SA3] Status bar: data folder path, sync status, version, and settings button.
-- [S-UX-SA4] Select or create data folder on first launch, with option to skip to default.
-- [S-UX-SA5] Onboarding guide for new users, accessible from start screen and settings.
+#### Starting the app
 
-### Overview
+- [S-UX-SA1] Select or create data folder on first launch, with option to skip to default.
+- [S-UX-SA2] If no space exists create default space `My`
+- [S-UX-SA3] If no intention provided on launch, default content is new note in notes view with default space.
 
-- [UX-OV1] 5 tabs:
-  - Spaces, labels, views, recent activity, search.
-  - Stats, Filters, Sort
-  - id, name, description, labels, stats.
-  - result: contexts for note discovery and navigation.
+#### Main Frame
 
-### Note list and view
+- [S-UX-MF1] Main frame: navigation, actions, main content area, status bar.
+  - Status bar: data folder path, sync status, version.
+  - Actions: Settings, New Note, Search.
+  - Navigation:
+    - breadcrumbs, back/forward, parent, home.
+    - switch: spaces, labels, notes views, recent activity, search.
+    - context-based navigation.
+  - Content area: context-based.
+- [S-UX-MF2] Main frame: responsive layout, adapts to screen size and orientation.
 
-- [S-UX-NLV1] Notes: list in overview context.
-- [S-UX-NLV2] Note list:
-  - title, labels in short, description and metadata in expanded detail.
-  - sort, filter, search
-- [S-UX-NLV5] Note:
-  - view, preview.
-  - open in editor.
+### Spaces tab
+
+- [S-UX-ST1] Space navigation: tree, search.
+- [S-UX-ST2] Space view: name, description, labels, statistics.
+- [S-UX-ST3] Space management: create, rename, delete, move.
+
+### Labels tab
+
+- [S-UX-LT1] Label navigation: list, search.
+- [S-UX-LT2] Label view: name, description, statistics.
+- [S-UX-LT3] Label management: rename, delete orphan.
+
+### Notes views tab
+
+- [S-UX-NVT1] Notes navigation:
+  - spaces: search and select spaces to filter notes.
+  - labels: search and select labels to filter notes.
+  - search: text to search in note content and metadata.
+  - tree of notes matching selected filters: title, labels in short, description and metadata in expanded detail. Sort by relevance, created_at, updated_at.
+- [S-UX-NVT2] Note view/edit.
+- [S-UX-NVT3] Note management: edit mode, delete, move.
 
 ### Note editing
 
@@ -154,7 +170,9 @@ data_folder/
     - `labels` set via `/:labels <tag1> <tag2> <tag3>;` command in content.
 - [S-UX-NE3] Editor actions:
   - save, undo/redo, delete.
-- [S-UX-NE4] Draft autosave: debounced (triggered after a pause in typing, not on each keystroke). Must not interrupt editing or reposition the cursor.
+- [S-UX-NE4] Draft autosave:
+  - debounced (triggered after a pause in typing, not on each keystroke). Must not interrupt editing or reposition the cursor.
+  - no empty drafts: if content is empty, no draft is created or existing draft is deleted.
 - [S-UX-NE5] Content fidelity: trailing whitespace, newlines, and spaces are preserved exactly as entered during autosave. No content normalization during editing.
 - [S-UX-NE6] Content prettification (whitespace normalization, formatting): only on explicit publish action, and only after user confirmation.
 

@@ -50,6 +50,10 @@ pub enum StorageRequest {
     DeleteNote {
         id: NoteId,
     },
+    /// Delete a draft note without affecting a published version. [S-UX-NE4]
+    DeleteDraft {
+        id: NoteId,
+    },
 }
 
 // ── HTTP requests (future) ────────────────────────────────────────────────────

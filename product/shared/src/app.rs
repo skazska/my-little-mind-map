@@ -162,6 +162,15 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         } => {
             if let Some(note) = model.current_note.as_mut() {
                 if note.id == id {
+                    // [S-UX-NE4] no empty drafts: do not persist empty content.
+                    if content.is_empty() {
+                        if note.metadata.draft {
+                            // An existing draft must be deleted from storage.
+                            return vec![Effect::Storage(StorageRequest::DeleteDraft { id })];
+                        }
+                        // Nothing to save for a non-draft with empty content.
+                        return vec![Effect::Render];
+                    }
                     // Start from labels provided by the UI metadata panel.
                     let mut effective_labels = labels_from_strings(&labels);
                     // Apply /:labels commands from content (may override panel labels). [S-UX-NE2]
@@ -1048,6 +1057,76 @@ mod tests {
             e,
             Effect::Storage(StorageRequest::DeleteNote { id: req_id }) if *req_id == id
         )));
+    }
+
+    /// TC-AL-N-11 — UpdateNote with empty content does not emit SaveNote [S-UX-NE4]
+    #[test]
+    fn update_note_empty_content_no_draft_does_not_save() {
+        let space_id = SpaceId::new("space1").unwrap();
+        let note_id = NoteId::new("space1/note1").unwrap();
+        // Note has no existing draft (draft: false).
+        let mut model = fresh_model();
+        let mut meta = NoteMetadata::new("note1", Some(space_id));
+        meta.draft = false;
+        model.current_note = Some(Note {
+            id: note_id.clone(),
+            metadata: meta,
+            content: "# note1\n\nBody.".into(),
+            parent_id: None,
+        });
+        model.screen = Screen::NoteEditor;
+
+        let effects = update(
+            Event::UpdateNote {
+                id: note_id,
+                content: "".into(),
+                labels: vec![],
+            },
+            &mut model,
+        );
+        assert!(
+            !effects
+                .iter()
+                .any(|e| matches!(e, Effect::Storage(StorageRequest::SaveNote { .. }))),
+            "must not emit SaveNote for empty content"
+        );
+        assert!(
+            !effects
+                .iter()
+                .any(|e| matches!(e, Effect::Storage(StorageRequest::DeleteDraft { .. }))),
+            "must not emit DeleteDraft when draft is false"
+        );
+    }
+
+    /// TC-AL-N-12 — UpdateNote with empty content when draft exists emits DeleteDraft [S-UX-NE4]
+    #[test]
+    fn update_note_empty_content_with_draft_emits_delete_draft() {
+        let space_id = SpaceId::new("space1").unwrap();
+        let note_id = NoteId::new("space1/note1").unwrap();
+        // Note has an existing draft on disk (draft: true).
+        let mut model = loaded_note_model(&space_id, note_id.clone()); // sets draft: true
+
+        let effects = update(
+            Event::UpdateNote {
+                id: note_id.clone(),
+                content: "".into(),
+                labels: vec![],
+            },
+            &mut model,
+        );
+        assert!(
+            effects.iter().any(|e| matches!(
+                e,
+                Effect::Storage(StorageRequest::DeleteDraft { id: req_id }) if *req_id == note_id
+            )),
+            "must emit DeleteDraft when draft is true and content is empty"
+        );
+        assert!(
+            !effects
+                .iter()
+                .any(|e| matches!(e, Effect::Storage(StorageRequest::SaveNote { .. }))),
+            "must not emit SaveNote when content is empty"
+        );
     }
 
     /// TC-AL-N-09 — NoteDeleted transitions screen away from NoteEditor

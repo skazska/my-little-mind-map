@@ -1,11 +1,11 @@
 /**
  * TC-E2E-NE — Note Editor tests
  *
- * Covers: TC-E2E-NE-01..14
- * Spec refs: [S-UX-NLV5], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6]
+ * Covers: TC-E2E-NE-01..16
+ * Spec refs: [S-UX-NVT2], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6]
  *
  * TC-E2E-NE-01, 03–05, 08–13 run via the shared scenario.
- * TC-E2E-NE-02, 06, 07, 14 are desktop-specific and live in the second describe block.
+ * TC-E2E-NE-02, 06, 07, 14, 15, 16 are desktop-specific and live in the second describe block.
  */
 
 import {
@@ -223,6 +223,83 @@ describe('Note Editor — desktop-specific', () => {
             },
             { timeout: UI_TIMEOUT_MS },
         )
+    })
+
+    /**
+     * TC-E2E-NE-15 — Autosave does not create draft when content is empty [S-UX-NE4]
+     *
+     * Opens a fresh note, clears any pre-filled content so the editor is
+     * empty, waits for the autosave debounce, then asserts no draft file
+     * remains on disk.
+     */
+    it('TC-E2E-NE-15: autosave with empty content does not write a draft file', async () => {
+        await helpers.clickBack()
+        await assertScreen('note_list')
+
+        // Click "New note" directly without typing, to get an empty editor.
+        const createBtn = await $('[data-testid="create-note-btn"]')
+        await createBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+        await browser.execute((el) => (el as HTMLElement).click(), createBtn)
+        await assertScreen('note_editor')
+
+        // Clear any pre-seeded content so the editor is truly empty.
+        const editorEl = await $('[data-testid="note-editor-content"]')
+        await editorEl.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+        await browser.execute((el: HTMLElement) => {
+            const textarea = el as HTMLTextAreaElement
+            const nativeSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set
+            nativeSetter?.call(textarea, '')
+            textarea.dispatchEvent(new Event('input', { bubbles: true }))
+        }, editorEl)
+
+        // Wait for autosave to fire and the DeleteDraft to propagate.
+        await browser.pause((AUTOSAVE_DEBOUNCE_S + 5) * 1_000)
+
+        // No untitled draft file should exist after the debounce.
+        const spaceDir = path.join(dataDir, 'spaces', 'ds-editor-space')
+        const files = fs.existsSync(spaceDir)
+            ? fs.readdirSync(spaceDir).filter((f) => f.startsWith('untitled-') && f.endsWith('.md'))
+            : []
+        expect(files.length).toBe(0)
+    })
+
+    /**
+     * TC-E2E-NE-16 — Clearing all content removes an existing draft [S-UX-NE4]
+     *
+     * Creates a note with content (which triggers autosave → draft on disk),
+     * then clears the content and waits for the next autosave, asserting the
+     * draft file is removed.
+     */
+    it('TC-E2E-NE-16: clearing editor content removes the existing draft file', async () => {
+        await helpers.clickBack()
+        await assertScreen('note_list')
+        await createNote('draft-to-clear')
+        // Note now has content `# draft-to-clear\n\n` — wait for autosave.
+        await browser.pause((AUTOSAVE_DEBOUNCE_S + 5) * 1_000)
+
+        const notePath = path.join(dataDir, 'spaces', 'ds-editor-space', 'draft-to-clear.md')
+        await browser.waitUntil(
+            () => fs.existsSync(notePath) && fs.readFileSync(notePath, 'utf-8').includes('draft: true'),
+            { timeout: 5_000, timeoutMsg: 'Draft file not created before content clear test' },
+        )
+
+        // Now clear all content in the editor.
+        const editorEl = await $('[data-testid="note-editor-content"]')
+        await editorEl.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+        await browser.execute((el: HTMLElement) => {
+            const textarea = el as HTMLTextAreaElement
+            const nativeSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set
+            nativeSetter?.call(textarea, '')
+            textarea.dispatchEvent(new Event('input', { bubbles: true }))
+        }, editorEl)
+
+        // Wait for the delete-draft autosave to fire.
+        await browser.pause((AUTOSAVE_DEBOUNCE_S + 5) * 1_000)
+
+        // Draft file must be gone and draft indicator must not be shown.
+        expect(fs.existsSync(notePath)).toBe(false)
+        const draftIndicator = await $('[data-testid="draft-indicator"]')
+        await expect(draftIndicator).not.toBeDisplayed()
     })
 })
 

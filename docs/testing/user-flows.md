@@ -3,7 +3,7 @@
 End-to-end tests that drive the full application through the UI. Each test starts the app via Tauri WebDriver.
 
 **Layer**: E2E (`product/desktop-app/tests/e2e/`, WebdriverIO + `tauri-driver`)
-**Spec coverage**: [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-SA4], [S-UX-SA5], [S-UX-OV1], [S-UX-NLV1], [S-UX-NLV2], [S-UX-NLV5], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-CFG-1], [S-CFG-2]
+**Spec coverage**: [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-MF1], [S-UX-MF2], [S-UX-ST1], [S-UX-ST2], [S-UX-ST3], [S-UX-LT1], [S-UX-LT2], [S-UX-LT3], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-CFG-1], [S-CFG-2]
 
 ---
 
@@ -18,7 +18,7 @@ End-to-end tests that drive the full application through the UI. Each test start
 
 ## First Launch
 
-### TC-E2E-FL-01 — First launch shows folder selection screen [S-UX-SA4]
+### TC-E2E-FL-01 — First launch shows folder selection screen [S-UX-SA1]
 
 **Given** the app is launched with no persisted data folder config  
 **When** the app window finishes loading  
@@ -26,12 +26,12 @@ End-to-end tests that drive the full application through the UI. Each test start
 **And** there is a button to select a data folder  
 **And** there is a button to use the default data folder [S-CFG-2]
 
-### TC-E2E-FL-02 — Selecting a data folder transitions to overview [S-UX-SA4]
+### TC-E2E-FL-02 — Selecting a data folder transitions to overview [S-UX-SA1]
 
 **Given** the first launch screen is visible  
 **When** the user clicks "Select folder" and chooses a valid directory via the system dialog  
 **Then** the app transitions to the `overview` screen  
-**And** the status bar shows the selected folder path [S-UX-SA3]
+**And** the status bar shows the selected folder path [S-UX-MF1]
 
 ### TC-E2E-FL-03 — Using default data folder transitions to overview [S-CFG-2]
 
@@ -40,6 +40,20 @@ End-to-end tests that drive the full application through the UI. Each test start
 **Then** the app transitions to the `overview` screen  
 **And** the default data folder (`~/MyLittleMindMapData`) is created on disk
 
+### TC-E2E-FL-06 — Default space "My" is created when no space exists [S-UX-SA2]
+
+**Given** the app is launched with a fresh data folder containing no spaces  
+**When** the app finishes initialising  
+**Then** a space named `"My"` appears in the Spaces list  
+**And** the `spaces/My/` directory exists on disk
+
+### TC-E2E-FL-07 — App opens new note when no prior context [S-UX-SA3]
+
+**Given** the app is launched with a configured data folder and no remembered navigation intent  
+**When** the app finishes loading  
+**Then** the `notes_view` screen is shown scoped to the default space  
+**And** a new (draft) note editor is active
+
 ### TC-E2E-FL-04 — Selected folder persisted across app restarts [S-CFG-1]
 
 **Given** a data folder was selected in a previous session  
@@ -47,7 +61,7 @@ End-to-end tests that drive the full application through the UI. Each test start
 **Then** the `first_launch` screen is NOT shown  
 **And** the app goes directly to `overview` with the previously selected folder
 
-### TC-E2E-FL-05 — Status bar shows correct data folder path [S-UX-SA3]
+### TC-E2E-FL-05 — Status bar shows correct data folder path [S-UX-MF1]
 
 **Given** the app is open with a data folder configured  
 **When** the overview screen is visible  
@@ -57,19 +71,19 @@ End-to-end tests that drive the full application through the UI. Each test start
 
 ## Overview
 
-### TC-E2E-OV-01 — Overview shows 5 tabs [S-UX-OV1]
+### TC-E2E-OV-01 — Overview shows navigation options for Spaces, Labels, Notes views, Recent, and Search [S-UX-MF1]
 
 **Given** the app is in the overview screen  
 **When** no further action is taken  
-**Then** tabs for Spaces, Labels, Views, Recent, and Search are visible
+**Then** navigation options for Spaces, Labels, Notes views, Recent activity, and Search are visible
 
-### TC-E2E-OV-02 — Spaces tab is active by default [S-UX-OV1]
+### TC-E2E-OV-02 — Spaces tab is active by default [S-UX-MF1] [S-UX-ST1]
 
 **Given** the app just transitioned to overview  
 **When** no tab is clicked  
 **Then** the Spaces tab is selected and a spaces list is shown
 
-### TC-E2E-OV-03 — Create space action is visible [S-UX-SA2]
+### TC-E2E-OV-03 — Create space action is visible [S-UX-ST3]
 
 **Given** the overview screen is visible  
 **When** the Spaces tab is active  
@@ -92,7 +106,7 @@ End-to-end tests that drive the full application through the UI. Each test start
 **When** the user fills name `"work"` and description `"Work notes"` and submits  
 **Then** `"work"` appears in the list with the description visible
 
-### TC-E2E-SP-03 — Navigate into a space opens note list [S-UX-NLV1]
+### TC-E2E-SP-03 — Navigate into a space opens note list [S-UX-NVT1]
 
 **Given** a space `"my-space"` exists  
 **When** the user clicks on `"my-space"` in the spaces list  
@@ -109,13 +123,13 @@ End-to-end tests that drive the full application through the UI. Each test start
 
 ## Note List
 
-### TC-E2E-NL-01 — Note list shows created notes [S-UX-NLV1]
+### TC-E2E-NL-01 — Note list shows created notes [S-UX-NVT1]
 
 **Given** space `"space1"` with notes `"note-a"` and `"note-b"` created  
 **When** the user navigates into `"space1"`  
 **Then** both notes appear in the list with their titles
 
-### TC-E2E-NL-02 — Note shows title, description, labels, and date [S-UX-NLV2]
+### TC-E2E-NL-02 — Note shows title, description, labels, and date [S-UX-NVT1]
 
 **Given** a note with title, a description paragraph, labels, and timestamps  
 **When** the note list is displayed  
@@ -127,13 +141,13 @@ End-to-end tests that drive the full application through the UI. Each test start
 **When** the note list is displayed  
 **Then** a draft badge is visible on that note's list item
 
-### TC-E2E-NL-04 — Search filters notes by title [S-UX-NLV2]
+### TC-E2E-NL-04 — Search filters notes by title [S-UX-NVT1]
 
 **Given** a note list with notes `"rust-intro"` and `"python-basics"`  
 **When** the user types `"rust"` in the search input  
 **Then** only `"rust-intro"` is visible in the list
 
-### TC-E2E-NL-05 — Clearing search restores full list [S-UX-NLV2]
+### TC-E2E-NL-05 — Clearing search restores full list [S-UX-NVT1]
 
 **Given** a search query is active  
 **When** the user clears the search input  
@@ -151,7 +165,7 @@ End-to-end tests that drive the full application through the UI. Each test start
 **When** the user clicks the clear filter button  
 **Then** the filter badge disappears and all notes in the space are listed
 
-### TC-E2E-NL-08 — Back button returns to overview [S-UX-NLV2]
+### TC-E2E-NL-08 — Back button returns to overview [S-UX-MF1]
 
 **Given** the note list screen is visible  
 **When** the user clicks the Back button  
@@ -161,7 +175,7 @@ End-to-end tests that drive the full application through the UI. Each test start
 
 ## Note Editor — Navigation and Display
 
-### TC-E2E-NE-01 — Clicking note opens editor [S-UX-NLV5]
+### TC-E2E-NE-01 — Clicking note opens editor [S-UX-NVT2]
 
 **Given** a note in the note list  
 **When** the user clicks on the note  
@@ -261,11 +275,25 @@ End-to-end tests that drive the full application through the UI. Each test start
 **Then** a confirmation dialog appears before any formatting is applied  
 **And** only after confirmation is the content normalized
 
+### TC-E2E-NE-15 — Autosave does not create draft when content is empty [S-UX-NE4]
+
+**Given** a brand new note editor is open with no content  
+**When** the autosave debounce period elapses  
+**Then** no draft file is written to disk  
+**And** the note's `draft` flag is not set
+
+### TC-E2E-NE-16 — Clearing all content removes an existing draft [S-UX-NE4]
+
+**Given** a note with an existing draft on disk  
+**When** the user clears all content in the editor and the autosave debounce fires  
+**Then** the draft file is deleted from disk  
+**And** the note's `draft` flag becomes `false`
+
 ---
 
 ## Labels and Views
 
-### TC-E2E-LV-01 — Labels tab shows all labels in use [S-UX-OV1]
+### TC-E2E-LV-01 — Labels tab shows all labels in use [S-UX-LT1]
 
 **Given** notes with labels `["rust", "learning", "project"]` in the data folder  
 **When** the user navigates to the Labels tab in overview  
@@ -277,7 +305,7 @@ End-to-end tests that drive the full application through the UI. Each test start
 **When** the user clicks the `"rust"` label in the Labels tab  
 **Then** both notes appear in the filtered view regardless of which space they are in
 
-### TC-E2E-LV-03 — Views tab shows saved views [S-UX-OV1]
+### TC-E2E-LV-03 — Views tab shows saved views [S-UX-NVT1]
 
 **Given** views exist in `labels/views.json`  
 **When** the user navigates to the Views tab  

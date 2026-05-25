@@ -2,7 +2,7 @@
  * Shared E2E scenario: Note List
  *
  * Covers: TC-E2E-NL-01..08
- * Spec refs: [S-UX-NLV1], [S-UX-NLV2]
+ * Spec refs: [S-UX-NVT1]
  *
  * Call inside a `describe('Note List', ...)` block.
  * Assumes the `before()` hook in the wrapper has already navigated into a
@@ -16,7 +16,7 @@ import type { E2eHelpers } from '../helpers.js'
 
 export function runNoteListSpec(h: E2eHelpers): void {
     /**
-     * TC-E2E-NL-01 — Note list shows created notes [S-UX-NLV1]
+     * TC-E2E-NL-01 — Note list shows created notes [S-UX-NVT1]
      */
     it('TC-E2E-NL-01: created notes appear in the list with their titles', async () => {
         await h.createNote('note-a')
@@ -37,7 +37,7 @@ export function runNoteListSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-NL-02 — Note shows title and date [S-UX-NLV2]
+     * TC-E2E-NL-02 — Note shows title, description, labels, and date [S-UX-NVT1]
      */
     it('TC-E2E-NL-02: note list item shows title and metadata', async () => {
         const item = await $('[data-testid="note-list-item"][data-title="note-a"]')
@@ -60,7 +60,7 @@ export function runNoteListSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-NL-04 — Search filters notes by title [S-UX-NLV2]
+     * TC-E2E-NL-04 — Search filters notes by title [S-UX-NVT1]
      */
     it('TC-E2E-NL-04: search input filters the note list by title', async () => {
         await h.searchNotes('note-a')
@@ -77,7 +77,7 @@ export function runNoteListSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-NL-05 — Clearing search restores full list [S-UX-NLV2]
+     * TC-E2E-NL-05 — Clearing search restores full list [S-UX-NVT1]
      */
     it('TC-E2E-NL-05: clearing the search input restores all notes', async () => {
         await h.clearSearch()
@@ -119,7 +119,7 @@ export function runNoteListSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-NL-08 — Back button returns to overview [S-UX-NLV2]
+     * TC-E2E-NL-08 — Back button returns to overview [S-UX-MF1]
      */
     it('TC-E2E-NL-08: Back button from note list returns to overview', async () => {
         await h.clickBack()

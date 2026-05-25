@@ -2,7 +2,7 @@
  * Shared E2E scenario: Labels and Views
  *
  * Covers: TC-E2E-LV-01..03
- * Spec refs: [S-UX-OV1], [S-DM-L2]
+ * Spec refs: [S-UX-LT1], [S-DM-L2]
  *
  * Call inside a `describe('Labels and Views', ...)` block.
  * The wrapper `before()` must set up two spaces each with a note labelled
@@ -15,7 +15,7 @@ import type { E2eHelpers } from '../helpers.js'
 
 export function runLabelsViewsSpec(h: E2eHelpers): void {
     /**
-     * TC-E2E-LV-01 — Labels tab shows all labels in use [S-UX-OV1]
+     * TC-E2E-LV-01 — Labels tab shows all labels in use [S-UX-LT1]
      */
     it('TC-E2E-LV-01: Labels tab lists all labels present in the data folder', async () => {
         await h.clickOverviewTab('labels')
@@ -43,7 +43,7 @@ export function runLabelsViewsSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-LV-03 — Views tab is accessible and renders the views list [S-UX-OV1]
+     * TC-E2E-LV-03 — Views tab is accessible and renders the views list [S-UX-NVT1]
      */
     it('TC-E2E-LV-03: Views tab is accessible and renders the views list', async () => {
         // Navigate back to overview if we ended up in note_list.

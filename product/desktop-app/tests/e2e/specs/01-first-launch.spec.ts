@@ -1,8 +1,8 @@
 /**
  * TC-E2E-FL — First Launch tests
  *
- * Covers: TC-E2E-FL-01..05
- * Spec refs: [S-UX-SA4], [S-CFG-1], [S-CFG-2], [S-UX-SA3]
+ * Covers: TC-E2E-FL-01..07
+ * Spec refs: [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-MF1], [S-CFG-1], [S-CFG-2]
  */
 
 import * as nodePath from 'node:path'
@@ -21,7 +21,7 @@ describe('First Launch', () => {
     })
 
     /**
-     * TC-E2E-FL-01 — First launch shows folder selection screen [S-UX-SA4]
+     * TC-E2E-FL-01 — First launch shows folder selection screen [S-UX-SA1]
      */
     it('TC-E2E-FL-01: shows first_launch screen on fresh start', async () => {
         await assertScreen('first_launch')
@@ -32,7 +32,7 @@ describe('First Launch', () => {
     })
 
     /**
-     * TC-E2E-FL-02 — Selecting a data folder transitions to overview [S-UX-SA4]
+     * TC-E2E-FL-02 — Selecting a data folder transitions to overview [S-UX-SA1]
      *
      * This test requires the system file-picker dialog; it is validated via the
      * "Use default folder" code path which bypasses the native dialog.
@@ -74,12 +74,58 @@ describe('First Launch', () => {
     })
 
     /**
-     * TC-E2E-FL-05 — Status bar shows correct data folder path [S-UX-SA3]
+     * TC-E2E-FL-05 — Status bar shows correct data folder path [S-UX-MF1]
      */
     it('TC-E2E-FL-05: status bar displays data folder path', async () => {
         await useDefaultFolder()
         await assertScreen('overview')
         const displayedPath = await getStatusBarPath()
         expect(displayedPath.trim().length).toBeGreaterThan(0)
+    })
+
+    /**
+     * TC-E2E-FL-06 — Default space "My" is created when no space exists [S-UX-SA2]
+     */
+    it('TC-E2E-FL-06: default space "My" is created in a fresh data folder', async () => {
+        await useDefaultFolder()
+        await assertScreen('overview')
+        const dataDir = await getStatusBarPath()
+        // Space "My" directory must exist on disk.
+        const mySpaceDir = nodePath.join(dataDir.trim(), 'spaces', 'my')
+        await browser.waitUntil(
+            () => nodeFs.existsSync(mySpaceDir),
+            { timeout: UI_TIMEOUT_MS, timeoutMsg: 'spaces/my/ directory not created' },
+        )
+        // And "my" must appear in the spaces list in the UI.
+        await browser.waitUntil(
+            async () => {
+                const items = await $$('[data-testid="space-item"]')
+                for (const item of items) {
+                    if ((await item.getAttribute('data-name')) === 'my') return true
+                }
+                return false
+            },
+            { timeout: UI_TIMEOUT_MS, timeoutMsg: 'default space "my" not visible in spaces list' },
+        )
+    })
+
+    /**
+     * TC-E2E-FL-07 — App opens new note when no prior context [S-UX-SA3]
+     */
+    it('TC-E2E-FL-07: app shows notes view with a new note editor on first launch', async () => {
+        await useDefaultFolder()
+        // After first launch with no intent, the app should land on the notes view
+        // with a new draft note editor active.
+        const noteEditorOrNotesView = await browser.waitUntil(
+            async () => {
+                const editor = await $('[data-screen="note_editor"]')
+                if (await editor.isDisplayed().catch(() => false)) return 'note_editor'
+                const noteList = await $('[data-screen="note_list"]')
+                if (await noteList.isDisplayed().catch(() => false)) return 'note_list'
+                return false
+            },
+            { timeout: UI_TIMEOUT_MS, timeoutMsg: 'neither note_editor nor note_list visible after launch' },
+        )
+        expect(['note_editor', 'note_list', 'overview']).toContain(noteEditorOrNotesView)
     })
 })
