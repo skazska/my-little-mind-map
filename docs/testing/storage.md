@@ -3,7 +3,14 @@
 Integration tests for filesystem-backed storage — CRUD operations, file layout, and index synchronization.
 
 **Layer**: Integration (`storage/tests/integration_test.rs`, `tokio::test`, `tempfile::TempDir`)
-**Spec coverage**: [S-DM-L3], [S-ST-DM1], [S-ST-DM2], [S-ST-DM3], [S-ST-DM4]
+**Spec coverage**: [S-DM-L2], [S-DM-L3], [S-DM-L4], [S-DM-N5], [S-DM-N6], [S-DM-N1], [S-DM-NR4], [S-DM-S4], [S-DM-V3], [S-ST-DM1], [S-ST-DM2], [S-ST-DM3], [S-ST-DM4], [S-ST-IX1], [S-ST-IX2], [S-CFG-2], [S-CFG-3], [S-UX-ERR]
+**Provisional coverage** (spec is `[TBD]`): [S-DM-ND2]
+
+**Conventions**:
+
+- Each test heading lists the spec IDs it covers in `[S-...]` brackets.
+- `(provisional)` next to a spec ID flags coverage of a `[TBD]` spec; the test will be revisited once the spec is finalised.
+- A `> Covers ... only.` note below a test scopes its coverage when the underlying spec is partially `[TBD]` (e.g. delete tests pending [S-DM-MV3]).
 
 ---
 
@@ -27,19 +34,21 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **When** `create_space(&space)` is called  
 **Then** the directory `{data_root}/spaces/root/parent/sub/` exists
 
-### TC-ST-SP-04 — List spaces returns all created spaces
+### TC-ST-SP-04 — List spaces returns all created spaces [S-ST-DM1]
 
 **Given** three spaces created with ids `"alpha"`, `"beta"`, `"gamma"`  
 **When** `list_spaces()` is called  
 **Then** the result contains all three spaces
 
-### TC-ST-SP-05 — Get non-existent space returns None
+### TC-ST-SP-05 — Get non-existent space returns None [S-ST-DM1]
 
 **Given** an empty data folder  
 **When** `get_space(&unknown_id)` is called  
 **Then** it returns `Ok(None)`
 
-### TC-ST-SP-06 — Delete space removes directory and index entry
+### TC-ST-SP-06 — Delete space removes directory and index entry [S-ST-DM1], [S-ST-DM4]
+
+> Covers basic file-remove only. Cascade and reference-cleanup semantics are pending [S-DM-MV3].
 
 **Given** a space that exists  
 **When** `delete_space(&space_id)` is called  
@@ -47,13 +56,13 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **And** the directory `{data_root}/spaces/my-space/` no longer exists  
 **And** the space is absent from `spaces.json`
 
-### TC-ST-SP-07 — Delete non-existent space returns error
+### TC-ST-SP-07 — Delete non-existent space returns error [S-ST-DM1]
 
 **Given** no space with the given ID  
 **When** `delete_space(&unknown_id)` is called  
 **Then** it returns an `Err`
 
-### TC-ST-SP-08 — Spaces index (spaces.json) reflects hierarchy
+### TC-ST-SP-08 — Spaces index (spaces.json) reflects hierarchy [S-ST-DM1], [S-ST-IX1]
 
 **Given** a parent space `"parent"` and child space `"child.parent"` created  
 **When** `get_spaces_index()` is called  
@@ -87,7 +96,7 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **When** `create_note(&note)` is called  
 **Then** the `.md` file on disk starts with `---` and contains a valid YAML block with all metadata fields
 
-### TC-ST-N-05 — Update note persists changed content
+### TC-ST-N-05 — Update note persists changed content [S-ST-DM1], [S-ST-DM3]
 
 **Given** a note that already exists  
 **When** `update_note(&note)` is called with modified `content` and `labels`  
@@ -99,21 +108,23 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **When** `update_note(&note)` is called at time T+1  
 **Then** the returned note has `metadata.updated_at > T`
 
-### TC-ST-N-07 — Delete note removes file
+### TC-ST-N-07 — Delete note removes file [S-ST-DM1], [S-ST-DM4]
+
+> Covers basic file-remove only. Cascade, soft-delete, and reference-cleanup semantics are pending [S-DM-MV3].
 
 **Given** a note that exists  
 **When** `delete_note(&note_id)` is called  
 **Then** `get_note(&note_id)` returns `Ok(None)`  
 **And** the `.md` file no longer exists on disk
 
-### TC-ST-N-08 — Delete note removes companion folder
+### TC-ST-N-08 — Delete note removes companion folder [S-ST-DM4]
 
 **Given** a note `"space1/parent"` that has a child note `"space1/parent/child"` (creating `space1/parent/` dir)  
 **When** `delete_note(&parent_id)` is called  
 **Then** `{data_root}/spaces/space1/parent.md` is removed  
 **And** `{data_root}/spaces/space1/parent/` directory is removed
 
-### TC-ST-N-09 — Get non-existent note returns None
+### TC-ST-N-09 — Get non-existent note returns None [S-ST-DM1]
 
 **Given** no note with the given ID  
 **When** `get_note(&unknown_id)` is called  
@@ -135,7 +146,7 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **When** `create_note(&note)` is called  
 **Then** `get_labels_index()` has `"rust"` → `[note_id]` and `"learning"` → `[note_id]`
 
-### TC-ST-LI-02 — Labels index updated on note update
+### TC-ST-LI-02 — Labels index updated on note update [S-DM-L3]
 
 **Given** a note with label `"old-label"` that is updated to have label `"new-label"` (removing `"old-label"`)  
 **When** `update_note(&note)` is called  
@@ -160,6 +171,24 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **When** `get_labels_index()` is called  
 **Then** `"cross"` maps to both note IDs from different spaces
 
+### TC-ST-LI-06 — Label index entry exposes statistics [S-DM-L4]
+
+**Given** three notes labeled `"rust"` across two spaces  
+**When** `get_labels_index()` is called  
+**Then** the entry for `"rust"` carries `note_count == 3` and a `spaces` set of size 2 (or equivalent statistics fields)
+
+### TC-ST-VI-01 — View index entry exposes statistics [S-DM-V3]
+
+**Given** a saved view `"learning-rust"` whose filter matches 5 notes  
+**When** `get_views_index()` is called  
+**Then** the entry for that view carries `matching_note_count == 5` and the persisted filter labels
+
+### TC-ST-SI-01 — Space index entry exposes statistics [S-DM-S4]
+
+**Given** a space `"work"` containing 4 notes and 7 distinct labels  
+**When** `get_spaces_index()` is called  
+**Then** the entry for `"work"` carries `note_count == 4` and `label_count == 7` (or equivalent statistics fields)
+
 ---
 
 ## References Index
@@ -176,14 +205,14 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **When** `create_note(&note)` is called  
 **Then** `get_references_index()` has a backward entry: `target_note_id → source_note_id`
 
-### TC-ST-RI-03 — References index rebuilt on update
+### TC-ST-RI-03 — References index rebuilt on update [S-DM-NR4]
 
 **Given** a note that originally referenced `"space1/old-target"`, updated to reference `"space1/new-target"`  
 **When** `update_note(&note)` is called  
 **Then** the old forward/backward mappings for `"space1/old-target"` are removed  
 **And** new mappings for `"space1/new-target"` are present
 
-### TC-ST-RI-04 — References index cleared on delete
+### TC-ST-RI-04 — References index cleared on delete [S-DM-NR4]
 
 **Given** a note with a reference to another note  
 **When** `delete_note(&note_id)` is called  
@@ -193,13 +222,15 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 
 ## Definitions Index
 
-### TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND2]
+> **Provisional**: covers [S-DM-ND2] which is currently `[TBD]`. These tests validate the index plumbing for the candidate definition behaviour and will be revisited when the definition spec is finalised.
+
+### TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND2] (provisional)
 
 **Given** a note whose content contains a markdown definition (e.g., `**Term** Definition text`)  
 **When** `create_note(&note)` is called  
 **Then** `get_definitions_index()` maps `"term"` (lowercase) to the definition entry pointing to this note
 
-### TC-ST-DI-02 — Definitions removed on note delete [S-DM-ND2]
+### TC-ST-DI-02 — Definitions removed on note delete [S-DM-ND2] (provisional)
 
 **Given** only one note that defines a term  
 **When** `delete_note(&note_id)` is called  
@@ -209,7 +240,7 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 
 ## Settings
 
-### TC-ST-SET-01 — Default settings returned when file absent
+### TC-ST-SET-01 — Default settings returned when file absent [S-CFG-2], [S-CFG-3]
 
 **Given** a data folder with no `settings.json`  
 **When** `get_settings()` is called  
@@ -231,26 +262,38 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 
 ## Error Handling
 
-### TC-ST-ERR-01 — Create note in non-existent space creates parent dirs
+### TC-ST-ERR-01 — Create note in non-existent space creates parent dirs [S-ST-DM1], [S-UX-ERR]
 
 **Given** a data folder where `spaces/my-space/` does not exist  
 **When** `create_note(&note)` is called for a note in `"my-space"`  
 **Then** it succeeds and creates the necessary directories
 
-### TC-ST-ERR-02 — Corrupt front matter file returns error
+### TC-ST-ERR-02 — Corrupt front matter file returns error [S-DM-N6], [S-UX-ERR]
 
 **Given** a `.md` file on disk that contains invalid YAML in the front matter block  
 **When** `get_note(&note_id)` is called  
 **Then** it returns an `Err` (storage error wrapping a parse error), not a panic
 
-### TC-ST-ERR-03 — Concurrent reads do not error
+### TC-ST-ERR-03 — Concurrent reads do not error [S-ST-DM1]
 
 **Given** a note that exists  
 **When** `get_note` is called concurrently from multiple tasks  
 **Then** all calls return `Ok(Some(note))` with consistent data
 
-### TC-ST-ERR-04 — note_count in spaces index is accurate
+### TC-ST-ERR-04 — note_count in spaces index is accurate [S-DM-S4], [S-ST-IX1]
 
 **Given** a space with 3 notes created and 1 deleted  
 **When** `get_spaces_index()` is called  
 **Then** the entry for that space has `note_count == 2`
+
+---
+
+## Index Reproducibility
+
+### TC-ST-IX-01 — Derived indexes reproducible after deletion [S-ST-IX2]
+
+**Given** a data folder with several spaces, notes (some with labels and references) and the derived indexes `labels.json`, `references.json`, `notes.json`, `spaces.json`, `definitions.json` populated  
+**When** all derived index files are deleted from disk and `rebuild_indexes()` is invoked  
+**Then** each derived index file is recreated  
+**And** its contents are byte-equivalent (or value-equivalent after canonicalisation) to the snapshot taken before deletion  
+**And** source-of-truth files (`views.json`, `settings.json`, `history.json`) are untouched

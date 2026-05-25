@@ -66,3 +66,11 @@ Spec IDs in this document use the `S-UX-*` prefix. Editor behaviour is included 
   - No empty drafts: if content is empty, no draft is saved and any existing draft file is deleted (see [S-DM-N7](data-model.md#notes)).
 - [S-UX-NE5] Content fidelity: trailing whitespace, newlines, and spaces are preserved exactly as entered during autosave. No content normalization during editing.
 - [S-UX-NE6] Content prettification (whitespace normalization, formatting): only on explicit publish action, and only after user confirmation.
+
+## Error Handling
+
+- [S-UX-ERR] Recoverable failures are surfaced via a dedicated error screen rather than crashing or silently failing.
+  - Triggers: storage I/O errors (e.g. inaccessible data folder, permission denied, corrupt file), failed long-running effects, unrecoverable parse errors on user-facing data.
+  - Display: human-readable message describing what failed and, where possible, why.
+  - Recovery actions: at minimum a "Go home" action returning the app to the overview (or first-launch if no data folder is configured); retry where the failed operation is idempotent.
+  - Out of scope here: developer-facing diagnostics, telemetry. Error message wording is not part of the spec.

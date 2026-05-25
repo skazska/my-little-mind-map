@@ -3,12 +3,12 @@
 End-to-end tests that drive the full application through the UI. Each test starts the app via Tauri WebDriver.
 
 **Layer**: E2E (`product/desktop-app/tests/e2e/`, WebdriverIO + `tauri-driver`)
-**Spec coverage**: [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-MF1], [S-UX-MF2], [S-UX-ST1], [S-UX-ST2], [S-UX-ST3], [S-UX-LT1], [S-UX-LT2], [S-UX-LT3], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-CFG-1], [S-CFG-2]
+**Spec coverage**: [S-DM-L2], [S-DM-L4], [S-DM-N2], [S-DM-N7], [S-DM-S4], [S-DM-V1], [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-MF1], [S-UX-ST1], [S-UX-ST2], [S-UX-ST3], [S-UX-LT1], [S-UX-LT2], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-UX-ERR], [S-CFG-1], [S-CFG-2]
 
----
+**Conventions**:
 
-## Conventions
-
+- Each test heading lists the spec IDs it covers in `[S-...]` brackets.
+- A `> Covers ... only.` note below a test scopes its coverage when the underlying spec is partially `[TBD]` (e.g. delete tests pending [S-DM-MV3]).
 - Each test starts with a fresh temporary data folder (no persisted config).
 - `[selector]` placeholders should be replaced with actual element selectors or `data-testid` attributes when implementing.
 - Steps are sequential unless noted.
@@ -89,18 +89,25 @@ End-to-end tests that drive the full application through the UI. Each test start
 **When** the Spaces tab is active  
 **Then** a "Create space" button or form is visible
 
+### TC-E2E-OV-04 — Space search filters the spaces tree [S-UX-ST1]
+
+**Given** the Spaces tab is active with spaces `"work"`, `"personal"`, `"work-archive"` in the tree  
+**When** the user types `"work"` in the spaces search input  
+**Then** only `"work"` and `"work-archive"` remain visible in the tree  
+**And** clearing the search input restores the full tree
+
 ---
 
 ## Space Management
 
-### TC-E2E-SP-01 — Create space with name only
+### TC-E2E-SP-01 — Create space with name only [S-UX-ST3]
 
 **Given** the overview Spaces tab is visible  
 **When** the user fills the space name field with `"my-space"` and submits  
 **Then** `"my-space"` appears in the spaces list  
 **And** the space directory exists on disk
 
-### TC-E2E-SP-02 — Create space with name and description
+### TC-E2E-SP-02 — Create space with name and description [S-UX-ST3]
 
 **Given** the overview Spaces tab is visible  
 **When** the user fills name `"work"` and description `"Work notes"` and submits  
@@ -112,12 +119,20 @@ End-to-end tests that drive the full application through the UI. Each test start
 **When** the user clicks on `"my-space"` in the spaces list  
 **Then** the `note_list` screen is shown for `"my-space"`
 
-### TC-E2E-SP-04 — Delete space removes it from list
+### TC-E2E-SP-04 — Delete space removes it from list [S-UX-ST3]
+
+> Covers basic file-remove only. Cascade and reference-cleanup semantics are pending [S-DM-MV3].
 
 **Given** a space `"temp-space"` exists  
 **When** the user deletes `"temp-space"` (via delete button/action)  
 **Then** `"temp-space"` is no longer in the spaces list  
 **And** its directory is removed from disk
+
+### TC-E2E-SP-05 — Space view shows statistics [S-UX-ST2], [S-DM-S4]
+
+**Given** a space `"work"` with 4 notes and 3 distinct labels in use  
+**When** the user opens the space view for `"work"`  
+**Then** the view displays the space name, description, the list of labels in use, and statistics showing `note_count` and `label_count` (or equivalently named indicators)
 
 ---
 
@@ -135,7 +150,7 @@ End-to-end tests that drive the full application through the UI. Each test start
 **When** the note list is displayed  
 **Then** the list item shows the title, description excerpt, label badges, and the date
 
-### TC-E2E-NL-03 — Draft badge visible for draft notes
+### TC-E2E-NL-03 — Draft badge visible for draft notes [S-UX-NVT1], [S-DM-N7]
 
 **Given** a note with `draft: true`  
 **When** the note list is displayed  
@@ -153,13 +168,13 @@ End-to-end tests that drive the full application through the UI. Each test start
 **When** the user clears the search input  
 **Then** all notes are shown again
 
-### TC-E2E-NL-06 — Active view filter badge shown
+### TC-E2E-NL-06 — Active view filter badge shown [S-UX-NVT1], [S-DM-V1]
 
 **Given** a view (label filter) is active  
 **When** the note list screen is visible  
 **Then** the active label(s) are shown as a filter badge above the list
 
-### TC-E2E-NL-07 — Clear view button removes filter
+### TC-E2E-NL-07 — Clear view button removes filter [S-UX-NVT1], [S-DM-V1]
 
 **Given** an active label filter is applied  
 **When** the user clicks the clear filter button  
@@ -187,7 +202,7 @@ End-to-end tests that drive the full application through the UI. Each test start
 **When** the metadata panel is visible (or expanded)  
 **Then** the note's title, label list, UUID, created_at, and updated_at are displayed
 
-### TC-E2E-NE-03 — Back button returns to note list
+### TC-E2E-NE-03 — Back button returns to note list [S-UX-MF1]
 
 **Given** the note editor is open  
 **When** the user clicks Back  
@@ -217,6 +232,21 @@ End-to-end tests that drive the full application through the UI. Each test start
 **Then** the content is automatically saved to disk without the user pressing Save  
 **And** the cursor position is not moved and the editor is not disrupted [S-UX-NE5]
 
+### TC-E2E-NE-06b — Continuous typing debounces autosave [S-UX-NE4]
+
+**Given** the note editor is open  
+**When** the user types continuously for longer than the debounce period (e.g. 30 s) without pausing  
+**Then** at most one autosave occurs while typing is active (no save per keystroke)  
+**And** a final autosave fires after the user stops and the debounce window elapses
+
+### TC-E2E-NE-06c — Autosave failure surfaces error and allows retry [S-UX-NE4], [S-UX-ERR]
+
+**Given** the note editor is open and the data folder becomes unwritable mid-session  
+**When** the autosave debounce period elapses and the save attempt fails  
+**Then** an error indicator is shown to the user with a descriptive message  
+**And** the unsaved content remains in the editor (no data loss)  
+**And** a retry action is available; once storage is writable again, retry succeeds and the dirty indicator clears
+
 ### TC-E2E-NE-07 — Autosave does not normalize content [S-UX-NE5]
 
 **Given** note content with deliberate trailing spaces and multiple consecutive blank lines  
@@ -244,6 +274,8 @@ End-to-end tests that drive the full application through the UI. Each test start
 **Then** the note's labels include `"rust"` and `"learning"` (visible in metadata panel)
 
 ### TC-E2E-NE-11 — Delete note removes it from list [S-UX-NE3]
+
+> Covers basic file-remove only. Cascade and reference-cleanup semantics are pending [S-DM-MV3].
 
 **Given** the note editor is open for note `"space1/my-note"`  
 **When** the user clicks Delete and confirms  
@@ -289,6 +321,13 @@ End-to-end tests that drive the full application through the UI. Each test start
 **Then** the draft file is deleted from disk  
 **And** the note's `draft` flag becomes `false`
 
+### TC-E2E-NE-17 — Editor command syntax is not persisted to disk [S-UX-NE2], [S-DM-N2]
+
+**Given** the note editor is open  
+**When** the user types `"# Title\n\n/:labels rust;\n\nBody."` and triggers Publish (or Save)  
+**Then** the resulting `.md` file on disk contains `"# Title\n\nBody."` in its content section with no `/:labels` substring  
+**And** reloading the note in the editor shows content without the command line, while the label `"rust"` is present in the metadata panel
+
 ---
 
 ## Labels and Views
@@ -311,17 +350,30 @@ End-to-end tests that drive the full application through the UI. Each test start
 **When** the user navigates to the Views tab  
 **Then** the saved views are listed
 
+### TC-E2E-LV-04 — Label search filters the labels list [S-UX-LT1]
+
+**Given** the Labels tab is active with labels `["rust", "python", "rust-advanced"]` in use  
+**When** the user types `"rust"` in the labels search input  
+**Then** only `"rust"` and `"rust-advanced"` remain visible in the list  
+**And** clearing the search input restores the full list
+
+### TC-E2E-LT-01 — Label view shows name, description, and statistics [S-UX-LT2], [S-DM-L4]
+
+**Given** the label `"rust"` is in use on 3 notes across 2 spaces  
+**When** the user opens the label view for `"rust"`  
+**Then** the view displays the label name, any description, and statistics showing `note_count == 3` and `space_count == 2` (or equivalently named indicators)
+
 ---
 
 ## Error Handling
 
-### TC-E2E-ERR-01 — Inaccessible data folder shows error screen
+### TC-E2E-ERR-01 — Inaccessible data folder shows error screen [S-UX-ERR]
 
 **Given** the app is configured with a data folder that becomes inaccessible (permissions removed)  
 **When** an operation that accesses storage is triggered  
 **Then** the `error` screen is shown with a descriptive message
 
-### TC-E2E-ERR-02 — "Go home" button from error screen returns to overview
+### TC-E2E-ERR-02 — "Go home" button from error screen returns to overview [S-UX-ERR]
 
 **Given** the error screen is displayed  
 **When** the user clicks the "Go home" button  

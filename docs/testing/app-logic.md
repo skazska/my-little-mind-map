@@ -3,33 +3,38 @@
 Unit and integration tests for the shared core — event dispatch, state transitions, `update()` + `view()` functions, and cross-cutting logic.
 
 **Layer**: Unit / Integration (`shared/`, `cargo test`)
-**Spec coverage**: [S-DM-N4], [S-DM-N5], [S-DM-L1], [S-DM-L3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-CFG-1], [S-CFG-2], [S-CFG-3]
+**Spec coverage**: [S-DM-L2], [S-DM-N4], [S-DM-N5], [S-DM-N7], [S-DM-V1], [S-UX-MF1], [S-UX-SA1], [S-UX-ST3], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE2], [S-UX-NE4], [S-UX-ERR], [S-CFG-1]
+
+**Conventions**:
+
+- Each test heading lists the spec IDs it covers in `[S-...]` brackets.
+- A `> Covers ... only.` note below a test scopes its coverage when the underlying spec is partially `[TBD]` (e.g. delete tests pending [S-DM-MV3]).
 
 ---
 
 ## App Lifecycle — Startup
 
-### TC-AL-LIFE-01 — AppStarted with data_folder emits LoadSettings + LoadSpaces
+### TC-AL-LIFE-01 — AppStarted with data_folder emits LoadSettings + LoadSpaces [S-UX-SA1], [S-CFG-1]
 
 **Given** a clean model  
 **When** `update(AppStarted { data_folder: Some("/path") }, &mut model)` is called  
 **Then** the returned effects include `Effect::Storage(StorageRequest::LoadSettings)` and `Effect::Storage(StorageRequest::LoadSpaces)`  
 **And** model transitions away from the loading state
 
-### TC-AL-LIFE-02 — AppStarted without data_folder emits Render only
+### TC-AL-LIFE-02 — AppStarted without data_folder emits Render only [S-UX-SA1]
 
 **Given** a clean model  
 **When** `update(AppStarted { data_folder: None }, &mut model)` is called  
 **Then** the returned effects contain only `Effect::Render`  
 **And** `view(model).screen` indicates `first_launch`
 
-### TC-AL-LIFE-03 — DataFolderSelected sets folder and triggers settings + spaces load
+### TC-AL-LIFE-03 — DataFolderSelected sets folder and triggers settings + spaces load [S-UX-SA1], [S-CFG-1]
 
 **Given** a model in `first_launch` state  
 **When** `update(DataFolderSelected { path: "/chosen/path" }, &mut model)` is called  
 **Then** effects include `StorageRequest::LoadSettings` and `StorageRequest::LoadSpaces`
 
-### TC-AL-LIFE-04 — SettingsLoaded stores settings in model
+### TC-AL-LIFE-04 — SettingsLoaded stores settings in model [S-CFG-1]
 
 **Given** settings with `data_folder`, `theme`  
 **When** `update(SettingsLoaded { settings }, &mut model)` is called  
@@ -39,25 +44,25 @@ Unit and integration tests for the shared core — event dispatch, state transit
 
 ## Navigation
 
-### TC-AL-NAV-01 — NavigateToNote emits LoadNote effect
+### TC-AL-NAV-01 — NavigateToNote emits LoadNote effect [S-UX-MF1], [S-UX-NVT2]
 
 **Given** a model in the overview state  
 **When** `update(NavigateToNote { id: "space1/note1" }, &mut model)` is called  
 **Then** effects include `StorageRequest::LoadNote { id: "space1/note1" }`
 
-### TC-AL-NAV-02 — NavigateToSpace emits LoadNotes effect
+### TC-AL-NAV-02 — NavigateToSpace emits LoadNotes effect [S-UX-MF1], [S-UX-NVT1]
 
 **Given** a model in the overview state  
 **When** `update(NavigateToSpace { id: "space1" }, &mut model)` is called  
 **Then** effects include `StorageRequest::LoadNotes { space_id: "space1" }`
 
-### TC-AL-NAV-03 — NavigateBack returns to previous screen
+### TC-AL-NAV-03 — NavigateBack returns to previous screen [S-UX-MF1]
 
 **Given** a model that navigated from overview → note list  
 **When** `update(NavigateBack, &mut model)` is called  
 **Then** `view(model).screen` is `overview` (or note list if deeper)
 
-### TC-AL-NAV-04 — NavigateOverview sets active tab
+### TC-AL-NAV-04 — NavigateOverview sets active tab [S-UX-MF1]
 
 **Given** any state  
 **When** `update(NavigateOverview { tab: "labels" }, &mut model)` is called  
@@ -67,19 +72,21 @@ Unit and integration tests for the shared core — event dispatch, state transit
 
 ## Space Management
 
-### TC-AL-SP-01 — CreateSpace emits StorageRequest::CreateSpace
+### TC-AL-SP-01 — CreateSpace emits StorageRequest::CreateSpace [S-UX-ST3]
 
 **Given** a model in overview state  
 **When** `update(CreateSpace { name: "my-space", description: None }, &mut model)` is called  
 **Then** effects include `StorageRequest::CreateSpace { space }` where `space.id.as_str() == "my-space"`
 
-### TC-AL-SP-02 — SpaceCreated triggers LoadSpaces
+### TC-AL-SP-02 — SpaceCreated triggers LoadSpaces [S-UX-ST3]
 
 **Given** any state  
 **When** `update(SpaceCreated { id: "my-space" }, &mut model)` is called  
 **Then** effects include `StorageRequest::LoadSpaces`
 
-### TC-AL-SP-03 — DeleteSpace emits StorageRequest::DeleteSpace
+### TC-AL-SP-03 — DeleteSpace emits StorageRequest::DeleteSpace [S-UX-ST3]
+
+> Covers basic emission only. Deletion cascade semantics are pending [S-DM-MV3].
 
 **Given** a model with spaces loaded  
 **When** `update(DeleteSpace { id: "my-space" }, &mut model)` is called  
@@ -89,7 +96,7 @@ Unit and integration tests for the shared core — event dispatch, state transit
 
 ## Note Management
 
-### TC-AL-N-01 — CreateNote emits StorageRequest::CreateNote
+### TC-AL-N-01 — CreateNote emits StorageRequest::CreateNote [S-UX-NVT2], [S-DM-N7]
 
 **Given** a model in a space view  
 **When** `update(CreateNote { space_id: "space1", parent_id: None }, &mut model)` is called  
@@ -105,6 +112,18 @@ Unit and integration tests for the shared core — event dispatch, state transit
 
 **Given** a note with existing title `"old-title"`  
 **When** `update(UpdateNote { ..., content: "No heading here", ... }, &mut model)` is called  
+**Then** `metadata.title` remains `"old-title"`
+
+### TC-AL-N-03b — UpdateNote with multiple headings uses the first [S-DM-N5]
+
+**Given** a note with content `"# First Heading\n\nBody\n\n# Second Heading\n\nMore."`  
+**When** `update(UpdateNote { ..., content, ... }, &mut model)` is called  
+**Then** the `SaveNote` request carries `metadata.title == "first-heading"`
+
+### TC-AL-N-03c — UpdateNote with malformed heading leaves title unchanged [S-DM-N5]
+
+**Given** a note with existing title `"old-title"` and content starting with `"#NoSpace heading\n\nBody"` (not a valid markdown heading)  
+**When** `update(UpdateNote { ..., content, ... }, &mut model)` is called  
 **Then** `metadata.title` remains `"old-title"`
 
 ### TC-AL-N-04 — UpdateNote applies labels from panel [S-DM-N5]
@@ -125,13 +144,22 @@ Unit and integration tests for the shared core — event dispatch, state transit
 **When** `UpdateNote` is applied  
 **Then** `metadata.labels` contains both `"panel-tag"` and `"content-tag"` (union, deduplicated)
 
+### TC-AL-N-13 — Editor command syntax is stripped before save [S-UX-NE2], [S-DM-N2]
+
+**Given** a note being updated with content `"# Title\n\n/:labels rust learning;\n\nBody text."`  
+**When** `update(UpdateNote { ..., content, ... }, &mut model)` is called  
+**Then** the resulting `StorageRequest::SaveNote` carries a note whose `content` contains no `/:command;` syntax  
+**And** the stored content equals `"# Title\n\nBody text."` (command line removed, surrounding text preserved)
+
 ### TC-AL-N-07 — PublishNote clears draft flag [S-DM-N5]
 
 **Given** a model with a draft note loaded  
 **When** `update(PublishNote { id: "space1/note1" }, &mut model)` is called  
 **Then** the `SaveNote` storage request has `metadata.draft == false`
 
-### TC-AL-N-08 — DeleteNote emits StorageRequest::DeleteNote
+### TC-AL-N-08 — DeleteNote emits StorageRequest::DeleteNote [S-UX-NVT3]
+
+> Covers basic emission only. Deletion cascade semantics are pending [S-DM-MV3].
 
 **Given** a model with note loaded  
 **When** `update(DeleteNote { id: "space1/note1" }, &mut model)` is called  
@@ -150,14 +178,14 @@ Unit and integration tests for the shared core — event dispatch, state transit
 **Then** effects include `StorageRequest::DeleteDraft { id: "space1/note1" }`  
 **And** effects do NOT include `StorageRequest::SaveNote` or `StorageRequest::SaveDraft`
 
-### TC-AL-N-09 — NoteDeleted triggers navigation back
+### TC-AL-N-09 — NoteDeleted triggers navigation back [S-UX-NVT3], [S-UX-MF1]
 
 **Given** a model currently on the note editor screen  
 **When** `update(NoteDeleted { id: "space1/note1" }, &mut model)` is called  
 **Then** effects include `Effect::Render`  
 **And** `view(model).screen` is no longer `note_editor`
 
-### TC-AL-N-10 — NoteLoaded transitions screen to note_editor
+### TC-AL-N-10 — NoteLoaded transitions screen to note_editor [S-UX-NVT2]
 
 **Given** a model waiting for note load  
 **When** `update(NoteLoaded { note }, &mut model)` is called  
@@ -192,7 +220,7 @@ Second paragraph.
 
 ## Search and Filtering
 
-### TC-AL-SF-01 — SearchChanged filters note list by title
+### TC-AL-SF-01 — SearchChanged filters note list by title [S-UX-NVT1]
 
 **Given** a model with notes `["rust-intro", "learning-python", "rust-advanced"]` in the note list  
 **When** `update(SearchChanged { query: "rust" }, &mut model)` is called  
@@ -210,19 +238,19 @@ Second paragraph.
 **When** `update(SetActiveView { labels: ["rust", "learning"] }, &mut model)` is called  
 **Then** only note A appears in `view(model)`
 
-### TC-AL-SF-04 — ClearView restores unfiltered list
+### TC-AL-SF-04 — ClearView restores unfiltered list [S-DM-V1]
 
 **Given** an active view is set  
 **When** `update(ClearView, &mut model)` is called  
 **Then** `view(model)` shows all notes in the current space
 
-### TC-AL-SF-05 — Search and active view can combine
+### TC-AL-SF-05 — Search and active view can combine [S-DM-V1], [S-UX-NVT1]
 
 **Given** notes: A `["rust"]` title `"intro"`, B `["rust"]` title `"advanced"`, C `["python"]` title `"intro"`  
 **When** active view is `["rust"]` and search query is `"intro"`  
 **Then** `view(model)` shows only note A
 
-### TC-AL-SF-06 — Empty search query shows all notes
+### TC-AL-SF-06 — Empty search query shows all notes [S-UX-NVT1]
 
 **Given** a search query was previously set  
 **When** `update(SearchChanged { query: "" }, &mut model)` is called  
@@ -234,17 +262,36 @@ Second paragraph.
 **When** `view(model)` is called  
 **Then** the available labels list contains `"rust"` and `"python"` (deduplicated, no extra roundtrip)
 
+### TC-AL-SF-08 — SaveView persists named view to storage [S-DM-V1]
+
+**Given** a model with an active label filter `["rust", "learning"]`  
+**When** `update(SaveView { name: "rust-learning" }, &mut model)` is called  
+**Then** effects include `StorageRequest::SaveView { view }` where `view.id == ViewId("learning-rust")` and `view.filters.labels == ["rust", "learning"]`
+
+### TC-AL-SF-09 — LoadView retrieves and applies saved filter [S-DM-V1]
+
+**Given** a saved view `"learning-rust"` exists in storage  
+**When** `update(ViewLoaded { view }, &mut model)` is called  
+**Then** the model's active filter labels equal `["rust", "learning"]`  
+**And** `view(model)` shows only notes matching those labels
+
+### TC-AL-SF-10 — Empty view emits no-results indicator [S-DM-V1], [S-UX-NVT1]
+
+**Given** a model with an active view whose filter matches zero notes  
+**When** `view(model)` is called  
+**Then** the resulting view model contains an empty notes list and an empty-state indicator (e.g. `empty: true`) so the UI can render a "no notes match" message
+
 ---
 
 ## Effect Error
 
-### TC-AL-ERR-01 — EffectError transitions model to error screen
+### TC-AL-ERR-01 — EffectError transitions model to error screen [S-UX-ERR]
 
 **Given** any model state  
 **When** `update(EffectError { message: "disk full" }, &mut model)` is called  
 **Then** `view(model).screen == "error"` with the error message present
 
-### TC-AL-ERR-02 — NavigateBack from error screen returns to overview
+### TC-AL-ERR-02 — NavigateBack from error screen returns to overview [S-UX-ERR]
 
 **Given** model in error state  
 **When** `update(NavigateBack, &mut model)` is called  

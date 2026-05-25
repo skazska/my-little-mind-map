@@ -3,7 +3,13 @@
 Unit tests for type validation, ID construction, label rules, and front matter serialization.
 
 **Layer**: Unit (`#[cfg(test)]` inline or `shared_types/tests/`)
-**Spec coverage**: [S-DM-L1], [S-DM-L2], [S-DM-N1], [S-DM-N2], [S-DM-N3], [S-DM-N4], [S-DM-N5], [S-DM-S1], [S-DM-S2], [S-DM-S3], [S-DM-NR1], [S-DM-NR2], [S-DM-NR3], [S-DM-NR4], [S-DM-ND1], [S-DM-ND2], [S-DM-ND3]
+**Spec coverage**: [S-DM-L1], [S-DM-L2], [S-DM-N1], [S-DM-N2], [S-DM-N3], [S-DM-N5], [S-DM-N6], [S-DM-NR2], [S-DM-NR3], [S-DM-NR4], [S-DM-S2], [S-DM-S3], [S-DM-V2]
+
+**Conventions**:
+
+- Each test heading lists the spec IDs it covers in `[S-...]` brackets.
+- `(provisional)` next to a spec ID flags coverage of a `[TBD]` spec; the test will be revisited once the spec is finalised.
+- A `> Covers ... only.` note below a test scopes its coverage when the underlying spec is partially `[TBD]`.
 
 ---
 
@@ -125,7 +131,7 @@ Unit tests for type validation, ID construction, label rules, and front matter s
 **When** `.parent()` is called  
 **Then** it returns `None`
 
-### TC-DM-NID-05 — Bare name (no space) rejected
+### TC-DM-NID-05 — Bare name (no space) rejected [S-DM-N3]
 
 **Given** a string `"justnote"` (no slash)  
 **When** `NoteId::new("justnote")` is called  
@@ -165,7 +171,7 @@ Unit tests for type validation, ID construction, label rules, and front matter s
 **When** `ViewId::from_labels(...)` is called  
 **Then** the resulting ID contains each label only once: `"learning-rust"`
 
-### TC-DM-VID-04 — Empty label list rejected
+### TC-DM-VID-04 — Empty label list rejected [S-DM-V2]
 
 **Given** an empty label list  
 **When** `ViewId::from_labels(&[])` is called  
@@ -212,13 +218,13 @@ Unit tests for type validation, ID construction, label rules, and front matter s
 **When** `parse_note_content(raw)` is called  
 **Then** the returned content string is `"# My Note\n\nSome content."` (no front matter delimiter)
 
-### TC-DM-FM-06 — Missing front matter returns error
+### TC-DM-FM-06 — Missing front matter returns error [S-DM-N6]
 
 **Given** a markdown string with no `---` delimiters  
 **When** `parse_note_content(raw)` is called  
 **Then** it returns a `FrontMatterError`
 
-### TC-DM-FM-07 — Malformed YAML returns error
+### TC-DM-FM-07 — Malformed YAML returns error [S-DM-N6]
 
 **Given** a markdown string with a `---` delimited block containing invalid YAML  
 **When** `parse_note_content(raw)` is called  
@@ -263,3 +269,15 @@ Unit tests for type validation, ID construction, label rules, and front matter s
 **Given** a reference entry `kind: space, target: sub.parent.root`  
 **When** parsed from front matter  
 **Then** `reference.target == NoteReferenceKind::Space { id: SpaceId("sub.parent.root") }`
+
+### TC-DM-NR-05 — Internal reference parsed from markdown link syntax [S-DM-NR2]
+
+**Given** note content containing the markdown link `[target](note://space1/target-note#section-1)`  
+**When** content is scanned for references  
+**Then** the extracted reference has `kind: note`, `target: "space1/target-note"`, `block_id: Some("section-1")`
+
+### TC-DM-NR-06 — External URL preserved from markdown link syntax [S-DM-NR2]
+
+**Given** note content containing the markdown link `[docs](https://example.com/path)`  
+**When** content is scanned for references  
+**Then** the extracted reference has `kind: external`, `target: "https://example.com/path"`, and the link text `"docs"` is preserved in content unchanged
