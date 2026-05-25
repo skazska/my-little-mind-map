@@ -185,18 +185,21 @@ fn validate_note_id(s: &str) -> Result<(), IdError> {
 mod tests {
     use super::*;
 
+    /// TC-DM-SID-02 — Multi-segment hierarchical ID accepted [S-DM-S3]
     #[test]
     fn space_id_segments_root_first() {
         let id = SpaceId::new("sub.parent.root").unwrap();
         assert_eq!(id.segments_root_first(), vec!["root", "parent", "sub"]);
     }
 
+    /// TC-DM-SID-03 — Parent of hierarchical ID [S-DM-S3]
     #[test]
     fn space_id_parent() {
         let id = SpaceId::new("sub.parent.root").unwrap();
         assert_eq!(id.parent().unwrap().as_str(), "parent.root");
     }
 
+    /// TC-DM-SID-04 — Parent of root space is None [S-DM-S3]
     #[test]
     fn space_id_single_segment() {
         let id = SpaceId::new("root").unwrap();
@@ -211,6 +214,7 @@ mod tests {
         assert!(SpaceId::new("a..b").is_err());
     }
 
+    /// TC-DM-NID-02 — Nested note ID accepted [S-DM-N3]
     #[test]
     fn note_id_segments() {
         let id = NoteId::new("space1/parent-note/this-note").unwrap();
@@ -219,12 +223,14 @@ mod tests {
         assert_eq!(id.segments(), vec!["space1", "parent-note", "this-note"]);
     }
 
+    /// TC-DM-NID-03 — Parent of nested note [S-DM-N1]
     #[test]
     fn note_id_parent() {
         let id = NoteId::new("space1/parent-note/this-note").unwrap();
         assert_eq!(id.parent().unwrap().as_str(), "space1/parent-note");
     }
 
+    /// TC-DM-NID-04 — Parent of root note is None [S-DM-N1]
     #[test]
     fn note_id_top_level_has_no_parent() {
         let id = NoteId::new("space1/note1").unwrap();
@@ -365,7 +371,14 @@ mod tests {
         assert!(NoteId::new("space1/note/").is_err());
     }
 
-    // ── ViewId additions (TC-DM-VID-02, TC-DM-VID-03) ───────────────────────
+    // ── ViewId additions (TC-DM-VID-01..05) ─────────────────────────────────
+
+    /// TC-DM-VID-01 — Labels sorted alphabetically [S-DM-V2]
+    #[test]
+    fn view_id_sorts_labels_alphabetically() {
+        let id = ViewId::from_labels(&["zebra", "alpha", "middle"]).unwrap();
+        assert_eq!(id.as_str(), "alpha-middle-zebra");
+    }
 
     /// TC-DM-VID-02 — Single-label view [S-DM-V2]
     #[test]
@@ -379,5 +392,20 @@ mod tests {
     fn view_id_deduplicates_labels() {
         let id = ViewId::from_labels(&["rust", "rust", "learning"]).unwrap();
         assert_eq!(id.as_str(), "learning-rust");
+    }
+
+    /// TC-DM-VID-04 — Empty label list rejected [S-DM-V2]
+    #[test]
+    fn view_id_empty_label_list_rejected() {
+        assert!(matches!(
+            ViewId::from_labels(&[]),
+            Err(IdError::EmptyLabels)
+        ));
+    }
+
+    /// TC-DM-VID-05 — Invalid label in list propagates error [S-DM-L1]
+    #[test]
+    fn view_id_invalid_label_propagates_error() {
+        assert!(ViewId::from_labels(&["rust", "Invalid Label"]).is_err());
     }
 }

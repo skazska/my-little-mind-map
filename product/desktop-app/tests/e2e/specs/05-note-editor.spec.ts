@@ -1,11 +1,11 @@
 /**
  * TC-E2E-NE — Note Editor tests
  *
- * Covers: TC-E2E-NE-01..16
+ * Covers: TC-E2E-NE-01..17
  * Spec refs: [S-UX-NVT2], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6]
  *
  * TC-E2E-NE-01, 03–05, 08–13 run via the shared scenario.
- * TC-E2E-NE-02, 06, 07, 14, 15, 16 are desktop-specific and live in the second describe block.
+ * TC-E2E-NE-02, 06, 07, 14, 15, 16, 17 are desktop-specific and live in the second describe block.
  */
 
 import {
@@ -300,6 +300,33 @@ describe('Note Editor — desktop-specific', () => {
         expect(fs.existsSync(notePath)).toBe(false)
         const draftIndicator = await $('[data-testid="draft-indicator"]')
         await expect(draftIndicator).not.toBeDisplayed()
+    })
+
+    /**
+     * TC-E2E-NE-17 — Editor command syntax is not persisted to disk [S-UX-NE2], [S-DM-N2]
+     */
+    it('TC-E2E-NE-17: /:labels command syntax is stripped before persistence', async () => {
+        const screenEl = await $('[data-screen]')
+        const screenId = await screenEl.getAttribute('data-screen')
+        if (screenId === 'note_editor') {
+            await helpers.clickBack()
+        } else if (screenId === 'overview') {
+            await clickOverviewTab('spaces')
+            await navigateIntoSpace('ds-editor-space')
+        }
+        await assertScreen('note_list')
+        await createNote('command-syntax-note')
+
+        await helpers.typeInEditor('\n/:labels command-label;\nBody after command.')
+        await saveNote()
+
+        const notePath = path.join(dataDir, 'spaces', 'ds-editor-space', 'command-syntax-note.md')
+        await browser.waitUntil(() => fs.existsSync(notePath), { timeout: UI_TIMEOUT_MS })
+
+        const raw = fs.readFileSync(notePath, 'utf-8')
+        expect(raw).not.toContain('/:labels')
+        expect(raw).toContain('command-label')
+        expect(raw).toContain('Body after command.')
     })
 })
 

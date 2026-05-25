@@ -1,8 +1,8 @@
 /**
  * Shared E2E scenario: Labels and Views
  *
- * Covers: TC-E2E-LV-01..03
- * Spec refs: [S-UX-LT1], [S-DM-L2]
+ * Covers: TC-E2E-LV-01..04, TC-E2E-LT-01
+ * Spec refs: [S-UX-LT1], [S-UX-LT2], [S-DM-L2], [S-DM-L4]
  *
  * Call inside a `describe('Labels and Views', ...)` block.
  * The wrapper `before()` must set up two spaces each with a note labelled
@@ -61,4 +61,16 @@ export function runLabelsViewsSpec(h: E2eHelpers): void {
         const viewsList = await $('[data-testid="views-list"]')
         await expect(viewsList).toBeDisplayed()
     })
+
+    /**
+     * TC-E2E-LV-04 — Label search filters the labels list [S-UX-LT1]
+     * [BLOCKED] The Labels tab has no label-search input yet.
+     */
+    it.skip('TC-E2E-LV-04: label search filters the labels list', async () => undefined)
+
+    /**
+     * TC-E2E-LT-01 — Label view shows name, description, and statistics [S-UX-LT2], [S-DM-L4]
+     * [BLOCKED] The app exposes label list items, but not a dedicated label detail view.
+     */
+    it.skip('TC-E2E-LT-01: label view shows name, description, and statistics', async () => undefined)
 }

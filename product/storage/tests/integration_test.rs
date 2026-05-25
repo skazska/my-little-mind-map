@@ -35,6 +35,7 @@ fn sample_note(space_id: &SpaceId, name: &str) -> Note {
     }
 }
 
+/// TC-ST-SP-01 — Create and retrieve space [S-ST-DM1]
 #[tokio::test]
 async fn create_and_retrieve_space() {
     let (_tmp, storage) = make_storage().await;
@@ -60,18 +61,33 @@ async fn list_spaces() {
     assert_eq!(spaces[0].id, space.id);
 }
 
+/// TC-ST-SP-06 — Delete space removes directory and index entry [S-ST-DM1], [S-ST-DM4]
 #[tokio::test]
 async fn delete_space() {
-    let (_tmp, storage) = make_storage().await;
+    let (tmp, storage) = make_storage().await;
     let space = sample_space();
     storage.create_space(&space).await.unwrap();
+    let space_dir = tmp.path().join("spaces").join("test-space");
+    assert!(
+        space_dir.is_dir(),
+        "space directory must exist before delete"
+    );
+
     storage.delete_space(&space.id).await.unwrap();
 
     let spaces = storage.list_spaces().await.unwrap();
     assert!(spaces.is_empty());
     assert!(storage.get_space(&space.id).await.unwrap().is_none());
+    assert!(!space_dir.exists(), "space directory must be removed");
+
+    let index = storage.get_spaces_index().await.unwrap();
+    assert!(
+        index.spaces.iter().all(|entry| entry.id != space.id),
+        "deleted space must be absent from spaces index"
+    );
 }
 
+/// TC-ST-N-01 — Create and retrieve note [S-ST-DM3]
 #[tokio::test]
 async fn create_and_retrieve_note() {
     let (_tmp, storage) = make_storage().await;
@@ -89,6 +105,7 @@ async fn create_and_retrieve_note() {
     assert!(retrieved.content.contains("Note content."));
 }
 
+/// TC-ST-N-05 — Update note persists changed content [S-ST-DM1], [S-ST-DM3]
 #[tokio::test]
 async fn update_note_persists_changes() {
     let (_tmp, storage) = make_storage().await;
@@ -109,17 +126,26 @@ async fn update_note_persists_changes() {
     assert_eq!(retrieved.metadata.labels[0].0, "updated");
 }
 
+/// TC-ST-N-07 — Delete note removes file [S-ST-DM1], [S-ST-DM4]
 #[tokio::test]
 async fn delete_note() {
-    let (_tmp, storage) = make_storage().await;
+    let (tmp, storage) = make_storage().await;
     let space = sample_space();
     storage.create_space(&space).await.unwrap();
 
     let note = sample_note(&space.id, "to-delete");
     storage.create_note(&note).await.unwrap();
+    let note_path = tmp
+        .path()
+        .join("spaces")
+        .join("test-space")
+        .join("to-delete.md");
+    assert!(note_path.exists(), "note file must exist before delete");
+
     storage.delete_note(&note.id).await.unwrap();
 
     assert!(storage.get_note(&note.id).await.unwrap().is_none());
+    assert!(!note_path.exists(), "note file must be removed");
 }
 
 #[tokio::test]
@@ -140,6 +166,7 @@ async fn delete_draft_removes_note_file_and_indexes() {
     assert_eq!(spaces[0].note_count, 0);
 }
 
+/// TC-ST-LI-01 — Labels index populated on create [S-DM-L2]
 #[tokio::test]
 async fn labels_index_updated_on_create() {
     let (_tmp, storage) = make_storage().await;
@@ -156,6 +183,7 @@ async fn labels_index_updated_on_create() {
     assert!(testing_notes.iter().any(|id| id == &note.id));
 }
 
+/// TC-ST-LI-03 — Labels index cleaned on note delete [S-DM-L3]
 #[tokio::test]
 async fn labels_index_cleaned_on_delete() {
     let (_tmp, storage) = make_storage().await;
@@ -170,6 +198,7 @@ async fn labels_index_cleaned_on_delete() {
     assert!(index.notes_for_label("rust").is_empty());
 }
 
+/// TC-ST-LI-02 — Labels index updated on note update [S-DM-L3]
 #[tokio::test]
 async fn labels_index_updated_on_update() {
     let (_tmp, storage) = make_storage().await;
@@ -192,6 +221,7 @@ async fn labels_index_updated_on_update() {
         .any(|id| id == &note.id));
 }
 
+/// TC-ST-SET-02 — Settings round-trip [S-ST-DM2]
 #[tokio::test]
 async fn settings_round_trip() {
     let (_tmp, storage) = make_storage().await;
@@ -204,6 +234,7 @@ async fn settings_round_trip() {
     assert_eq!(reloaded.theme.as_deref(), Some("dark"));
 }
 
+/// TC-ST-N-09 — Get non-existent note returns None [S-ST-DM1]
 #[tokio::test]
 async fn get_note_missing_returns_none() {
     let (_tmp, storage) = make_storage().await;
@@ -211,6 +242,7 @@ async fn get_note_missing_returns_none() {
     assert!(storage.get_note(&id).await.unwrap().is_none());
 }
 
+/// TC-ST-N-02 — Note file created at correct path [S-ST-DM4]
 #[tokio::test]
 async fn folder_note_layout_on_disk() {
     let (tmp, storage) = make_storage().await;
@@ -236,7 +268,7 @@ async fn folder_note_layout_on_disk() {
     assert!(labels_json.exists(), "labels.json not found");
 }
 
-// ── Spaces — additional (TC-ST-SP-02, TC-ST-SP-03, TC-ST-SP-05, TC-ST-SP-07, TC-ST-SP-08) ──
+// ── Spaces — additional (TC-ST-SP-02..05, TC-ST-SP-07, TC-ST-SP-08) ─────────
 
 /// TC-ST-SP-02 — Space directory created on disk [S-ST-DM4]
 #[tokio::test]
@@ -276,6 +308,52 @@ async fn nested_space_directory_reversed_dot() {
         expected.is_dir(),
         "nested space dir not found at {expected:?}"
     );
+}
+
+/// TC-ST-SP-04 — List spaces returns all created spaces [S-ST-DM1]
+#[tokio::test]
+async fn list_spaces_returns_all_created_spaces() {
+    let (_tmp, storage) = make_storage().await;
+    let spaces = [
+        Space {
+            id: SpaceId::new("alpha").unwrap(),
+            name: "Alpha".to_string(),
+            description: None,
+            labels: vec![],
+            parent_id: None,
+            note_count: 0,
+        },
+        Space {
+            id: SpaceId::new("beta").unwrap(),
+            name: "Beta".to_string(),
+            description: None,
+            labels: vec![],
+            parent_id: None,
+            note_count: 0,
+        },
+        Space {
+            id: SpaceId::new("gamma").unwrap(),
+            name: "Gamma".to_string(),
+            description: None,
+            labels: vec![],
+            parent_id: None,
+            note_count: 0,
+        },
+    ];
+    for space in &spaces {
+        storage.create_space(space).await.unwrap();
+    }
+
+    let listed = storage.list_spaces().await.unwrap();
+    for space in &spaces {
+        assert!(
+            listed
+                .iter()
+                .any(|listed_space| listed_space.id == space.id),
+            "space {} must be listed",
+            space.id
+        );
+    }
 }
 
 /// TC-ST-SP-05 — Get non-existent space returns None
@@ -568,7 +646,74 @@ async fn cross_space_label_spans_spaces() {
     assert!(testing_notes.iter().any(|id| id == &note2.id));
 }
 
+/// TC-ST-LI-06 — Label index entry exposes statistics [S-DM-L4]
+#[tokio::test]
+#[ignore = "test-first: LabelsIndex maps labels to note IDs and has no statistics fields yet"]
+async fn label_index_entry_exposes_statistics() {
+    panic!("blocked: add note_count and spaces statistics, or an equivalent statistics API, to LabelsIndex");
+}
+
+/// TC-ST-ERR-01 — Create note in non-existent space creates parent dirs [S-ST-DM1], [S-UX-ERR]
+#[tokio::test]
+async fn create_note_in_nonexistent_space_creates_parent_dirs() {
+    let (tmp, storage) = make_storage().await;
+    let space_id = SpaceId::new("implicit-space").unwrap();
+    let note = sample_note(&space_id, "implicit-note");
+
+    storage.create_note(&note).await.unwrap();
+
+    let expected = tmp
+        .path()
+        .join("spaces")
+        .join("implicit-space")
+        .join("implicit-note.md");
+    assert!(
+        expected.exists(),
+        "note file must be created at {expected:?}"
+    );
+}
+
 // ── References index (TC-ST-RI-01..04) ───────────────────────────────────────
+
+/// TC-ST-SI-01 — Space index entry exposes statistics [S-DM-S4]
+#[tokio::test]
+async fn spaces_index_entry_exposes_note_count_statistics() {
+    let (_tmp, storage) = make_storage().await;
+    let space = sample_space();
+    storage.create_space(&space).await.unwrap();
+
+    let notes = [
+        sample_note(&space.id, "stats-a"),
+        sample_note(&space.id, "stats-b"),
+        sample_note(&space.id, "stats-c"),
+        sample_note(&space.id, "stats-d"),
+    ];
+    for note in &notes {
+        storage.create_note(note).await.unwrap();
+    }
+
+    let index = storage.get_spaces_index().await.unwrap();
+    let entry = index
+        .spaces
+        .iter()
+        .find(|e| e.id == space.id)
+        .expect("space must be in index");
+    assert_eq!(entry.note_count, 4);
+}
+
+/// TC-ST-SI-01 — Space index entry exposes label_count statistics [S-DM-S4]
+#[tokio::test]
+#[ignore = "test-first: SpaceEntry does not expose label_count yet"]
+async fn spaces_index_entry_exposes_label_count_statistics() {
+    panic!("blocked: add label_count or equivalent distinct-label statistics to SpaceEntry");
+}
+
+/// TC-ST-VI-01 — View index entry exposes statistics [S-DM-V3]
+#[tokio::test]
+#[ignore = "test-first: ViewsIndex and Storage::get_views_index are not implemented yet"]
+async fn view_index_entry_exposes_statistics() {
+    panic!("blocked: add ViewsIndex and Storage::get_views_index before enabling this test");
+}
 
 fn note_with_reference(space_id: &SpaceId, name: &str, target_id: &NoteId) -> Note {
     use shared_types::model::{NoteReference, NoteReferenceKind};
@@ -766,6 +911,15 @@ async fn definitions_removed_on_delete() {
         entries.is_empty(),
         "definition must be removed on note delete"
     );
+}
+
+// ── Index reproducibility — test-first stub (TC-ST-IX-01) ───────────────────
+
+/// TC-ST-IX-01 — Derived indexes reproducible after deletion [S-ST-IX2]
+#[tokio::test]
+#[ignore = "test-first: rebuild_indexes API is not implemented yet"]
+async fn derived_indexes_reproducible_after_deletion() {
+    panic!("blocked: add Storage::rebuild_indexes or equivalent maintenance API before enabling this test");
 }
 
 // ── Settings — additional (TC-ST-SET-01, TC-ST-SET-03) ───────────────────────

@@ -1,7 +1,7 @@
 /**
  * Shared E2E scenario: Space Management
  *
- * Covers: TC-E2E-SP-01..04 (UI assertions only; platform-specific storage
+ * Covers: TC-E2E-SP-01..05 (UI assertions only; platform-specific storage
  * checks — disk layout on desktop, localStorage on web — belong in the
  * platform wrapper describe block alongside the shared call).
  *
@@ -80,4 +80,10 @@ export function runSpaceManagementSpec(h: E2eHelpers): void {
             timeoutMsg: '"temp-space" still visible after delete',
         })
     })
+
+    /**
+     * TC-E2E-SP-05 — Space view shows statistics [S-UX-ST2], [S-DM-S4]
+     * [BLOCKED] The app does not expose a dedicated space statistics view yet.
+     */
+    it.skip('TC-E2E-SP-05: space view shows name, description, labels, and statistics', async () => undefined)
 }

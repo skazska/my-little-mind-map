@@ -205,6 +205,8 @@ updated_at: "2024-01-01T00:00:00Z"
 
 Some content here."#;
 
+    /// TC-DM-FM-03 — Labels parsed as space-separated words [S-DM-N5]
+    /// TC-DM-FM-05 — Content body separated from front matter [S-DM-N2]
     #[test]
     fn parse_basic() {
         let (meta, body) = parse_note_content(SAMPLE).unwrap();
@@ -217,6 +219,8 @@ Some content here."#;
         assert!(body.starts_with("# my-note"));
     }
 
+    /// TC-DM-FM-01 — Full front matter round-trip [S-DM-N2], [S-DM-N5]
+    /// TC-DM-FM-08 — UUID is preserved exactly on round-trip [S-DM-N5]
     #[test]
     fn round_trip() {
         let (meta, body) = parse_note_content(SAMPLE).unwrap();
@@ -228,6 +232,7 @@ Some content here."#;
         assert_eq!(body, body2);
     }
 
+    /// TC-DM-FM-06 — Missing front matter returns error [S-DM-N6]
     #[test]
     fn missing_front_matter_errors() {
         let result = parse_note_content("# just content\nno front matter");
@@ -455,5 +460,23 @@ Content."#;
             &meta.references[0].target,
             NoteReferenceKind::Space { id } if id.as_str() == "sub.parent.root"
         ));
+    }
+
+    // ── Markdown link references — test-first stubs (TC-DM-NR-05, TC-DM-NR-06)
+
+    /// TC-DM-NR-05 — Internal reference parsed from markdown link syntax [S-DM-NR2]
+    #[test]
+    #[ignore = "test-first: markdown link reference scanner is not implemented yet"]
+    fn internal_reference_parsed_from_markdown_link_syntax() {
+        panic!(
+            "blocked: add content reference scanning for note:// links before enabling this test"
+        );
+    }
+
+    /// TC-DM-NR-06 — External URL preserved from markdown link syntax [S-DM-NR2]
+    #[test]
+    #[ignore = "test-first: markdown link reference scanner is not implemented yet"]
+    fn external_url_preserved_from_markdown_link_syntax() {
+        panic!("blocked: add content reference scanning for external markdown links before enabling this test");
     }
 }

@@ -1,11 +1,11 @@
 /**
  * TC-E2E-NE — Note Editor tests (web)
  *
- * Covers: TC-E2E-NE-01..14
+ * Covers: TC-E2E-NE-01..14, TC-E2E-NE-17
  * Spec refs: [S-UX-NLV5], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE6]
  *
  * TC-E2E-NE-01, 03–05, 08–13 run via the shared scenario.
- * TC-E2E-NE-02, 06, 14 are web-specific and live in the second describe block.
+ * TC-E2E-NE-02, 06, 14, 17 are web-specific and live in the second describe block.
  * TC-E2E-NE-07 (content preservation) is implicitly covered by TC-E2E-NE-06-web
  * (autosave round-trip via localStorage).
  */
@@ -129,5 +129,29 @@ describe('Note Editor — web-specific', () => {
         // Dialog should be gone; we're still in the editor.
         await expect(dialog).not.toBeDisplayed()
         await helpers.assertScreen('note_editor')
+    })
+
+    /**
+     * TC-E2E-NE-17-web — Editor command syntax is not persisted [S-UX-NE2], [S-DM-N2]
+     */
+    it('TC-E2E-NE-17-web: /:labels command syntax is stripped before localStorage persistence', async () => {
+        await helpers.clickBack()
+        await helpers.assertScreen('note_list')
+        await helpers.createNote('ws-command-syntax-note')
+
+        await helpers.typeInEditor('\n/:labels command-label;\nBody after command.')
+        await helpers.saveNote()
+
+        const persisted = await browser.execute(() => {
+            for (let i = 0; i < localStorage.length; i++) {
+                const val = localStorage.getItem(localStorage.key(i) ?? '')
+                if (val?.includes('ws-command-syntax-note')) return val
+            }
+            return ''
+        })
+
+        expect(persisted).not.toContain('/:labels')
+        expect(persisted).toContain('command-label')
+        expect(persisted).toContain('Body after command.')
     })
 })

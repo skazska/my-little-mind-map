@@ -1,7 +1,7 @@
 /**
  * Shared E2E scenario: Note Editor
  *
- * Covers: TC-E2E-NE-01, 03–05, 08–13
+ * Covers: TC-E2E-NE-01, 03–05, 06b, 06c, 08–13
  *
  * Excluded from shared (platform-specific):
  *   TC-E2E-NE-02  Full metadata panel (uuid/dates only on desktop ViewModel)
@@ -72,6 +72,18 @@ export function runNoteEditorSpec(h: E2eHelpers): void {
         const dirty = await h.isDirtyIndicatorVisible()
         expect(dirty).toBe(false)
     })
+
+    /**
+     * TC-E2E-NE-06b — Continuous typing debounces autosave [S-UX-NE4]
+     * [BLOCKED] The shared helper API has no way to observe save calls/timestamps.
+     */
+    it.skip('TC-E2E-NE-06b: continuous typing debounces autosave', async () => undefined)
+
+    /**
+     * TC-E2E-NE-06c — Autosave failure surfaces error and allows retry [S-UX-NE4], [S-UX-ERR]
+     * [BLOCKED] The shared helper API has no fault-injection hook for storage failures.
+     */
+    it.skip('TC-E2E-NE-06c: autosave failure surfaces error and allows retry', async () => undefined)
 
     // ── Labels ───────────────────────────────────────────────────────────────
 

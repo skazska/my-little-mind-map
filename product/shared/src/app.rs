@@ -539,8 +539,15 @@ fn extract_title(content: &str) -> Option<String> {
 /// then any new labels from the command that aren't already present).
 fn apply_label_commands(content: &str, labels: &mut Vec<Label>) -> String {
     let mut result = String::with_capacity(content.len());
+    let mut skip_next_blank_after_command = false;
     for line in content.lines() {
         let trimmed = line.trim();
+        if skip_next_blank_after_command {
+            skip_next_blank_after_command = false;
+            if trimmed.is_empty() {
+                continue;
+            }
+        }
         if let Some(rest) = trimmed.strip_prefix("/:labels ") {
             if let Some(args) = rest.strip_suffix(';') {
                 // Merge command labels into panel labels (union, deduplicated). [S-UX-NE2]
@@ -551,6 +558,7 @@ fn apply_label_commands(content: &str, labels: &mut Vec<Label>) -> String {
                     }
                 }
                 // Don't include the command line in the stored content.
+                skip_next_blank_after_command = result.ends_with("\n\n");
                 continue;
             }
         }
@@ -654,6 +662,7 @@ mod tests {
         Model::default()
     }
 
+    /// TC-AL-LIFE-02 — AppStarted without data_folder emits Render only [S-UX-SA1]
     #[test]
     fn app_started_without_folder_shows_first_launch() {
         let mut model = fresh_model();
@@ -702,6 +711,7 @@ mod tests {
         assert!(effects.iter().any(|e| matches!(e, Effect::Render)));
     }
 
+    /// TC-AL-SP-01 — CreateSpace emits StorageRequest::CreateSpace [S-UX-ST3]
     #[test]
     fn create_space_produces_storage_effect() {
         let mut model = fresh_model();
@@ -746,6 +756,13 @@ mod tests {
                 .any(|e| matches!(e, Effect::Storage(StorageRequest::SaveNote { .. }))),
             "empty new note must not be saved until it has content"
         );
+    }
+
+    /// TC-AL-N-01 — CreateNote emits StorageRequest::CreateNote [S-UX-NVT2], [S-DM-N7]
+    #[test]
+    #[ignore = "test-first: StorageRequest::CreateNote is not implemented; current CreateNote opens an unsaved local draft"]
+    fn create_note_emits_storage_create_note() {
+        panic!("blocked: add StorageRequest::CreateNote or update the documented test case to match local unsaved drafts");
     }
 
     #[test]
@@ -933,7 +950,7 @@ mod tests {
         assert_eq!(model.data_folder.as_deref(), Some("/persisted/path"));
     }
 
-    // ── Navigation (TC-AL-NAV-01, TC-AL-NAV-02, TC-AL-NAV-04) ───────────────
+    // ── Navigation (TC-AL-NAV-01..04) ───────────────────────────────────────
 
     /// TC-AL-NAV-01 — NavigateToNote emits LoadNote effect
     #[test]
@@ -959,6 +976,37 @@ mod tests {
         )));
     }
 
+    /// TC-AL-NAV-03 — NavigateBack returns to previous screen [S-UX-MF1]
+    #[test]
+    fn navigate_back_from_editor_returns_to_note_list() {
+        let mut model = fresh_model();
+        let space = Space {
+            id: SpaceId::new("space1").unwrap(),
+            name: "Space1".into(),
+            description: None,
+            labels: vec![],
+            parent_id: None,
+            note_count: 0,
+        };
+        model.current_space = Some(space.clone());
+        model.screen = Screen::NoteEditor;
+        model.current_note = Some(Note {
+            id: NoteId::new("space1/note1").unwrap(),
+            metadata: NoteMetadata::new("note1", Some(space.id.clone())),
+            content: "# note1\n\nBody.".into(),
+            parent_id: None,
+        });
+
+        let effects = update(Event::NavigateBack, &mut model);
+
+        assert!(matches!(model.screen, Screen::NoteList));
+        assert!(model.current_note.is_none());
+        assert!(effects.iter().any(|e| matches!(
+            e,
+            Effect::Storage(StorageRequest::LoadNotes { space_id }) if *space_id == space.id
+        )));
+    }
+
     /// TC-AL-NAV-04 — NavigateOverview sets active tab in viewmodel
     #[test]
     fn navigate_overview_sets_active_tab() {
@@ -981,9 +1029,8 @@ mod tests {
         }
     }
 
-    // ── Space management (TC-AL-SP-02, TC-AL-SP-03) ──────────────────────────
+    // ── Space management (TC-AL-SP-01..03) ──────────────────────────────────
 
-    /// TC-AL-SP-02 — SpaceCreated inserts space into model and renders (no LoadSpaces)
     #[test]
     fn space_created_inserts_and_renders() {
         let mut model = fresh_model();
@@ -1013,6 +1060,13 @@ mod tests {
         );
     }
 
+    /// TC-AL-SP-02 — SpaceCreated triggers LoadSpaces [S-UX-ST3]
+    #[test]
+    #[ignore = "test-first: current SpaceCreated handles optimistic local insert and render without LoadSpaces"]
+    fn space_created_triggers_load_spaces() {
+        panic!("blocked: decide whether SpaceCreated should reload spaces or the test case should document optimistic local insertion");
+    }
+
     /// TC-AL-SP-03 — DeleteSpace emits StorageRequest::DeleteSpace
     #[test]
     fn delete_space_emits_storage_effect() {
@@ -1025,7 +1079,7 @@ mod tests {
         )));
     }
 
-    // ── Note management (TC-AL-N-02..04, TC-AL-N-06..10) ─────────────────────
+    // ── Note management (TC-AL-N-01..13) ─────────────────────────────────────
 
     fn loaded_note_model(space_id: &SpaceId, note_id: NoteId) -> Model {
         let mut model = fresh_model();
@@ -1092,6 +1146,54 @@ mod tests {
         }
     }
 
+    /// TC-AL-N-03b — UpdateNote with multiple headings uses the first [S-DM-N5]
+    #[test]
+    fn update_note_multiple_headings_uses_first() {
+        let space_id = SpaceId::new("space1").unwrap();
+        let note_id = NoteId::new("space1/note1").unwrap();
+        let mut model = loaded_note_model(&space_id, note_id.clone());
+        let effects = update(
+            Event::UpdateNote {
+                id: note_id,
+                content: "# First Heading\n\nBody\n\n# Second Heading\n\nMore.".into(),
+                labels: vec![],
+            },
+            &mut model,
+        );
+        if let Some(Effect::Storage(StorageRequest::SaveNote { note })) = effects
+            .iter()
+            .find(|effect| matches!(effect, Effect::Storage(StorageRequest::SaveNote { .. })))
+        {
+            assert_eq!(note.metadata.title, "first-heading");
+        } else {
+            panic!("expected SaveNote effect");
+        }
+    }
+
+    /// TC-AL-N-03c — UpdateNote with malformed heading leaves title unchanged [S-DM-N5]
+    #[test]
+    fn update_note_malformed_heading_preserves_title() {
+        let space_id = SpaceId::new("space1").unwrap();
+        let note_id = NoteId::new("space1/note1").unwrap();
+        let mut model = loaded_note_model(&space_id, note_id.clone());
+        let effects = update(
+            Event::UpdateNote {
+                id: note_id,
+                content: "#NoSpace heading\n\nBody.".into(),
+                labels: vec![],
+            },
+            &mut model,
+        );
+        if let Some(Effect::Storage(StorageRequest::SaveNote { note })) = effects
+            .iter()
+            .find(|effect| matches!(effect, Effect::Storage(StorageRequest::SaveNote { .. })))
+        {
+            assert_eq!(note.metadata.title, "old-title");
+        } else {
+            panic!("expected SaveNote effect");
+        }
+    }
+
     /// TC-AL-N-04 — UpdateNote applies panel labels [S-DM-N5]
     #[test]
     fn update_note_applies_panel_labels() {
@@ -1113,6 +1215,36 @@ mod tests {
             let labels: Vec<&str> = note.metadata.labels.iter().map(|l| l.0.as_str()).collect();
             assert!(labels.contains(&"rust"));
             assert!(labels.contains(&"learning"));
+        } else {
+            panic!("expected SaveNote effect");
+        }
+    }
+
+    /// TC-AL-N-05 — Content command `/:labels` sets labels [S-UX-NE2]
+    #[test]
+    fn label_command_sets_save_note_labels() {
+        let space_id = SpaceId::new("space1").unwrap();
+        let note_id = NoteId::new("space1/note1").unwrap();
+        let mut model = loaded_note_model(&space_id, note_id.clone());
+        let effects = update(
+            Event::UpdateNote {
+                id: note_id,
+                content: "# old-title\n\n/:labels rust learning project;\n\nBody.".into(),
+                labels: vec![],
+            },
+            &mut model,
+        );
+        if let Some(Effect::Storage(StorageRequest::SaveNote { note })) = effects
+            .iter()
+            .find(|effect| matches!(effect, Effect::Storage(StorageRequest::SaveNote { .. })))
+        {
+            let labels: Vec<&str> = note
+                .metadata
+                .labels
+                .iter()
+                .map(|label| label.0.as_str())
+                .collect();
+            assert_eq!(labels, vec!["rust", "learning", "project"]);
         } else {
             panic!("expected SaveNote effect");
         }
@@ -1145,6 +1277,31 @@ mod tests {
                 .collect::<std::collections::HashSet<_>>()
                 .len()
         );
+    }
+
+    /// TC-AL-N-13 — Editor command syntax is stripped before save [S-UX-NE2], [S-DM-N2]
+    #[test]
+    fn label_command_syntax_stripped_before_save() {
+        let space_id = SpaceId::new("space1").unwrap();
+        let note_id = NoteId::new("space1/note1").unwrap();
+        let mut model = loaded_note_model(&space_id, note_id.clone());
+        let effects = update(
+            Event::UpdateNote {
+                id: note_id,
+                content: "# Title\n\n/:labels rust learning;\n\nBody text.".into(),
+                labels: vec![],
+            },
+            &mut model,
+        );
+        if let Some(Effect::Storage(StorageRequest::SaveNote { note })) = effects
+            .iter()
+            .find(|effect| matches!(effect, Effect::Storage(StorageRequest::SaveNote { .. })))
+        {
+            assert!(!note.content.contains("/:labels"));
+            assert_eq!(note.content, "# Title\n\nBody text.\n");
+        } else {
+            panic!("expected SaveNote effect");
+        }
     }
 
     /// TC-AL-N-07 — PublishNote clears draft flag [S-DM-N5]
@@ -1321,7 +1478,7 @@ mod tests {
         }
     }
 
-    // ── Search and filtering (TC-AL-SF-02..07) ───────────────────────────────
+    // ── Search and filtering (TC-AL-SF-01..10) ───────────────────────────────
 
     fn notes_in_model(specs: &[(&str, &[&str])]) -> Model {
         // specs: (title, &[labels])
@@ -1356,6 +1513,28 @@ mod tests {
         } else {
             panic!("expected NoteList viewmodel");
         }
+    }
+
+    /// TC-AL-SF-01 — SearchChanged filters note list by title [S-UX-NVT1]
+    #[test]
+    fn search_changed_filters_note_list_by_title() {
+        let mut model = notes_in_model(&[
+            ("rust-intro", &[]),
+            ("learning-python", &[]),
+            ("rust-advanced", &[]),
+        ]);
+        update(
+            Event::SearchChanged {
+                query: "rust".into(),
+            },
+            &mut model,
+        );
+
+        let titles = note_titles_in_vm(&model);
+        assert_eq!(titles.len(), 2);
+        assert!(titles.contains(&"rust-intro".to_string()));
+        assert!(titles.contains(&"rust-advanced".to_string()));
+        assert!(!titles.contains(&"learning-python".to_string()));
     }
 
     /// TC-AL-SF-02 — SetActiveView filters notes by label [S-DM-V1]
@@ -1471,6 +1650,29 @@ mod tests {
         } else {
             panic!("expected Overview viewmodel");
         }
+    }
+
+    /// TC-AL-SF-08 — SaveView persists named view to storage [S-DM-V1]
+    #[test]
+    #[ignore = "test-first: SaveView event and storage request are not implemented yet"]
+    fn save_view_persists_named_view_to_storage() {
+        panic!(
+            "blocked: add Event::SaveView and StorageRequest::SaveView before enabling this test"
+        );
+    }
+
+    /// TC-AL-SF-09 — LoadView retrieves and applies saved filter [S-DM-V1]
+    #[test]
+    #[ignore = "test-first: ViewLoaded event is not implemented yet"]
+    fn view_loaded_applies_saved_filter() {
+        panic!("blocked: add a ViewLoaded event/result path before enabling this test");
+    }
+
+    /// TC-AL-SF-10 — Empty view emits no-results indicator [S-DM-V1], [S-UX-NVT1]
+    #[test]
+    #[ignore = "test-first: NoteListViewModel has no explicit empty-state indicator yet"]
+    fn empty_view_emits_no_results_indicator() {
+        panic!("blocked: add an explicit empty-state field to NoteListViewModel before enabling this test");
     }
 
     // ── Effect errors (TC-AL-ERR-01, TC-AL-ERR-02) ───────────────────────────

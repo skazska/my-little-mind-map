@@ -1,7 +1,7 @@
 /**
  * Shared E2E scenario: Overview screen
  *
- * Covers: TC-E2E-OV-01..03
+ * Covers: TC-E2E-OV-01..04
  * Spec refs: [S-UX-MF1], [S-UX-ST1], [S-UX-ST3]
  *
  * Call inside a `describe('Overview', ...)` block:
@@ -44,4 +44,10 @@ export function runOverviewSpec(h: E2eHelpers): void {
         const createBtn = await $('[data-testid="create-space-btn"]')
         await expect(createBtn).toBeDisplayed()
     })
+
+    /**
+     * TC-E2E-OV-04 — Space search filters the spaces tree [S-UX-ST1]
+     * [BLOCKED] The Spaces tab has no space-search input yet.
+     */
+    it.skip('TC-E2E-OV-04: space search filters the spaces tree', async () => undefined)
 }
