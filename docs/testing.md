@@ -50,11 +50,11 @@ Tauri WebDriver exposes the app window via WebDriver protocol. AI agents can int
 
 ```
          /‾‾‾‾‾‾‾‾‾‾‾\
-        /    E2E      \      User flows — slow, high confidence
+        /     E2E     \      User flows — slow, high confidence
        /‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\
       /   Integration   \    Storage I/O, index sync — medium speed
      /‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\
-    /       Unit          \  Types, logic, parsing — fast, exhaustive
+    /        Unit         \  Types, logic, parsing — fast, exhaustive
    /‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\
 ```
 

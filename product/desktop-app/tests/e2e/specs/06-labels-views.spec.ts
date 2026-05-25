@@ -26,7 +26,12 @@ describe('Labels and Views', () => {
         await clickOverviewTab('spaces')
 
         // Create two spaces, each with a 'rust'-labelled note.
-        for (const spaceName of ['lv-space-a', 'lv-space-b']) {
+        // Note titles must match what the shared scenario (TC-E2E-LV-02) asserts.
+        const spaces = [
+            { name: 'lv-space-a', noteTitle: 'note-in-space1' },
+            { name: 'lv-space-b', noteTitle: 'note-in-space2' },
+        ]
+        for (const { name: spaceName, noteTitle } of spaces) {
             await createSpace(spaceName)
             await browser.waitUntil(
                 async () => {
@@ -41,7 +46,7 @@ describe('Labels and Views', () => {
             await navigateIntoSpace(spaceName)
             await assertScreen('note_list')
 
-            await createNote(`${spaceName}-note`)
+            await createNote(noteTitle)
             await helpers.addLabel('rust')
             await helpers.saveNote()
             await helpers.clickBack()
