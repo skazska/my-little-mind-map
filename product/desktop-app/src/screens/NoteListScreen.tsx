@@ -65,7 +65,7 @@ export function NoteListScreen({
                 {error && <div className="banner banner--error">{error}</div>}
                 <div className="tab-content__header">
                     <h2>Notes</h2>
-                    {spaceId !== "__view__" && (
+                    {spaceId !== "view://active-view" && (
                         <button
                             className="btn btn--primary"
                             data-testid="create-note-btn"

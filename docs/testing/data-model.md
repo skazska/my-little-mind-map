@@ -4,6 +4,8 @@ Unit tests for type validation, ID construction, label rules, and front matter s
 
 **Layer**: Unit (`#[cfg(test)]` inline or `shared_types/tests/`)
 **Spec coverage**: [S-DM-L1], [S-DM-L2], [S-DM-N1], [S-DM-N2], [S-DM-N3], [S-DM-N5], [S-DM-N6], [S-DM-NR2], [S-DM-NR3], [S-DM-NR4], [S-DM-S2], [S-DM-S3], [S-DM-V2]
+**Implementation**: `product/shared_types/src/ids.rs` and `product/shared_types/src/frontmatter.rs` (`#[cfg(test)]` modules)
+**Implementation status**: All test cases implemented unless marked `[skipped]`.
 
 **Conventions**:
 

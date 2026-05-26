@@ -7,14 +7,14 @@ Spec IDs in this document use the `S-CFG-*` prefix.
     - Linux: `$XDG_CONFIG_HOME/my-little-mind-map/config.json` (default `~/.config/my-little-mind-map/config.json`).
     - macOS: `~/Library/Application Support/my-little-mind-map/config.json`.
     - Windows: `%APPDATA%\my-little-mind-map\config.json`.
-  - **Web** — browser `localStorage` or `IndexedDB`.
+  - **Web** — browser `localStorage`, using key prefix `mlmm:` to namespace all app data.
   - **Mobile** — app local storage or secure storage.
 - [S-CFG-2] Defaults for settings are platform-specific:
   - **Desktop**:
     - Default data folder: `~/MyLittleMindMapData`.
     - Default sync: disabled.
   - **Web**:
-    - Default data folder: `MyLittleMindMapData` in browser local storage / IndexedDB.
+    - Default data folder: `MyLittleMindMapData` stored under the `mlmm:` prefix in browser `localStorage`.
     - Default sync: disabled.
   - **Mobile**:
     - Default data folder: `MyLittleMindMapData` in app local storage / secure storage.

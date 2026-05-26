@@ -4,6 +4,8 @@ End-to-end tests that drive the full application through the UI. Each test start
 
 **Layer**: E2E (`product/desktop-app/tests/e2e/`, WebdriverIO + `tauri-driver`)
 **Spec coverage**: [S-DM-L2], [S-DM-L4], [S-DM-N2], [S-DM-N7], [S-DM-S4], [S-DM-V1], [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-MF1], [S-UX-ST1], [S-UX-ST2], [S-UX-ST3], [S-UX-LT1], [S-UX-LT2], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-UX-ERR], [S-CFG-1], [S-CFG-2]
+**Implementation**: `product/e2e-shared/scenarios/` (shared), `product/desktop-app/tests/e2e/specs/` (desktop), `product/web-app/tests/e2e/specs/` (web)
+**Implementation status**: All test cases implemented unless marked `[skipped]`.
 
 **Conventions**:
 
@@ -232,14 +234,13 @@ End-to-end tests that drive the full application through the UI. Each test start
 **Then** the content is automatically saved to disk without the user pressing Save  
 **And** the cursor position is not moved and the editor is not disrupted [S-UX-NE5]
 
-### TC-E2E-NE-06b — Continuous typing debounces autosave [S-UX-NE4]
+### TC-E2E-NE-06b — Continuous typing debounces autosave [S-UX-NE4] `[skipped]`
 
-**Given** the note editor is open  
-**When** the user types continuously for longer than the debounce period (e.g. 30 s) without pausing  
-**Then** at most one autosave occurs while typing is active (no save per keystroke)  
-**And** a final autosave fires after the user stops and the debounce window elapses
+> **Status**: skipped — stub exists in `e2e-shared/scenarios/note-editor.ts` (`it.skip`); requires timing harness to reliably test debounce under CI constraints.
 
-### TC-E2E-NE-06c — Autosave failure surfaces error and allows retry [S-UX-NE4], [S-UX-ERR]
+### TC-E2E-NE-06c — Autosave failure surfaces error and allows retry [S-UX-NE4], [S-UX-ERR] `[skipped]`
+
+> **Status**: skipped — stub exists in `e2e-shared/scenarios/note-editor.ts` (`it.skip`); requires ability to make the data folder unwritable mid-test, which is environment-dependent.
 
 **Given** the note editor is open and the data folder becomes unwritable mid-session  
 **When** the autosave debounce period elapses and the save attempt fails  

@@ -20,6 +20,7 @@ Spec IDs in this document use the `S-UX-*` prefix. Editor behaviour is included 
 ### Starting the App
 
 - [S-UX-SA1] Select or create data folder on first launch, with option to skip to default. Main frame elements are not visible until a data folder is selected.
+  - **Platform note — Web**: The web shell has no filesystem access. On first launch it initialises browser storage (see [S-CFG-1](config.md)) and proceeds directly to the main frame; there is no folder-selection dialog. This is the specified exception to the "main frame hidden" rule for the web shell.
 - [S-UX-SA2] If no space exists, create default space `My`.
 - [S-UX-SA3] If no intention is provided on launch (e.g. opening a specific note or view), default content area is a new note in notes view with default space.
 
@@ -46,7 +47,7 @@ Spec IDs in this document use the `S-UX-*` prefix. Editor behaviour is included 
   - tree of notes matching selected filters: title, labels in short, description and metadata in expanded detail. Sort by relevance, `created_at`, `updated_at`.
 - [S-UX-NVT2] Note view/edit.
 - [S-UX-NVT3] Note management: edit mode; delete [TBD future]; move [TBD future].
-- [S-UX-NVT4] [TBD] Search: dedicated "Search" notes view. The `[?<query>]` suffix on references (see [S-DM-NR3](data-model.md#note-references)) parametrizes Notes view, Space view, and in-note navigation. Search relevance, indexing strategy, and query grammar are pending.
+- [S-UX-NVT4] [TBD, deferred] Search: dedicated "Search" notes view. The `[?<query>]` suffix on references (see [S-DM-NR3](data-model.md#note-references)) parametrizes Notes view, Space view, and in-note navigation. Search relevance, indexing strategy, and query grammar are pending.
 
 ## Note Editing (Editor Sub-Spec)
 
@@ -55,6 +56,7 @@ Spec IDs in this document use the `S-UX-*` prefix. Editor behaviour is included 
   - Id: indicators — absence of space/parent, title. Actions — move.
   - Labels: actions — add, remove.
   - Attachments: indicators — count. Actions — add file, capture screen part.
+  - **Platform note — ViewModel fields**: Shells MAY omit display of `uuid`, `created_at`, and `updated_at` from the metadata panel when screen space is constrained (e.g. narrow viewports). These fields MUST still be present in the ViewModel and MUST be displayable in the expanded metadata view.
 - [S-UX-NE2] Note editor with markdown support and live preview.
   - Inline suggests, autocomplete, and validation.
   - Highlight note description in content.
@@ -63,6 +65,7 @@ Spec IDs in this document use the `S-UX-*` prefix. Editor behaviour is included 
 - [S-UX-NE3] Editor actions: save, undo/redo, delete.
 - [S-UX-NE4] Draft autosave:
   - Debounced (triggered after a pause in typing, not on each keystroke). Must not interrupt editing or reposition the cursor.
+  - Debounce window: 1–10 seconds. Platform shells may choose a value within this range based on I/O cost; the chosen value MUST be documented in the shell's implementation notes. Default recommendation: 2 s for low-latency storage (web/browser), up to 10 s for filesystem-backed storage.
   - No empty drafts: if content is empty, no draft is saved and any existing draft file is deleted (see [S-DM-N7](data-model.md#notes)).
 - [S-UX-NE5] Content fidelity: trailing whitespace, newlines, and spaces are preserved exactly as entered during autosave. No content normalization during editing.
 - [S-UX-NE6] Content prettification (whitespace normalization, formatting): only on explicit publish action, and only after user confirmation.

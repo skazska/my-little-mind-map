@@ -5,6 +5,8 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **Layer**: Integration (`storage/tests/integration_test.rs`, `tokio::test`, `tempfile::TempDir`)
 **Spec coverage**: [S-DM-L2], [S-DM-L3], [S-DM-L4], [S-DM-N5], [S-DM-N6], [S-DM-N1], [S-DM-NR4], [S-DM-S4], [S-DM-V3], [S-ST-DM1], [S-ST-DM2], [S-ST-DM3], [S-ST-DM4], [S-ST-IX1], [S-ST-IX2], [S-CFG-2], [S-CFG-3], [S-UX-ERR]
 **Provisional coverage** (spec is `[TBD]`): [S-DM-ND2]
+**Implementation**: `product/storage/tests/integration_test.rs`
+**Implementation status**: All test cases implemented unless marked `[skipped]`.
 
 **Conventions**:
 

@@ -4,6 +4,8 @@ Unit and integration tests for the shared core — event dispatch, state transit
 
 **Layer**: Unit / Integration (`shared/`, `cargo test`)
 **Spec coverage**: [S-DM-L2], [S-DM-N4], [S-DM-N5], [S-DM-N7], [S-DM-V1], [S-UX-MF1], [S-UX-SA1], [S-UX-ST3], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE2], [S-UX-NE4], [S-UX-ERR], [S-CFG-1]
+**Implementation**: `product/shared/src/app.rs` (`#[cfg(test)]` module)
+**Implementation status**: All test cases implemented unless marked `[skipped]`.
 
 **Conventions**:
 

@@ -425,7 +425,7 @@ pub fn view(model: &Model) -> ViewModel {
         Screen::NoteList => {
             let space = model.current_space.as_ref();
             let (space_id, space_name) = if model.cross_space_view {
-                ("__view__".to_string(), "Active View".to_string())
+                ("view://active-view".to_string(), "Active View".to_string())
             } else {
                 (
                     space.map(|s| s.id.to_string()).unwrap_or_default(),

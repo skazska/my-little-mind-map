@@ -5,7 +5,7 @@ Terms used across spec documents.
 - **Space** — Container for notes; hierarchical, independent, manageable. Id uses dot notation leaf-to-root: `child.parent...root`. See [data model](data-model.md#spaces).
 - **Note** — Primary content unit; markdown file with YAML front matter. Hierarchical: notes form trees. Id uses URL path notation root-to-leaf: `root/.../leaf`. See [data model](data-model.md#notes).
 - **Label** — Single lowercase alphanumeric+hyphen word (`^[a-z0-9-]+$`) attached to notes/spaces for categorization and search.
-- **View** — A named, stored set of filters over notes (`view://<name>`).
+- **View** — A named, stored set of filters over notes (`view://<name>`). The reserved URI `view://active-view` identifies the ephemeral cross-space label-filtered view that is active in the current session; it is never persisted as a named view.
 - **Folder note** — Storage convention where a note `foo.md` can be paired with a folder `foo/` containing its children, attachments, and draft.
 - **Draft** — Separate in-progress file (`draft.md`) alongside a note. At most one per note. Existence is reflected in the note's `draft: bool` frontmatter.
 - **Reference** — A URI link from a note to another artifact: `note://`, `space://`, `view://`, `file://`. Block-level granularity via `#block-id`.
