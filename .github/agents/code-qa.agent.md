@@ -1,5 +1,5 @@
 ---
-name: ImplementationQA
+name: CodeQA
 description: Researches implementation and reports code quality issues, misalignments, gaps.
 argument-hint: Describe scope product/feature/requirement/git(staged|unstaged)/PR and some context like stage (init project, POC, MVP, ...), concerns, or specific areas to focus on.
 target: vscode
