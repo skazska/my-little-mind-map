@@ -4,7 +4,7 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 
 **Layer**: Integration (`storage/tests/integration_test.rs`, `tokio::test`, `tempfile::TempDir`)
 **Spec coverage**: [S-DM-L2], [S-DM-L3], [S-DM-L4], [S-DM-N5], [S-DM-N6], [S-DM-N1], [S-DM-NR4], [S-DM-S4], [S-DM-V3], [S-ST-DM1], [S-ST-DM2], [S-ST-DM3], [S-ST-DM4], [S-ST-IX1], [S-ST-IX2], [S-CFG-2], [S-CFG-3], [S-UX-ERR]
-**Provisional coverage** (spec is `[TBD]`): [S-DM-ND2]
+**Provisional coverage**: [S-DM-ND1], [S-DM-ND2]
 **Implementation**: `product/storage/tests/integration_test.rs`
 **Implementation status**: All test cases implemented unless marked `[skipped]`.
 
@@ -230,9 +230,9 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 
 ## Definitions Index
 
-> **Provisional**: covers [S-DM-ND2] which is currently `[TBD]`. These tests validate the index plumbing for the candidate definition behaviour and will be revisited when the definition spec is finalised.
+> **Provisional**: covers the currently implemented candidate definition behaviour in [S-DM-ND1] and [S-DM-ND2]. Broader syntax options and richer definition metadata remain deferred.
 
-### TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND2] (provisional)
+### TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND1], [S-DM-ND2] (provisional)
 
 **Given** a note whose content contains a markdown definition (e.g., `**Term** Definition text`)  
 **When** `create_note(&note)` is called  
@@ -243,6 +243,24 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **Given** only one note that defines a term  
 **When** `delete_note(&note_id)` is called  
 **Then** `get_definitions_index()` no longer contains that term
+
+### TC-ST-DI-03 — Definitions index rebuilt on note update [S-DM-ND2] (provisional)
+
+**Given** a note whose content initially contains `**Old** ...` and is later updated to `**New** ...`  
+**When** `update_note(&note)` is called  
+**Then** `get_definitions_index()` no longer contains `"old"` for that note and does contain `"new"`
+
+### TC-ST-DI-04 — Multiple definitions from one note are indexed [S-DM-ND1], [S-DM-ND2] (provisional)
+
+**Given** a note whose content contains multiple candidate definition lines  
+**When** `create_note(&note)` is called  
+**Then** each valid definition term is added to `get_definitions_index()`
+
+### TC-ST-DI-05 — Invalid candidate definition lines are ignored [S-DM-ND1] (provisional)
+
+**Given** a note whose content contains candidate definition lines with an empty, whitespace-only, or missing term, or with empty definition text  
+**When** `create_note(&note)` is called  
+**Then** those lines do not produce any definitions index entries
 
 ---
 

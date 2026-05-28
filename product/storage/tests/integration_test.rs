@@ -855,13 +855,12 @@ async fn references_index_cleared_on_delete() {
     );
 }
 
-// ── Definitions index — test-first stubs (TC-ST-DI-01, TC-ST-DI-02) ─────────
-// These tests are marked #[ignore] because definitions parsing in content
-// is not yet implemented in FsStorage::sync_indexes_for_note. [S-DM-ND2]
+// ── Definitions index (TC-ST-DI-01..05) ───────────────────────────────────────
 
-/// TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND2]
+/// TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND1], [S-DM-ND2]
+/// Covers candidate syntax recognition from [S-DM-ND1] and index insertion
+/// with lowercase keys from [S-DM-ND2].
 #[tokio::test]
-#[ignore = "test-first: definitions parsing not yet implemented in FsStorage"]
 async fn definitions_indexed_on_create() {
     let (_tmp, storage) = make_storage().await;
     let space = sample_space();
@@ -888,7 +887,6 @@ async fn definitions_indexed_on_create() {
 
 /// TC-ST-DI-02 — Definitions removed on note delete [S-DM-ND2]
 #[tokio::test]
-#[ignore = "test-first: definitions parsing not yet implemented in FsStorage"]
 async fn definitions_removed_on_delete() {
     let (_tmp, storage) = make_storage().await;
     let space = sample_space();
@@ -913,6 +911,124 @@ async fn definitions_removed_on_delete() {
     );
 }
 
+/// TC-ST-DI-03 — Definitions index rebuilt on note update [S-DM-ND2]
+#[tokio::test]
+async fn definitions_index_rebuilt_on_update() {
+    let (_tmp, storage) = make_storage().await;
+    let space = sample_space();
+    storage.create_space(&space).await.unwrap();
+
+    let mut meta = NoteMetadata::new("def-update-note", Some(space.id.clone()));
+    meta.draft = false;
+    let mut note = Note {
+        id: NoteId::new("test-space/def-update-note").unwrap(),
+        metadata: meta,
+        content: "# def-update-note\n\n**Old** First definition.".into(),
+        parent_id: None,
+    };
+    storage.create_note(&note).await.unwrap();
+
+    note.content = "# def-update-note\n\n**New** Updated definition.".into();
+    note.metadata.touch();
+    storage.update_note(&note).await.unwrap();
+
+    let defs = storage.get_definitions_index().await.unwrap();
+    assert!(
+        defs.entries
+            .get("old")
+            .map(|entries| entries.iter().all(|e| e.note_id != note.id))
+            .unwrap_or(true),
+        "old definition key must be removed on update"
+    );
+    let new_entries = defs
+        .entries
+        .get("new")
+        .expect("new definition must be indexed");
+    assert!(new_entries.iter().any(|e| e.note_id == note.id));
+}
+
+/// TC-ST-DI-04 — Multiple definitions from one note are indexed [S-DM-ND1], [S-DM-ND2]
+/// Covers repeated candidate syntax recognition from [S-DM-ND1] and
+/// multi-entry index population from [S-DM-ND2].
+#[tokio::test]
+async fn multiple_definitions_indexed_from_note_content() {
+    let (_tmp, storage) = make_storage().await;
+    let space = sample_space();
+    storage.create_space(&space).await.unwrap();
+
+    let mut meta = NoteMetadata::new("multi-def-note", Some(space.id.clone()));
+    meta.draft = false;
+    let note = Note {
+        id: NoteId::new("test-space/multi-def-note").unwrap(),
+        metadata: meta,
+        content:
+            "# multi-def-note\n\n**Widget** A reusable UI component.\n**Gadget** Another component."
+                .into(),
+        parent_id: None,
+    };
+    storage.create_note(&note).await.unwrap();
+
+    let defs = storage.get_definitions_index().await.unwrap();
+    assert!(defs.entries.contains_key("widget"));
+    assert!(defs.entries.contains_key("gadget"));
+}
+
+/// TC-ST-DI-05 — Invalid candidate definition lines are ignored [S-DM-ND1]
+#[tokio::test]
+async fn invalid_definition_candidates_ignored() {
+    let (_tmp, storage) = make_storage().await;
+    let space = sample_space();
+    storage.create_space(&space).await.unwrap();
+
+    let mut empty_definition_meta =
+        NoteMetadata::new("empty-definition-note", Some(space.id.clone()));
+    empty_definition_meta.draft = false;
+    let empty_definition_note = Note {
+        id: NoteId::new("test-space/empty-definition-note").unwrap(),
+        metadata: empty_definition_meta,
+        content: "# empty-definition-note\n\n**Widget**".into(),
+        parent_id: None,
+    };
+    storage.create_note(&empty_definition_note).await.unwrap();
+
+    let defs = storage.get_definitions_index().await.unwrap();
+    assert!(
+        defs.entries.is_empty(),
+        "empty definition text must be ignored"
+    );
+
+    let mut empty_term_meta = NoteMetadata::new("empty-term-note", Some(space.id.clone()));
+    empty_term_meta.draft = false;
+    let empty_term_note = Note {
+        id: NoteId::new("test-space/empty-term-note").unwrap(),
+        metadata: empty_term_meta,
+        // Adjacent `**` delimiters exercise an empty extracted term.
+        content: "# empty-term-note\n\n**** Missing term.".into(),
+        parent_id: None,
+    };
+    storage.create_note(&empty_term_note).await.unwrap();
+
+    let defs = storage.get_definitions_index().await.unwrap();
+    assert!(defs.entries.is_empty(), "empty term must be ignored");
+
+    let mut whitespace_term_meta =
+        NoteMetadata::new("whitespace-term-note", Some(space.id.clone()));
+    whitespace_term_meta.draft = false;
+    let whitespace_term_note = Note {
+        id: NoteId::new("test-space/whitespace-term-note").unwrap(),
+        metadata: whitespace_term_meta,
+        content: "# whitespace-term-note\n\n** ** Whitespace-only term.".into(),
+        parent_id: None,
+    };
+    storage.create_note(&whitespace_term_note).await.unwrap();
+
+    let defs = storage.get_definitions_index().await.unwrap();
+    assert!(
+        defs.entries.is_empty(),
+        "whitespace-only term must be ignored"
+    );
+}
+
 // ── Index reproducibility — test-first stub (TC-ST-IX-01) ───────────────────
 
 /// TC-ST-IX-01 — Derived indexes reproducible after deletion [S-ST-IX2]
@@ -930,8 +1046,14 @@ async fn default_settings_when_absent() {
     let (_tmp, storage) = make_storage().await;
     // No settings.json created — should return defaults without error.
     let settings = storage.get_settings().await.unwrap();
-    assert!(settings.data_folder.is_none(), "default data_folder must be None");
-    assert!(settings.default_space.is_none(), "default default_space must be None");
+    assert!(
+        settings.data_folder.is_none(),
+        "default data_folder must be None"
+    );
+    assert!(
+        settings.default_space.is_none(),
+        "default default_space must be None"
+    );
 }
 
 /// TC-ST-SET-03 — Settings stored as JSON [S-ST-DM2]

@@ -43,6 +43,8 @@ pub struct FsStorage {
 }
 
 impl FsStorage {
+    const MARKDOWN_STRONG_DELIMITER_LEN: usize = 2;
+
     /// Initialise storage at `root`, creating required directories if absent.
     pub async fn new(root: impl AsRef<Path>) -> Result<Self> {
         let root = root.as_ref().to_path_buf();
@@ -91,6 +93,36 @@ impl FsStorage {
         Ok(())
     }
 
+    /// Extract provisional note definitions from markdown content.
+    ///
+    /// The current POC recognizes candidate definition lines in the form
+    /// `**Term** Definition text` and returns `(term, definition, block_id)`
+    /// tuples for indexing. Block-id extraction is still deferred while
+    /// [S-DM-NR5] and the note-definition reference details in [S-DM-ND3]
+    /// remain TBD.
+    fn extract_definitions(note: &Note) -> Vec<(String, String, Option<String>)> {
+        note.content
+            .lines()
+            .filter_map(|line| {
+                let line = line.trim();
+                let rest = line.strip_prefix("**")?;
+                let term_end = rest.find("**")?;
+                let term = rest.get(..term_end)?.trim();
+                let definition = rest
+                    .get(term_end + Self::MARKDOWN_STRONG_DELIMITER_LEN..)?
+                    .trim();
+                // [S-DM-ND1] Candidate definitions require non-empty term and
+                // definition text after trimming markdown delimiters/whitespace.
+                if term.is_empty() || definition.is_empty() {
+                    return None;
+                }
+                // Block-id extraction is still deferred while [S-DM-NR5] and
+                // the note-definition reference details in [S-DM-ND3] remain TBD.
+                Some((term.to_string(), definition.to_string(), None))
+            })
+            .collect()
+    }
+
     // ── Index sync on note save ───────────────────────────────────────────────
 
     /// Update `labels.json` and `references.json` after a note is created/updated.
@@ -122,6 +154,14 @@ impl FsStorage {
             );
         }
         self.write_index("references.json", &refs).await?;
+
+        // --- Definitions ---
+        let mut defs: DefinitionsIndex = self.read_index("definitions.json").await?;
+        defs.remove_note(&note.id);
+        for (term, definition, block_id) in Self::extract_definitions(note) {
+            defs.add(&term, note.id.clone(), definition, block_id);
+        }
+        self.write_index("definitions.json", &defs).await?;
 
         Ok(())
     }
