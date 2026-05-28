@@ -111,6 +111,8 @@ impl FsStorage {
                 let definition = rest
                     .get(term_end + Self::MARKDOWN_STRONG_DELIMITER_LEN..)?
                     .trim();
+                // [S-DM-ND1] Candidate definitions require non-empty term and
+                // definition text after trimming markdown delimiters/whitespace.
                 if term.is_empty() || definition.is_empty() {
                     return None;
                 }
