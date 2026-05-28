@@ -975,7 +975,7 @@ async fn multiple_definitions_indexed_from_note_content() {
 
 /// TC-ST-DI-05 — Invalid candidate definition lines are ignored [S-DM-ND1]
 #[tokio::test]
-async fn definition_requires_non_empty_term_and_text() {
+async fn invalid_definition_candidates_ignored() {
     let (_tmp, storage) = make_storage().await;
     let space = sample_space();
     storage.create_space(&space).await.unwrap();
@@ -1002,6 +1002,7 @@ async fn definition_requires_non_empty_term_and_text() {
     let empty_term_note = Note {
         id: NoteId::new("test-space/empty-term-note").unwrap(),
         metadata: empty_term_meta,
+        // Adjacent `**` delimiters exercise an empty extracted term.
         content: "# empty-term-note\n\n**** Missing term.".into(),
         parent_id: None,
     };
