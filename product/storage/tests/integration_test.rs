@@ -855,9 +855,9 @@ async fn references_index_cleared_on_delete() {
     );
 }
 
-// ── Definitions index (TC-ST-DI-01, TC-ST-DI-02) ──────────────────────────────
+// ── Definitions index (TC-ST-DI-01..05) ───────────────────────────────────────
 
-/// TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND2]
+/// TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND1], [S-DM-ND2]
 #[tokio::test]
 async fn definitions_indexed_on_create() {
     let (_tmp, storage) = make_storage().await;
@@ -909,6 +909,41 @@ async fn definitions_removed_on_delete() {
     );
 }
 
+/// TC-ST-DI-03 — Definitions index rebuilt on note update [S-DM-ND2]
+#[tokio::test]
+async fn definitions_index_rebuilt_on_update() {
+    let (_tmp, storage) = make_storage().await;
+    let space = sample_space();
+    storage.create_space(&space).await.unwrap();
+
+    let mut meta = NoteMetadata::new("def-update-note", Some(space.id.clone()));
+    meta.draft = false;
+    let mut note = Note {
+        id: NoteId::new("test-space/def-update-note").unwrap(),
+        metadata: meta,
+        content: "# def-update-note\n\n**Old** First definition.".into(),
+        parent_id: None,
+    };
+    storage.create_note(&note).await.unwrap();
+
+    note.content = "# def-update-note\n\n**New** Updated definition.".into();
+    note.metadata.touch();
+    storage.update_note(&note).await.unwrap();
+
+    let defs = storage.get_definitions_index().await.unwrap();
+    let old_entries = defs.entries.get("old").cloned().unwrap_or_default();
+    assert!(
+        old_entries.is_empty(),
+        "old definition key must be removed on update"
+    );
+    let new_entries = defs
+        .entries
+        .get("new")
+        .expect("new definition must be indexed");
+    assert!(new_entries.iter().any(|e| e.note_id == note.id));
+}
+
+/// TC-ST-DI-04 — Multiple definitions from one note are indexed [S-DM-ND1], [S-DM-ND2]
 #[tokio::test]
 async fn multiple_definitions_indexed_from_note_content() {
     let (_tmp, storage) = make_storage().await;
@@ -932,6 +967,7 @@ async fn multiple_definitions_indexed_from_note_content() {
     assert!(defs.entries.contains_key("gadget"));
 }
 
+/// TC-ST-DI-05 — Invalid candidate definition lines are ignored [S-DM-ND1]
 #[tokio::test]
 async fn definition_requires_non_empty_term_and_text() {
     let (_tmp, storage) = make_storage().await;

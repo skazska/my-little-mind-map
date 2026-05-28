@@ -67,10 +67,10 @@ Spec IDs in this document use the `S-DM-*` prefix. See [glossary](glossary.md) f
 
 ### Note Definitions
 
-- [TBD, deferred] The entire definitions feature is provisional. Captured intent below.
-- [S-DM-ND1] [TBD, deferred] Note definition: markdown syntax for definitions, e.g. [markdown extended definition lists](https://www.markdownguide.org/extended-syntax/#definition-lists), and/or configurable patterns via settings.
-- [S-DM-ND2] [TBD, deferred] Note definitions: indexed; synced from content.
-- [S-DM-ND3] [TBD, deferred] Note definition content: term, ref to definition in note, statistics.
+- Provisional implementation currently covers a narrow candidate syntax and index shape; broader syntax options and richer metadata remain deferred.
+- [S-DM-ND1] Note definition (provisional candidate syntax): a markdown line matching `**Term** Definition text`, where both the extracted term and definition text are non-empty. [TBD, deferred: alternative syntaxes such as definition lists and configurable patterns via settings.]
+- [S-DM-ND2] Note definitions (provisional): indexed and synced from note content on create/update; entries belonging to a deleted note or replaced during re-sync are removed; index keys are normalized to lowercase.
+- [S-DM-ND3] Note definition content (provisional): definition entries are keyed by term and retain the extracted definition text plus the source note reference; `block_id` remains unset until [S-DM-NR5] is specified. [TBD, deferred] Statistics model.
 
 ## Mutation Semantics
 
