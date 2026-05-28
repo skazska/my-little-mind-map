@@ -43,7 +43,7 @@ pub struct FsStorage {
 }
 
 impl FsStorage {
-    const STRONG_MARKER_LEN: usize = 2;
+    const MARKDOWN_STRONG_DELIMITER_LEN: usize = 2;
 
     /// Initialise storage at `root`, creating required directories if absent.
     pub async fn new(root: impl AsRef<Path>) -> Result<Self> {
@@ -107,7 +107,8 @@ impl FsStorage {
                 let rest = line.strip_prefix("**")?;
                 let term_end = rest.find("**")?;
                 let term = rest[..term_end].trim();
-                let definition = rest[term_end + Self::STRONG_MARKER_LEN..].trim();
+                let definition =
+                    rest[term_end + Self::MARKDOWN_STRONG_DELIMITER_LEN..].trim();
                 if term.is_empty() || definition.is_empty() {
                     return None;
                 }

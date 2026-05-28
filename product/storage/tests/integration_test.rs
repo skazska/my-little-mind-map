@@ -974,20 +974,36 @@ async fn definition_requires_non_empty_term_and_text() {
     let space = sample_space();
     storage.create_space(&space).await.unwrap();
 
-    let mut meta = NoteMetadata::new("invalid-def-note", Some(space.id.clone()));
-    meta.draft = false;
-    let note = Note {
-        id: NoteId::new("test-space/invalid-def-note").unwrap(),
-        metadata: meta,
-        content: "# invalid-def-note\n\n**Widget**\n**** Missing term.".into(),
+    let mut empty_definition_meta = NoteMetadata::new("empty-definition-note", Some(space.id.clone()));
+    empty_definition_meta.draft = false;
+    let empty_definition_note = Note {
+        id: NoteId::new("test-space/empty-definition-note").unwrap(),
+        metadata: empty_definition_meta,
+        content: "# empty-definition-note\n\n**Widget**".into(),
         parent_id: None,
     };
-    storage.create_note(&note).await.unwrap();
+    storage.create_note(&empty_definition_note).await.unwrap();
 
     let defs = storage.get_definitions_index().await.unwrap();
     assert!(
         defs.entries.is_empty(),
-        "invalid definitions must be ignored"
+        "empty definition text must be ignored"
+    );
+
+    let mut empty_term_meta = NoteMetadata::new("empty-term-note", Some(space.id.clone()));
+    empty_term_meta.draft = false;
+    let empty_term_note = Note {
+        id: NoteId::new("test-space/empty-term-note").unwrap(),
+        metadata: empty_term_meta,
+        content: "# empty-term-note\n\n**** Missing term.".into(),
+        parent_id: None,
+    };
+    storage.create_note(&empty_term_note).await.unwrap();
+
+    let defs = storage.get_definitions_index().await.unwrap();
+    assert!(
+        defs.entries.is_empty(),
+        "empty term must be ignored"
     );
 }
 
