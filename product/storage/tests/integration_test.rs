@@ -861,7 +861,6 @@ async fn references_index_cleared_on_delete() {
 
 /// TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND2]
 #[tokio::test]
-#[ignore = "test-first: definitions parsing not yet implemented in FsStorage"]
 async fn definitions_indexed_on_create() {
     let (_tmp, storage) = make_storage().await;
     let space = sample_space();
@@ -888,7 +887,6 @@ async fn definitions_indexed_on_create() {
 
 /// TC-ST-DI-02 — Definitions removed on note delete [S-DM-ND2]
 #[tokio::test]
-#[ignore = "test-first: definitions parsing not yet implemented in FsStorage"]
 async fn definitions_removed_on_delete() {
     let (_tmp, storage) = make_storage().await;
     let space = sample_space();
@@ -930,8 +928,14 @@ async fn default_settings_when_absent() {
     let (_tmp, storage) = make_storage().await;
     // No settings.json created — should return defaults without error.
     let settings = storage.get_settings().await.unwrap();
-    assert!(settings.data_folder.is_none(), "default data_folder must be None");
-    assert!(settings.default_space.is_none(), "default default_space must be None");
+    assert!(
+        settings.data_folder.is_none(),
+        "default data_folder must be None"
+    );
+    assert!(
+        settings.default_space.is_none(),
+        "default default_space must be None"
+    );
 }
 
 /// TC-ST-SET-03 — Settings stored as JSON [S-ST-DM2]

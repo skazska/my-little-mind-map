@@ -91,6 +91,23 @@ impl FsStorage {
         Ok(())
     }
 
+    fn extract_definitions(note: &Note) -> Vec<(String, String, Option<String>)> {
+        note.content
+            .lines()
+            .filter_map(|line| {
+                let line = line.trim();
+                let rest = line.strip_prefix("**")?;
+                let term_end = rest.find("**")?;
+                let term = rest[..term_end].trim();
+                let definition = rest[term_end + 2..].trim();
+                if term.is_empty() || definition.is_empty() {
+                    return None;
+                }
+                Some((term.to_string(), definition.to_string(), None))
+            })
+            .collect()
+    }
+
     // ── Index sync on note save ───────────────────────────────────────────────
 
     /// Update `labels.json` and `references.json` after a note is created/updated.
@@ -122,6 +139,14 @@ impl FsStorage {
             );
         }
         self.write_index("references.json", &refs).await?;
+
+        // --- Definitions ---
+        let mut defs: DefinitionsIndex = self.read_index("definitions.json").await?;
+        defs.remove_note(&note.id);
+        for (term, definition, block_id) in Self::extract_definitions(note) {
+            defs.add(&term, note.id.clone(), definition, block_id);
+        }
+        self.write_index("definitions.json", &defs).await?;
 
         Ok(())
     }
