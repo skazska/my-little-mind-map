@@ -858,6 +858,8 @@ async fn references_index_cleared_on_delete() {
 // ── Definitions index (TC-ST-DI-01..05) ───────────────────────────────────────
 
 /// TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND1], [S-DM-ND2]
+/// Covers candidate syntax recognition from [S-DM-ND1] and index insertion
+/// with lowercase keys from [S-DM-ND2].
 #[tokio::test]
 async fn definitions_indexed_on_create() {
     let (_tmp, storage) = make_storage().await;
@@ -946,6 +948,8 @@ async fn definitions_index_rebuilt_on_update() {
 }
 
 /// TC-ST-DI-04 — Multiple definitions from one note are indexed [S-DM-ND1], [S-DM-ND2]
+/// Covers repeated candidate syntax recognition from [S-DM-ND1] and
+/// multi-entry index population from [S-DM-ND2].
 #[tokio::test]
 async fn multiple_definitions_indexed_from_note_content() {
     let (_tmp, storage) = make_storage().await;

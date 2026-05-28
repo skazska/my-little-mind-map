@@ -97,8 +97,9 @@ impl FsStorage {
     ///
     /// The current POC recognizes candidate definition lines in the form
     /// `**Term** Definition text` and returns `(term, definition, block_id)`
-    /// tuples for indexing. Block-id extraction is still deferred while the
-    /// related spec remains TBD.
+    /// tuples for indexing. Block-id extraction is still deferred while
+    /// [S-DM-NR5] and the note-definition reference details in [S-DM-ND3]
+    /// remain TBD.
     fn extract_definitions(note: &Note) -> Vec<(String, String, Option<String>)> {
         note.content
             .lines()
