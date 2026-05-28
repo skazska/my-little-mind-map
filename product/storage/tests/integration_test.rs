@@ -855,9 +855,7 @@ async fn references_index_cleared_on_delete() {
     );
 }
 
-// ── Definitions index — test-first stubs (TC-ST-DI-01, TC-ST-DI-02) ─────────
-// These tests are marked #[ignore] because definitions parsing in content
-// is not yet implemented in FsStorage::sync_indexes_for_note. [S-DM-ND2]
+// ── Definitions index (TC-ST-DI-01, TC-ST-DI-02) ──────────────────────────────
 
 /// TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND2]
 #[tokio::test]
