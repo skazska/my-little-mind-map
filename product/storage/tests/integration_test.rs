@@ -1004,7 +1004,8 @@ async fn definition_requires_non_empty_term_and_text() {
     let defs = storage.get_definitions_index().await.unwrap();
     assert!(defs.entries.is_empty(), "empty term must be ignored");
 
-    let mut whitespace_term_meta = NoteMetadata::new("whitespace-term-note", Some(space.id.clone()));
+    let mut whitespace_term_meta =
+        NoteMetadata::new("whitespace-term-note", Some(space.id.clone()));
     whitespace_term_meta.draft = false;
     let whitespace_term_note = Note {
         id: NoteId::new("test-space/whitespace-term-note").unwrap(),
@@ -1015,7 +1016,10 @@ async fn definition_requires_non_empty_term_and_text() {
     storage.create_note(&whitespace_term_note).await.unwrap();
 
     let defs = storage.get_definitions_index().await.unwrap();
-    assert!(defs.entries.is_empty(), "whitespace-only term must be ignored");
+    assert!(
+        defs.entries.is_empty(),
+        "whitespace-only term must be ignored"
+    );
 }
 
 // ── Index reproducibility — test-first stub (TC-ST-IX-01) ───────────────────
