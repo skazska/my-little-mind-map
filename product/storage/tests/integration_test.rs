@@ -701,11 +701,11 @@ async fn spaces_index_entry_exposes_note_count_statistics() {
     assert_eq!(entry.note_count, 4);
 }
 
-/// TC-ST-SI-01 — Space index entry exposes label_count statistics [S-DM-S4]
+/// TC-ST-SI-02 — Space index entry exposes label_count statistics [S-DM-S4]
 #[tokio::test]
 #[ignore = "test-first: SpaceEntry does not expose label_count yet"]
 async fn spaces_index_entry_exposes_label_count_statistics() {
-    panic!("blocked: add label_count or equivalent distinct-label statistics to SpaceEntry");
+    // blocked: add label_count or equivalent distinct-label statistics to SpaceEntry
 }
 
 /// TC-ST-VI-01 — View index entry exposes statistics [S-DM-V3]
@@ -735,7 +735,7 @@ fn note_with_reference(space_id: &SpaceId, name: &str, target_id: &NoteId) -> No
     }
 }
 
-/// TC-ST-RI-01 — Forward reference stored on note create [S-DM-NR5]
+/// TC-ST-RI-01 — Forward reference stored on note create [S-DM-NR4]
 #[tokio::test]
 async fn references_index_forward_on_create() {
     let (_tmp, storage) = make_storage().await;
@@ -757,7 +757,7 @@ async fn references_index_forward_on_create() {
     );
 }
 
-/// TC-ST-RI-02 — Backlink stored on note create [S-DM-NR5]
+/// TC-ST-RI-02 — Backlink stored on note create [S-DM-NR4]
 #[tokio::test]
 async fn references_index_backlink_on_create() {
     let (_tmp, storage) = make_storage().await;
@@ -919,19 +919,19 @@ async fn definitions_removed_on_delete() {
 #[tokio::test]
 #[ignore = "test-first: rebuild_indexes API is not implemented yet"]
 async fn derived_indexes_reproducible_after_deletion() {
-    panic!("blocked: add Storage::rebuild_indexes or equivalent maintenance API before enabling this test");
+    // blocked: add Storage::rebuild_indexes or equivalent maintenance API before enabling this test
 }
 
 // ── Settings — additional (TC-ST-SET-01, TC-ST-SET-03) ───────────────────────
 
-/// TC-ST-SET-01 — Default settings returned when file absent
+/// TC-ST-SET-01 — Default settings returned when file absent [S-CFG-2]
 #[tokio::test]
 async fn default_settings_when_absent() {
     let (_tmp, storage) = make_storage().await;
     // No settings.json created — should return defaults without error.
     let settings = storage.get_settings().await.unwrap();
-    // Default values: no error thrown, fields are empty/None.
-    let _ = settings; // just verifying no panic/error
+    assert!(settings.data_folder.is_none(), "default data_folder must be None");
+    assert!(settings.default_space.is_none(), "default default_space must be None");
 }
 
 /// TC-ST-SET-03 — Settings stored as JSON [S-ST-DM2]

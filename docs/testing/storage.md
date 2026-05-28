@@ -185,11 +185,17 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **When** `get_views_index()` is called  
 **Then** the entry for that view carries `matching_note_count == 5` and the persisted filter labels
 
-### TC-ST-SI-01 — Space index entry exposes statistics [S-DM-S4]
+### TC-ST-SI-01 — Space index entry exposes note_count statistics [S-DM-S4]
 
-**Given** a space `"work"` containing 4 notes and 7 distinct labels  
+**Given** a space `"work"` containing 4 notes  
 **When** `get_spaces_index()` is called  
-**Then** the entry for `"work"` carries `note_count == 4` and `label_count == 7` (or equivalent statistics fields)
+**Then** the entry for `"work"` carries `note_count == 4`
+
+### TC-ST-SI-02 — Space index entry exposes label_count statistics [S-DM-S4]
+
+**Given** a space `"work"` whose notes use 7 distinct labels  
+**When** `get_spaces_index()` is called  
+**Then** the entry for `"work"` carries `label_count == 7` (or equivalent distinct-label statistics field)
 
 ---
 

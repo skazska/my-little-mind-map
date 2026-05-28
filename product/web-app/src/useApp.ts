@@ -97,8 +97,9 @@ function executeStorageEffect(req: Record<string, unknown>): Event {
         }
         case "load_notes": {
             const notes = d.notes ?? {};
+            const prefix = String(req.space_id) + "/";
             const ids = Object.keys(notes).filter((k) =>
-                k.startsWith(String(req.space_id) + "/")
+                k.startsWith(prefix) && !k.slice(prefix.length).includes("/")
             );
             return {
                 type: "note_list_loaded",

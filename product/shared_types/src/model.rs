@@ -26,7 +26,7 @@ pub struct Space {
     pub labels: Vec<Label>,
     /// None for root-level spaces.
     pub parent_id: Option<SpaceId>,
-    /// Number of notes directly in this space (from index). [S-DM-S5]
+    /// Number of notes directly in this space (from index). [S-DM-S4]
     #[serde(default)]
     pub note_count: usize,
 }
