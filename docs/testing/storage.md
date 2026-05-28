@@ -258,7 +258,7 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 
 ### TC-ST-DI-05 — Invalid candidate definition lines are ignored [S-DM-ND1] (provisional)
 
-**Given** a note whose content contains candidate definition lines with an empty term or empty definition text  
+**Given** a note whose content contains candidate definition lines with an empty, whitespace-only, or missing term, or with empty definition text  
 **When** `create_note(&note)` is called  
 **Then** those lines do not produce any definitions index entries
 

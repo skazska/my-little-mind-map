@@ -931,9 +931,9 @@ async fn definitions_index_rebuilt_on_update() {
     storage.update_note(&note).await.unwrap();
 
     let defs = storage.get_definitions_index().await.unwrap();
-    let old_entries = defs.entries.get("old").cloned().unwrap_or_default();
+    let stale_entries = defs.entries.get("old").cloned().unwrap_or_default();
     assert!(
-        old_entries.is_empty(),
+        stale_entries.is_empty(),
         "old definition key must be removed on update"
     );
     let new_entries = defs
@@ -1003,6 +1003,19 @@ async fn definition_requires_non_empty_term_and_text() {
 
     let defs = storage.get_definitions_index().await.unwrap();
     assert!(defs.entries.is_empty(), "empty term must be ignored");
+
+    let mut whitespace_term_meta = NoteMetadata::new("whitespace-term-note", Some(space.id.clone()));
+    whitespace_term_meta.draft = false;
+    let whitespace_term_note = Note {
+        id: NoteId::new("test-space/whitespace-term-note").unwrap(),
+        metadata: whitespace_term_meta,
+        content: "# whitespace-term-note\n\n** ** Whitespace-only term.".into(),
+        parent_id: None,
+    };
+    storage.create_note(&whitespace_term_note).await.unwrap();
+
+    let defs = storage.get_definitions_index().await.unwrap();
+    assert!(defs.entries.is_empty(), "whitespace-only term must be ignored");
 }
 
 // ── Index reproducibility — test-first stub (TC-ST-IX-01) ───────────────────
