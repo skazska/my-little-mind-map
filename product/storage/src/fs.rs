@@ -43,6 +43,8 @@ pub struct FsStorage {
 }
 
 impl FsStorage {
+    const STRONG_MARKER_LEN: usize = 2;
+
     /// Initialise storage at `root`, creating required directories if absent.
     pub async fn new(root: impl AsRef<Path>) -> Result<Self> {
         let root = root.as_ref().to_path_buf();
@@ -91,6 +93,12 @@ impl FsStorage {
         Ok(())
     }
 
+    /// Extract provisional note definitions from markdown content.
+    ///
+    /// The current POC recognizes candidate definition lines in the form
+    /// `**Term** Definition text` and returns `(term, definition, block_id)`
+    /// tuples for indexing. Block-id extraction is still deferred while the
+    /// related spec remains TBD.
     fn extract_definitions(note: &Note) -> Vec<(String, String, Option<String>)> {
         note.content
             .lines()
@@ -99,7 +107,7 @@ impl FsStorage {
                 let rest = line.strip_prefix("**")?;
                 let term_end = rest.find("**")?;
                 let term = rest[..term_end].trim();
-                let definition = rest[term_end + 2..].trim();
+                let definition = rest[term_end + Self::STRONG_MARKER_LEN..].trim();
                 if term.is_empty() || definition.is_empty() {
                     return None;
                 }
