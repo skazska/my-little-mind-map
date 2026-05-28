@@ -909,6 +909,52 @@ async fn definitions_removed_on_delete() {
     );
 }
 
+#[tokio::test]
+async fn multiple_definitions_indexed_from_note_content() {
+    let (_tmp, storage) = make_storage().await;
+    let space = sample_space();
+    storage.create_space(&space).await.unwrap();
+
+    let mut meta = NoteMetadata::new("multi-def-note", Some(space.id.clone()));
+    meta.draft = false;
+    let note = Note {
+        id: NoteId::new("test-space/multi-def-note").unwrap(),
+        metadata: meta,
+        content:
+            "# multi-def-note\n\n**Widget** A reusable UI component.\n**Gadget** Another component."
+                .into(),
+        parent_id: None,
+    };
+    storage.create_note(&note).await.unwrap();
+
+    let defs = storage.get_definitions_index().await.unwrap();
+    assert!(defs.entries.contains_key("widget"));
+    assert!(defs.entries.contains_key("gadget"));
+}
+
+#[tokio::test]
+async fn definition_requires_non_empty_term_and_text() {
+    let (_tmp, storage) = make_storage().await;
+    let space = sample_space();
+    storage.create_space(&space).await.unwrap();
+
+    let mut meta = NoteMetadata::new("invalid-def-note", Some(space.id.clone()));
+    meta.draft = false;
+    let note = Note {
+        id: NoteId::new("test-space/invalid-def-note").unwrap(),
+        metadata: meta,
+        content: "# invalid-def-note\n\n**Widget**\n**** Missing term.".into(),
+        parent_id: None,
+    };
+    storage.create_note(&note).await.unwrap();
+
+    let defs = storage.get_definitions_index().await.unwrap();
+    assert!(
+        defs.entries.is_empty(),
+        "invalid definitions must be ignored"
+    );
+}
+
 // ── Index reproducibility — test-first stub (TC-ST-IX-01) ───────────────────
 
 /// TC-ST-IX-01 — Derived indexes reproducible after deletion [S-ST-IX2]

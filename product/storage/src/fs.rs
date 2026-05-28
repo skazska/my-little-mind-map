@@ -103,6 +103,8 @@ impl FsStorage {
                 if term.is_empty() || definition.is_empty() {
                     return None;
                 }
+                // Block-id extraction is still deferred while [S-DM-NR5] and
+                // the note-definition reference details in [S-DM-ND3] remain TBD.
                 Some((term.to_string(), definition.to_string(), None))
             })
             .collect()
