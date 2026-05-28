@@ -106,7 +106,7 @@ impl FsStorage {
                 let line = line.trim();
                 let rest = line.strip_prefix("**")?;
                 let term_end = rest.find("**")?;
-                let term = rest[..term_end].trim();
+                let term = rest.get(..term_end)?.trim();
                 let definition = rest
                     .get(term_end + Self::MARKDOWN_STRONG_DELIMITER_LEN..)?
                     .trim();

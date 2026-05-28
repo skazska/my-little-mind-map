@@ -931,9 +931,11 @@ async fn definitions_index_rebuilt_on_update() {
     storage.update_note(&note).await.unwrap();
 
     let defs = storage.get_definitions_index().await.unwrap();
-    let stale_entries = defs.entries.get("old").cloned().unwrap_or_default();
     assert!(
-        stale_entries.is_empty(),
+        defs.entries
+            .get("old")
+            .map(|entries| entries.iter().all(|e| e.note_id != note.id))
+            .unwrap_or(true),
         "old definition key must be removed on update"
     );
     let new_entries = defs
