@@ -974,7 +974,8 @@ async fn definition_requires_non_empty_term_and_text() {
     let space = sample_space();
     storage.create_space(&space).await.unwrap();
 
-    let mut empty_definition_meta = NoteMetadata::new("empty-definition-note", Some(space.id.clone()));
+    let mut empty_definition_meta =
+        NoteMetadata::new("empty-definition-note", Some(space.id.clone()));
     empty_definition_meta.draft = false;
     let empty_definition_note = Note {
         id: NoteId::new("test-space/empty-definition-note").unwrap(),
@@ -1001,10 +1002,7 @@ async fn definition_requires_non_empty_term_and_text() {
     storage.create_note(&empty_term_note).await.unwrap();
 
     let defs = storage.get_definitions_index().await.unwrap();
-    assert!(
-        defs.entries.is_empty(),
-        "empty term must be ignored"
-    );
+    assert!(defs.entries.is_empty(), "empty term must be ignored");
 }
 
 // ── Index reproducibility — test-first stub (TC-ST-IX-01) ───────────────────
