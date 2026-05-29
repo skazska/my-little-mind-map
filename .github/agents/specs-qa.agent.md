@@ -3,7 +3,7 @@ name: SpecsQA
 description: Explores documentation describing product, its behaviour, quality and other characteristics to assert clarity, consistency, completeness and traceability. Reports misalignments, gaps, lack of traceability and quality issues.
 argument-hint: Describe scope like product/feature/requirement/git changes (staged/unstaged)/PR and current conditions like stage (init project, POC, MVP, etc.) or concerns or specific areas to focus on.
 disable-model-invocation: false
-user-invocable: false
+user-invocable: true
 tools: ['search', 'web', 'read', 'github/issue_read', 'github.vscode-pull-request-github/issue_fetch', 'github.vscode-pull-request-github/activePullRequest', 'execute/getTerminalOutput', 'agent']
 agents: ['Explore']
 ---
