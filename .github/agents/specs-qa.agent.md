@@ -60,7 +60,7 @@ For PR scopes: use github.vscode-pull-request-github/activePullRequest.
 - Structured concise enough to be scannable and detailed enough for effective use to fix issues.
 - Common patterns and dependencies among issues, with recommendations to resolve them. 
 - Verification steps for validating fixes, both automated and manual
-- Critical files to be modified (with full paths)
+- Files where issues were found (with full paths)
 - Explicit scope boundaries — what's included and what's deliberately excluded
 - Leave no ambiguity 
 
@@ -72,7 +72,7 @@ Your SOLE responsibility is to identify and document issues and provide recommen
 
 <workflow>
 1. Check for Early finish conditions. If any is met, report and finish.
-2. Run Discovery then Analyse. If references found to documentation which wasn't discovered yet (e.g. a spec references a requirement that wasn't found in discovery), run Discovery again with updated scope to find the missing documentation, then Analyze again to update findings. Repeat until no new documentation is found. 
+2. Run Discovery then Analyse. 
 
 
 ## Discovery
@@ -95,6 +95,8 @@ If documents are in formats the agent cannot reliably read (binary diagrams, spr
 Project might miss some layers of documentation:
   - if only one layer exists (e.g. only expectations), analyze it for clarity, consistency, and completeness, report issues, and recommend creating other layers (e.g. requirements, specs) and finish.
   - if multiple layers exist but some are missing report this as a gap.
+
+If references found to local documentation which wasn't discovered yet (e.g. a spec references a requirement that wasn't found in discovery), run Discovery to find these referenced missing documentation, then Analyze results to update findings.
 </workflow>
 
 <report_style_guide>
