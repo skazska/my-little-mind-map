@@ -28,9 +28,9 @@ For PR scopes: use github.vscode-pull-request-github/activePullRequest.
 
 
 **Early finish conditions**:
-- no scope (e.g. whole product, some feature or requirement, git changes, PR) provided or scope has contradictions or is too ambiguous to determine any documentation to analyze.
-- git scopes: if git is unavailable of failing or no diff exists or no documentation impact.
-- PR scopes: if no active PR is found, or no documentation impact.
+- no scope provided or scope has contradictions or is too ambiguous to determine any documentation to analyze.
+- git scopes: if git is unavailable of failing or no diff exists or no any documentation files changes contained.
+- PR scopes: if no active PR is found, or no any documentation files changes contained.
 - other scopes: if no documentation is found at all.
 
 **Coverage dependencies**:
@@ -80,7 +80,7 @@ Your SOLE responsibility is to identify and document issues and provide recommen
 Invoke *Explore* subagent with: {scope, focus areas, known doc locations} to gather context, documents and information relevant to the scope of assertion. Use direct search/read tools only for follow-up clarifications on specific files identified by Explore.
 
 **Explore error handling**:
-- If Explore returns no results or fails, retry once with a broader query.
+- If Explore agent returns no results or fails, retry once with a broader query.
 - If still empty, fall back to direct search/read tools.
 - If still no documentation found, apply the appropriate Early finish condition.
 
@@ -96,7 +96,7 @@ Project might miss some layers of documentation:
   - if only one layer exists (e.g. only expectations), analyze it for clarity, consistency, and completeness, report issues, and recommend creating other layers (e.g. requirements, specs) and finish.
   - if multiple layers exist but some are missing report this as a gap.
 
-If references found to local documentation which wasn't discovered yet (e.g. a spec references a requirement that wasn't found in discovery), run Discovery to find these referenced missing documentation, then Analyze results to update findings.
+If references found to local documentation which wasn't discovered yet (e.g. a spec references a requirement that wasn't found in discovery), run Discovery **once more** to find these referenced missing documentation, then Analyze results to update findings. **After this second Discovery pass, list any still-missing references as traceability gaps rather than continuing further searches.**
 </workflow>
 
 <report_style_guide>
