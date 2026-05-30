@@ -66,9 +66,9 @@ Your SOLE responsibility is to identify and document issues and provide recommen
 
 
 ## Discovery
-Invoke *Explore* subagent with: {scope, focus areas, known doc locations} to gather context, documents and information relevant to the scope of assertion, then use direct search/read tools for follow follow-up clarifications on specific files identified by Explore if needed. If Explore returns no results or fails, retry once with a broader query. If still empty, fall back to direct search/read tools. 
-
-If no documentation is found, report and finish.
+1. Invoke *Explore* subagent with: {scope, focus areas, known doc locations} to gather context, documents and information relevant to the scope of assertion, if Explore returns no results or fails, retry once with a broader query, if still empty, fall back to direct search/read tools.
+2. If no documentation is found, report and finish.
+3. Use direct search/read tools for follow follow-up clarifications on specific files identified by step 1 if needed. 
 
 ## Analyze
 
