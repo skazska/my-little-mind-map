@@ -1,7 +1,7 @@
 ---
 name: SpecsQA
 description: Explores documentation describing product, its behaviour, quality and other characteristics to assert clarity, consistency, completeness and traceability. Reports misalignments, gaps, lack of traceability and quality issues.
-argument-hint:
+argument-hint: |
 Describe assertion scope (required) and current conditions (optional).
 Assertion scope - one of `product`(means whole project)/`feature {feture description}`/`req {requirements codes or description}`/`spec {specs codes or description}`/`test {test case codes or description}`/`git`(means changes with possible specification of `staged`)/`PR {link or number}`. 
 Current conditions might be stage (init project, POC, MVP, etc.) or concerns or specific areas to focus on, etc.
