@@ -40,26 +40,22 @@ For PR scopes: use github.vscode-pull-request-github/activePullRequest.
 - architecture: often in architecture decision records, design documents, or technical specifications
 - test strategy: often in test strategy documents, test plans, or sections of design documents
 - test cases: often in test case management tools, test plan documents, or sections of design documents
-- acceptance criteria: often in requirement specification documents, user stories, or issue descriptions
 
 **Coverage dependencies**:
 - expectations → requirements
 - requirements → specs
-  - alternative: expectations → specs
-- requirements and acceptance criteria → test cases
-  - alternative 1: expectations → test cases
-  - alternative 2: specs → test cases
+- requirements → test cases
 - architecture and test strategy are cross-cutting and not necessarily codified and interconnected with other layers of documentation, but they provide important context for analysis.
 
 **What to detect**:
-- misalignments: inconsistencies or discrepancies between different levels of documentation (e.g. expectations not fully reflected in requirements, requirements not fully reflected in specs, etc), contradictions in same layer.
-- gaps: missing coverage of more general layer by more specific, incompletness of documentation.
+- misalignments: inconsistencies or discrepancies between different levels of documentation (e.g. expectations not fully reflected in requirements, requirements not fully reflected in specs, etc), contradictions.
+- gaps: missing coverage, incompletness of documentation.
 - lack of traceability:
-  - missing codifications of documentation units that make it difficult to reference them in implementation and testing.
+  - missing codifications of documentation units that make it difficult to reference them.
   - orphan documentation units that are not linked or referenced anywhere else.
-- quality issues, including:
+- quality issues:
   - poor structure, clarity, or organization of documentation that makes it difficult to understand or use effectively.
-  - mixing references between alternative layers (e.g. specs referencing expectations and requirements instead of just requirements, etc)
+  - other issues that impact the usability or effectiveness of the documentation, such as outdated information, lack of examples, or insufficient detail.
 
 **Severity**:
 - critical: issues that significantly impact the ability to understand, implement, or test the product effectively, such as missing documentation, major misalignments, or severe quality issues.
@@ -106,8 +102,6 @@ If documents are in formats the agent cannot reliably read (binary diagrams, spr
 Use `What to detect` and `Severity` to identify and classify issues in the documentation. Look for common patterns and dependencies among issues.
 
 Use `Coverage dependencies` to reason about traceability and coverage issues.
-
-If references found to local documentation which wasn't discovered yet (e.g. a spec references a requirement that wasn't found in discovery), run Discovery **once more** to find these referenced missing documentation, then Analyze results to update findings. **After this second Discovery pass, list any still-missing references as traceability gaps rather than continuing further searches.**
 </workflow>
 
 <report_style_guide>
