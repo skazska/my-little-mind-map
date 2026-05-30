@@ -103,9 +103,15 @@ Build a short **behaviour plan** mapping each in-scope spec/requirement/test-cas
 Prefer automated tests where they already exist for the scope. Use manual driving (browser/devtools, terminal interaction with the app, log inspection) where no automated coverage exists, or where the spec describes behaviour that automated tests don't actually assert.
 
 ## Execute
+> **VS Code terminal sandbox** (see `docs/development.md` → *Running tests/E2E from a Copilot agent*):
+> - Rust/unit/integration tests run fine sandboxed (`just test` / `cargo test --workspace`; use `rustup run stable ...` if no default toolchain).
+> - **Web/desktop E2E must be run with unsandboxed execution requested** — ChromeDriver/`tauri-driver` spawn browsers needing namespace/GPU syscalls the seccomp profile blocks; `allowUnsandboxedCommands` alone is not enough because children inherit the profile. Symptom when sandboxed: `session not created: Chrome instance exited`.
+> - `just` recipes with heredocs may fail with `Read-only file system (os error 30)` at `/run/user/*/just/`; call the npm script directly (`cd product/web-app && npm run test:e2e`) if the `allowWrite` setting is absent.
+> - Kill stale processes before each E2E run: `pkill -f 'vite' ; pkill -f 'chromedriver'`.
+> These are environment blockers, not product defects — flag accordingly.
+
 1. Build and start only what is needed for the scope. Capture build/start output; if it fails, stop and report a blocker.
-2. Run automated tests in scope; capture pass/fail, durations, and failure output. Re-run a failing test once to detect flakiness; record both runs.
-3. For each manual item in the plan, drive the product (devtools/browser, terminal, scripted interaction), capture evidence (screenshots, console/network/log excerpts, devtools snapshots, performance traces) and store paths/snippets so they can be cited in the report.
+2. Run automated tests in scope; capture pass/fail, durations, and failure output. Re-run a failing test once to detect flakiness; record both runs.3. For each manual item in the plan, drive the product (devtools/browser, terminal, scripted interaction), capture evidence (screenshots, console/network/log excerpts, devtools snapshots, performance traces) and store paths/snippets so they can be cited in the report.
 4. For each observation, compare against the pass criterion and record: `expected` (from spec/test-case), `observed` (evidence), `verdict` (pass/fail/partial/blocked), `evidence` (paths/snippets/identifiers).
 5. Stop early on environment blockers; do not continue fabricating observations.
 

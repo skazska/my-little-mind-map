@@ -10,7 +10,11 @@
         "git": true,
         "npm": true,
         "npx": true,
-        "just": true
+        "just": true,
+        "pkill": true,
+        "true": true,
+        "pgrep": true,
+        "tauri-driver": true
     },
     "chat.mcp.autostart": "newAndOutdated",
     "chat.subagents.allowInvocationsFromSubagents": true,
@@ -26,13 +30,21 @@
     "chat.agent.sandbox.enabledWindows": "allowNetwork",
     "chat.agent.sandbox.fileSystem.linux": {
         "denyRead": [],
-        "allowRead": ["~/.cargo/bin", "~/.rustup", "~/.nvm/versions/node"],
-        "allowExecute": ["~/.cargo/bin",
-            "~/.rustup", "~/.nvm/versions/node"],
-        "allowWrite": [],
+        "allowRead": [
+            "~/.cargo/bin",
+            "~/.rustup",
+            "~/.nvm/versions/node"
+        ],
+        "allowExecute": [
+            "~/.cargo/bin",
+            "~/.rustup",
+            "~/.nvm/versions/node"
+        ],
+        "allowWrite": [
+            "/run/user/*/just"
+        ],
         "denyWrite": []
     },
     "chat.agent.sandbox.allowUnsandboxedCommands": true,
     "chat.tools.terminal.autoApproveWorkspaceNpmScripts": true,
-
 }
