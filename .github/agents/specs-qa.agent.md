@@ -1,7 +1,7 @@
 ---
 name: SpecsQA
 description: Explores documentation describing product, its behaviour, quality and other characteristics to assert clarity, consistency, completeness and traceability. Reports misalignments, gaps, lack of traceability and quality issues.
-argument-hint: Describe assertion scope and possibly current conditions. Assertion scope is like `product`(means whole project)/`feature` with feature description/`req` with requirement code or description/`spec` with code or description/`test` with test case code or description/`git` means changes with possible specification of `staged`/`PR` with link or number. Current conditions might be stage (init project, POC, MVP, etc.) or concerns or specific areas to focus on, etc.
+argument-hint: Describe assertion scope (required) and current conditions (optional). Assertion scope - one of `product`(means whole project)/`feature {feture description}`/`req {requirements codes or description}`/`spec {specs codes or description}`/`test {test case codes or description}`/`git`(means changes with possible specification of `staged`)/`PR {link or number}`. Current conditions might be stage (init project, POC, MVP, etc.) or concerns or specific areas to focus on, etc.
 disable-model-invocation: false
 user-invocable: true
 tools: ['search', 'web', 'read', 'github/issue_read', 'github/pull_request_read', 'github/search_pull_requests', 'github/list_pull_requests', 'execute/getTerminalOutput', 'agent']
@@ -82,7 +82,6 @@ Use `Coverage dependencies` to reason about traceability and coverage issues.
 
 Find common patterns and dependencies among issues.
 
-Leave no ambiguity.
 </workflow>
 
 <report_style_guide>
