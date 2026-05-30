@@ -37,7 +37,6 @@ mobile-apps/android/local.properties
 
 # IDE
 .idea/
-.vscode/settings.json
 *.swp
 *.swo
 *~

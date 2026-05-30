@@ -1,0 +1,38 @@
+{
+    "terminal.integrated.env.linux": {
+        "GTK_PATH": null,
+        "GIO_MODULE_DIR": null
+    },
+    "rust-analyzer.check.command": "clippy",
+    "rust-analyzer.cargo.buildScripts.enable": true,
+    "chat.tools.terminal.autoApprove": {
+        "cargo": true,
+        "git": true,
+        "npm": true,
+        "npx": true,
+        "just": true
+    },
+    "chat.mcp.autostart": "newAndOutdated",
+    "chat.subagents.allowInvocationsFromSubagents": true,
+    "chat.artifacts.rules.byMemoryFilePath": {
+        "**/*acceptance.md": {
+            "groupName": "Acceptance Reports"
+        },
+        "**/*plan*.md": {
+            "groupName": "Plans"
+        }
+    },
+    "chat.agent.sandbox.enabled": "allowNetwork",
+    "chat.agent.sandbox.enabledWindows": "allowNetwork",
+    "chat.agent.sandbox.fileSystem.linux": {
+        "denyRead": [],
+        "allowRead": ["~/.cargo/bin", "~/.rustup", "~/.nvm/versions/node"],
+        "allowExecute": ["~/.cargo/bin",
+            "~/.rustup", "~/.nvm/versions/node"],
+        "allowWrite": [],
+        "denyWrite": []
+    },
+    "chat.agent.sandbox.allowUnsandboxedCommands": true,
+    "chat.tools.terminal.autoApproveWorkspaceNpmScripts": true,
+
+}
