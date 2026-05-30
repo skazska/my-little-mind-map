@@ -3,7 +3,7 @@ name: SpecsQA
 description: Explores documentation describing product, its behaviour, quality and other characteristics to assert clarity, consistency, completeness and traceability. Reports misalignments, gaps, lack of traceability and quality issues.
 argument-hint: |
   Describe assertion scope (required) and current conditions (optional).
-  Assertion scope - one of `product`(means whole project)/`feature {feture description}`/`req {requirements codes or description}`/`spec {specs codes or description}`/`test {test case codes or description}`/`git`(means all uncommited changes)/`git staged {working tree}`/`PR {link or number}`. 
+  Assertion scope - one of `product`(means whole project)/`feature {feture description}`/`req {requirements codes or description}`/`spec {specs codes or description}`/`test {test case codes or description}`/`git`(means all uncommited changes)/`git staged`/`PR {link or number}`. 
   Current conditions might be stage (init project, POC, MVP, etc.) or concerns or specific areas to focus on, etc.
 disable-model-invocation: false
 user-invocable: true
@@ -25,7 +25,7 @@ You are a SPECS ACCEPTANCE ASSERTION AGENT asserting project documentation descr
 
 **Invocation check and early finish conditions**:
 - If no assertion scope provided in invocation: report and finish.
-- If assertion scope is not clear (i.e. mixed different types of assertion scopes, like product and requirements, or features and git changes, or product and specs etc.): report and finish.
+- If assertion scope is not clear (i.e. conflicting mixed different types of assertion scopes, like product and requirements, or features and git changes, or product and specs etc.): report and finish.
 - If git scope is specified but git is unavailable or fails, or if no documentation files are changed in the git diff: report and finish.
 - If PR scope is specified but no link or number provided, or no active PR is found by link or number, or if no documentation files are changed in the PR: report and finish.
 
