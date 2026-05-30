@@ -28,18 +28,27 @@ For PR scopes: use github.vscode-pull-request-github/activePullRequest.
 
 
 **Early finish conditions**:
-- no scope provided or scope has contradictions or is too ambiguous to determine any documentation to analyze.
+- no scope provided or scope has contradictions.
 - git scopes: if git is unavailable of failing or no diff exists or no any documentation files changes contained.
 - PR scopes: if no active PR is found, or no any documentation files changes contained.
 - other scopes: if no documentation is found at all.
 
+**Documentation layers**:
+- expectations: often in product vision documents, high-level requirement documents, or even in issue descriptions
+- requirements: often in requirement specification documents, user stories, or issue descriptions
+- specs: often in design documents, technical specifications, or detailed issue descriptions
+- architecture: often in architecture decision records, design documents, or technical specifications
+- test strategy: often in test strategy documents, test plans, or sections of design documents
+- test cases: often in test case management tools, test plan documents, or sections of design documents
+- acceptance criteria: often in requirement specification documents, user stories, or issue descriptions
+
 **Coverage dependencies**:
 - expectations → requirements
 - requirements → specs
-  - as fallback: expectations → specs
+  - alternative: expectations → specs
 - requirements and acceptance criteria → test cases
-  - as fallback 1: expectations → test cases
-  - as fallback 2: specs → test cases
+  - alternative 1: expectations → test cases
+  - alternative 2: specs → test cases
 - architecture and test strategy are cross-cutting and not necessarily codified and interconnected with other layers of documentation, but they provide important context for analysis.
 
 **What to detect**:
@@ -47,8 +56,10 @@ For PR scopes: use github.vscode-pull-request-github/activePullRequest.
 - gaps: missing coverage of more general layer by more specific, incompletness of documentation.
 - lack of traceability:
   - missing codifications of documentation units that make it difficult to reference them in implementation and testing.
-  - missing references between layers of meaning flow that make it difficult to understand how they relate to each other.
-- quality issues: poor structure, clarity, or organization of documentation that makes it difficult to understand or use effectively.
+  - orphan documentation units that are not linked or referenced anywhere else.
+- quality issues, including:
+  - poor structure, clarity, or organization of documentation that makes it difficult to understand or use effectively.
+  - mixing references between alternative layers (e.g. specs referencing expectations and requirements instead of just requirements, etc)
 
 **Severity**:
 - critical: issues that significantly impact the ability to understand, implement, or test the product effectively, such as missing documentation, major misalignments, or severe quality issues.
@@ -77,7 +88,7 @@ Your SOLE responsibility is to identify and document issues and provide recommen
 
 ## Discovery
 
-Invoke *Explore* subagent with: {scope, focus areas, known doc locations} to gather context, documents and information relevant to the scope of assertion. Use direct search/read tools only for follow-up clarifications on specific files identified by Explore.
+Invoke *Explore* subagent with: {scope, focus areas, known doc locations} to gather context, documents and information relevant to the scope of assertion. Use direct search/read tools only for follow follow-up clarifications on specific files identified by Explore.
 
 **Explore error handling**:
 - If Explore agent returns no results or fails, retry once with a broader query.
@@ -92,9 +103,9 @@ Collect and organize interconnected information about product, not just isolated
 
 If documents are in formats the agent cannot reliably read (binary diagrams, spreadsheets, non-text formats, non-English languages), list them as unanalyzed and flag them as a coverage limitation in the report with a note that manual review is required for those artifacts.
 
-Project might miss some layers of documentation:
-  - if only one layer exists (e.g. only expectations), analyze it for clarity, consistency, and completeness, report issues, and recommend creating other layers (e.g. requirements, specs) and finish.
-  - if multiple layers exist but some are missing report this as a gap.
+Use `What to detect` and `Severity` to identify and classify issues in the documentation. Look for common patterns and dependencies among issues.
+
+Use `Coverage dependencies` to reason about traceability and coverage issues.
 
 If references found to local documentation which wasn't discovered yet (e.g. a spec references a requirement that wasn't found in discovery), run Discovery **once more** to find these referenced missing documentation, then Analyze results to update findings. **After this second Discovery pass, list any still-missing references as traceability gaps rather than continuing further searches.**
 </workflow>
