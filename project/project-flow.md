@@ -4,7 +4,7 @@ Project flow guidelines, including planning, expectations gathering, decision ma
 
 Project data and documentation in `project/`.
 
-Project idea, vision, and goals in `project/IDEA.md`.
+Project idea, vision, and goals in `IDEA.md`.
 
 ## policies
 
@@ -34,7 +34,7 @@ Project idea, vision, and goals in `project/IDEA.md`.
 
 ## Flow structure
 
-1. [PLAN](../project/PLAN.md) - high-level plan and roadmap, milestones (like POC, MVP etc.).
+1. [PLAN](./PLAN.md) - high-level plan and roadmap, milestones (like POC, MVP etc.).
 2. Each milestone consists of sprints and represented by file `project/{MILESTONE}.md` containing overall goals, expectations, open-questions, decisions, status and `results and learnings`, and a folder `project/{MILESTONE}/` with artifacts and optional detailed files for expectations, decisions, and results:
     - `{MILESTONE}-expectations.md` - milestone expectations details.
     - `{MILESTONE}-decisions.md` - milestone implementation decisions details.
@@ -54,4 +54,4 @@ Tasks can block each other and so sprints and milestones.
 3. Each sprint planned in milestone is to be created with its file and folder via one plan & research session for all tasks or task by task by task plan & research series. Upon task completion, sprint status is to be updated.
 4. Sprints can be started as planned and not blocked.
 5. Tasks can be performed in steps if needed, but should be completed in the same sprint.
-6. All tasks produce changes in repository which should commited, pushed and merged via PR with addressing code-review comments according to [git flow guidelines](../git-flow.md). Task file and folder should be updated with links to PR, commits, and other relevant artifacts.
+6. All tasks produce changes in repository which should commited, pushed and merged via PR with addressing code-review comments. Task file and folder should be updated with links to PR, commits, and other relevant artifacts.
