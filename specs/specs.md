@@ -23,7 +23,7 @@ Spec IDs (e.g. `S-DM-N5`, `S-UX-NE4`) are stable identifiers. They MUST appear i
 - commit messages and PR descriptions that change behaviour governed by the spec,
 - design notes and ADRs referencing the constraint.
 
-The intended flow is: **spec → test cases → tests → code implementation** (see [AGENTS.md](../AGENTS.md) "document-test-code").
+The intended flow is: **spec → test cases → tests → code implementation** (see [AGENTS.md](../AGENTS.md) "Specs→Tests→Code").
 
 ## Status
 

@@ -7,7 +7,7 @@ use crate::model::{Label, NoteMetadata, NoteReference, NoteReferenceKind};
 
 // ── Serialised form stored in .md front matter ────────────────────────────────
 
-// [S-DM-N5](specs/specs.md###Notes)
+// [S-DM-N5](../../../../specs/specs/data-model.md)
 #[derive(Debug, Serialize, Deserialize)]
 struct RawFrontMatter {
     uuid: Uuid,

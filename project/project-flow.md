@@ -8,7 +8,7 @@ Project idea, vision, and goals in `IDEA.md`.
 
 ## policies
 
-- **document-test-code**:
+- **Specs→Tests→Code**:
   - refer to documentation for guidelines and standards,
   - document what going to do,
   - rich internal linking in documentation,
