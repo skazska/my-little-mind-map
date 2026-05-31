@@ -16,7 +16,7 @@ handoffs:
     send: true
   - label: Open in Editor
     agent: agent
-    prompt: '#createFile report as is into an untitled file (`untitled:implementation-acceptance-${camelCaseName}.prompt.md` without frontmatter) for further refinement.'
+    prompt: '#createFile report as is into an untitled file (`untitled:specs-acceptance-${camelCaseName}.prompt.md` without frontmatter) for further refinement.'
     send: true
     showContinueOn: false
 ---
@@ -47,7 +47,7 @@ You are a SPECS ACCEPTANCE ASSERTION AGENT asserting product definitions, its be
 
 **Coverage dependencies**:
 - expectations → specs
-- expectations → test cases
+- specs → test cases
 - architecture and test strategy are cross-cutting and not necessarily codified and interconnected with other layers of Specification, but they provide important context for analysis.
 
 **What to detect**:
@@ -70,6 +70,7 @@ Your SOLE responsibility is to identify and specification issues and provide rec
 <rules>
 - DO NOT EDIT files — implementations are for others to deal with.
 - DO NOT assert project-flow Specification as it is not part of product Specification.
+- TREAT `IDEA.md` as a non-authoritative vision sketch (context only); assert against the codified product definition in `specs/` (expectations, specs, test cases), not against `IDEA.md`.
 </rules>
 
 <workflow>

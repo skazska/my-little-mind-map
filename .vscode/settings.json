@@ -47,4 +47,5 @@
     },
     "chat.agent.sandbox.allowUnsandboxedCommands": true,
     "chat.tools.terminal.autoApproveWorkspaceNpmScripts": true,
+    "markdown.validate.enabled": true,
 }

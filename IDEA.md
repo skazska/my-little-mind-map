@@ -1,5 +1,7 @@
 # my-little-mind-map
 
+> **Note:** This is the original, broad and informal idea sketch — a vision reminder, not a business request or specification. It is **not** part of spec traceability and is **not** authoritative. For the actual product definition see [specs/expectations.md](specs/expectations.md), [specs/specs.md](specs/specs.md), and [specs/architecture.md](specs/architecture.md). Implementation choices and structure live in those documents and may differ from anything hinted at here.
+
 ## What?
 
 Mobile, desktop, web apps, backend service for sync and storage.
@@ -98,42 +100,8 @@ Views are perspectives on topics, they can be used to group topics and artifacts
 Local first, sync to backend service, but can work without it.
 Single-user data ownership.
 
-## Tech Stack
+## Direction (non-binding)
 
-Rust first.
+Shared business logic with thin platform clients; local-first with an optional sync/storage backend; build the app with AI assistance and iterate.
 
-Mobile Apps: Swift on iOS, Kotlin on Android, FFI to Rust lib that implements the biz logic and client for the API.
-Desktop App: Tauri, FFI to Rust lib that implements the biz logic and client for the API.
-Web App: React, FFI to Rust lib that implements the biz logic and client for the API.
-[CRUX](https://github.com/redbadger/crux)
-Backend Service: Rust Axum
-
-## File structure
-
-- libs: Rust libraries for business logic and API client, etc.
-- mobile-apps: Swift and Kotlin projects for iOS and Android apps.
-- desktop-app: Tauri project for desktop app.
-- web-app: React project for web app.
-- backend-service: Rust project for backend service.
-- docs: documentation, design, etc.
-- tests: integration tests, etc.
-
-## Development process
-
-### infra structure, build system, CI/CD, deployment, etc
-
-GitHub for code hosting, issue tracking, project management, etc.
-Monorepo at first stages, may split later if needed, multilanguage support.
-
-Local first:
-
-- Local containers for backend services, storage, etc.
-- Local development and testing environment for mobile, desktop, web apps.
-
-CI/CD:
-
-- GitHub Actions for building, testing, and deploying apps and backend service.
-- Deploy backend service to VPS.
-- Deploy mobile apps to App Store and Google Play.
-- Deploy desktop app to GitHub Releases.
-- Deploy web app to VPS.
+Concrete technology, repository structure, and delivery/CI choices are intentionally left out of this reminder — see [specs/architecture.md](specs/architecture.md) and [docs/development.md](docs/development.md) for the authoritative, current decisions.
