@@ -64,8 +64,8 @@ Inspired by personal knowledge management, note-taking, and project management t
 - rich internal linking in documentation.
 
 **api-first**: design API before implementation.
-**function over code deduplication**: code may look duplicated but if it serves different purpose it may diverge in the future. TBD: move to coder agent
-**plan changes, not calendar**: no deadlines and time estimates, plan changes and iterations instead. Tasks are "units of change", sprints are "transitions between consistent states of the product". (TBD: plan tokens)
+**function over code deduplication**: duplication is acceptable only when the duplicated code serves genuinely distinct purposes likely to diverge; otherwise deduplicate. Same-purpose copies that share a change-reason are redundancy, not divergence.
+**plan changes, not calendar**: no deadlines and time estimates, plan changes and iterations instead. Tasks are "units of change", sprints are "transitions between consistent states of the product".
 
 ## Repo structure
 
@@ -94,7 +94,11 @@ Inspired by personal knowledge management, note-taking, and project management t
 **Git Flow**: See `docs/development/git-flow.md`
 **CI/CD**: GitHub Actions
 
-## MCP services
+## QA agents
 
-io.github.github/github-mcp-server
-io.github.ChromeDevTools/chrome-devtools-mcp
+Specialized review agents in `.github/agents/` (invoke to assert, not to implement):
+
+- **SpecsQA**: documentation clarity, consistency, completeness, traceability.
+- **ImplementationQA**: code/test alignment, gaps, and traceability to specs/test cases.
+- **CodeQA**: intrinsic code quality (readability, complexity, security, performance, duplication).
+- **BehaviourQA**: runtime behaviour vs specs via tests/E2E/devtools.
