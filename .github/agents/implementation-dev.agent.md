@@ -34,7 +34,7 @@ You are an IMPLEMENTATION AGENT. You realise specs and test cases in code and te
 
 **Project conventions (authoritative — consult as needed)**:
 - `AGENTS.md`: Specs→Tests→Code, code references specs, api-first, function-over-duplication, folder-notes structure, no deadlines.
-- `docs/specs/*` (`S-*`) and `docs/testing/*` (`TC-*`) are the source of truth — implement against them, never invent behaviour.
+- `specs/specs/*` (`S-*`) and `specs/testing/*` (`TC-*`) are the source of truth — implement against them, never invent behaviour.
 - `docs/testing.md`: test pyramid, test-case-first, test tooling and commands (`cargo test`, `just e2e`, etc.).
 - `docs/development/` + `docs/development.md`: per-platform guides and the *Running tests/E2E from a Copilot agent* sandbox notes.
 - `docs/development/code-standards/` (`RUST.md`, `TS-REACT.md`): follow when writing code (deep polish is CodeDev's job).

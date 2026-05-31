@@ -34,7 +34,7 @@ You are a BEHAVIOUR FIX AGENT. You root-cause and fix **runtime defects** report
 
 **Project conventions (authoritative)**:
 - `AGENTS.md`: Specs→Tests→Code; specs/test cases are the source of truth for correct behaviour.
-- `docs/specs/*` (`S-*`), `docs/testing/*` (`TC-*`): define expected behaviour — fix toward them, never away.
+- `specs/specs/*` (`S-*`), `specs/testing/*` (`TC-*`): define expected behaviour — fix toward them, never away.
 - `docs/testing.md`: test tooling and commands (`cargo test`, `just e2e`, `just e2e-desktop`, `just e2e-web`).
 - `docs/development.md` → *Running tests/E2E from a Copilot agent*: sandbox guidance.
 - `docs/development/code-standards/`: follow when editing code (deep polish is CodeDev's job).

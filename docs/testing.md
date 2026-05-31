@@ -1,6 +1,7 @@
-# Testing
+# Testing Strategy
 
-Test-cases to be stored in `docs/testing/` as markdown files, organized by feature or user flow.
+This document covers test strategy, tooling, and infrastructure.
+Test-cases (with `TC-*` IDs) are stored in [`specs/testing/`](../specs/testing/) — see [`specs/testing.md`](../specs/testing.md) for the index.
 
 ## Expectations
 
@@ -84,9 +85,4 @@ It is reasonable to:
 
 ### Test case files
 
-| File | Layer | Covers |
-|------|-------|--------|
-| [testing/data-model.md](testing/data-model.md) | Unit | Types, IDs, labels, frontmatter |
-| [testing/storage.md](testing/storage.md) | Integration | Storage CRUD, filesystem layout, indexes |
-| [testing/app-logic.md](testing/app-logic.md) | Unit / Integration | Shared core: `update()`, `view()`, effects |
-| [testing/user-flows.md](testing/user-flows.md) | E2E | Full user flows via Tauri WebDriver |
+See [`specs/testing.md`](../specs/testing.md) for the test-case index.

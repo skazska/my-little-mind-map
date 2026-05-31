@@ -56,7 +56,7 @@ RUST_LOG=debug
 ## code process
 
 [code standards](development/code-standards.md)
-[testing](development/testing.md)
+[testing strategy](testing.md) | [test cases](../specs/testing.md)
 
 ## Troubleshooting
 

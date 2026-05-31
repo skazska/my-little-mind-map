@@ -4,7 +4,7 @@ This section contains technical specifications for the MyLittleMindMap product. 
 
 ## Unification
 
-Most specifications are unified across all platforms; platform-specific details are documented in [architecture](architecture.md) and the platform sections under [development](development.md). The core logic and data model are shared across platforms, while UI and storage implementations may differ.
+Most specifications are unified across all platforms; platform-specific details are documented in [architecture](architecture.md) and the platform sections under [development](../docs/development.md). The core logic and data model are shared across platforms, while UI and storage implementations may differ.
 
 ## Contents
 

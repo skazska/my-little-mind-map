@@ -73,11 +73,13 @@ Inspired by personal knowledge management, note-taking, and project management t
 
 ## Repo structure
 
-- `docs/`: documentation and guidelines for this project.
-  - architecture: architecture overview (.md and folder)
-  - development: development guidelines (.md and folder).
-  - specs: specifications (.md and folder)
-  - tests: testing guidelines and test cases (.md and folder)
+- `specs/`: product definitions (expectations, specs, architecture, test-cases, acceptance-criteria)
+  - `expectations.md`: high-level business/user expectations
+  - `architecture.md`: system architecture overview
+  - `specs.md` + `specs/`: technical specifications (`S-*` prefixes)
+  - `testing.md` + `testing/`: test cases (`TC-*` prefixes)
+- `docs/`: developer, user, and ops documentation
+  - `development.md` + `development/`: developer guides, setup, code standards, test strategy/tooling
 - `product/`: product implementation
 - `project/`: project flow artifacts
 
