@@ -11,8 +11,8 @@ tools: ['search', 'read', 'github/issue_read', 'github.vscode-pull-request-githu
 agents: ['Explore']
 handoffs:
   - label: Start fixing
-    agent: agent
-    prompt: 'Start fixing'
+    agent: BehaviourDev
+    prompt: 'Start fixing the issues in the report above.'
     send: true
   - label: Open in Editor
     agent: agent

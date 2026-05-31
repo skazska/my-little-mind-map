@@ -11,8 +11,8 @@ tools: ['search', 'web', 'read', 'github/issue_read', 'github/pull_request_read'
 agents: ['Explore']
 handoffs:
   - label: Start fixing
-    agent: agent
-    prompt: 'Start fixing'
+    agent: SpecsDev
+    prompt: 'Start fixing the issues in the report above.'
     send: true
   - label: Open in Editor
     agent: agent
