@@ -65,7 +65,11 @@ Inspired by personal knowledge management, note-taking, and project management t
 
 **api-first**: design API before implementation.
 **function over code deduplication**: duplication is acceptable only when the duplicated code serves genuinely distinct purposes likely to diverge; otherwise deduplicate. Same-purpose copies that share a change-reason are redundancy, not divergence.
-**plan changes, not calendar**: no deadlines and time estimates, plan changes and iterations instead. Tasks are "units of change", sprints are "transitions between consistent states of the product".
+**project flow**: see `project/` and `project/structure.md` for project flow guidelines, including planning, expectations gathering, decision making, and other project management practices.
+
+- do not mix project flow with docs, specs, test cases, and code.
+- refer expectations, specs, test cases, and code from project flow artifacts, not the opposite.
+- plan changes, not calendar: no deadlines and time estimates, plan changes and iterations instead. Tasks are "units of change", sprints are "transitions between consistent states of the product".
 
 ## Repo structure
 
@@ -91,7 +95,7 @@ Inspired by personal knowledge management, note-taking, and project management t
 **Rust first**: for backend and business logic, with FFI, WASM, and CRUX for cross-platform support.
 **Developer guides**: see `docs/development/`
 **Testing**: unit for reusable or non-typing protected logic, integration and E2E for user flows and critical features.
-**Git Flow**: See `docs/development/git-flow.md`
+**Git Flow**
 **CI/CD**: GitHub Actions
 
 ## QA agents

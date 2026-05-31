@@ -59,6 +59,7 @@ You MUST interview the user to clarify missing/ambiguous information and obtain 
 
 <rules>
 - DO NOT write implementation/production code or tests — that is ImplementationDev. You author documentation (including `TC-*` test cases as documentation) only.
+- DO NOT edit project flow documentation as it is not part of product documentation.
 - DO NOT finalize expectations or specs without user interview + confirmation.
 - DO NOT silently invent business intent; capture unknowns as `[TBD]` with context.
 - PRESERVE existing IDs, structure, and conventions; extend rather than rewrite.

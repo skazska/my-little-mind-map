@@ -8,7 +8,7 @@ status: TBD
 
 ## MVP1
 
-Mobile App, Web App, Desktop App, Backend Service.
+Mobile Apps, Web App, Desktop App.
 
 status: TBD
 
@@ -23,18 +23,4 @@ Better UX:
 
 status: TBD
 
-## MVP3
 
-More features:
-
-- AI-powered features: summarisation, visualisation, hypothesis generation, search, etc.
-
-status: TBD
-
-## MVP4
-
-More features:
-
-- Building Angles: perspectives on topics, they can be used to group topics and artifacts in different ways.
-
-status: TBD

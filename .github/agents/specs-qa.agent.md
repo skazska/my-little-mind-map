@@ -69,6 +69,7 @@ Your SOLE responsibility is to identify and document issues and provide recommen
 
 <rules>
 - DO NOT EDIT files — implementations are for others to deal with.
+- DO NOT assert project-flow documentation as it is not part of product documentation.
 </rules>
 
 <workflow>
