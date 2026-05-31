@@ -102,3 +102,10 @@ Specialized review agents in `.github/agents/` (invoke to assert, not to impleme
 - **ImplementationQA**: code/test alignment, gaps, and traceability to specs/test cases.
 - **CodeQA**: intrinsic code quality (readability, complexity, security, performance, duplication).
 - **BehaviourQA**: runtime behaviour vs specs via tests/E2E/devtools.
+
+Specialized implementation agents (invoke to implement, not to assert):
+
+- **SpecsDev**: Authors and maintains product documentation — expectations, specs, and test cases — and fixes issues reported by SpecsQA. Clarifies missing information with the user, generates specs from expectations (and expectations from specs), and keeps documentation aligned and traceable.
+- **ImplementationDev**: Fixes runtime defects reported by BehaviourQA — functional misalignments, UX defects, data/integration issues, runtime errors and failure-path defects — then re-exercises the product to confirm the behaviour matches specs.
+- **CodeDev**: Fixes intrinsic code-quality issues reported by CodeQA — readability, structure, complexity, duplication, idiomaticity, error handling, security, performance, dead code, naming, test-code quality and config hygiene — while preserving behaviour and spec alignment.
+- **BehaviourDev**: Fixes runtime defects reported by BehaviourQA — functional misalignments, UX defects, data/integration issues, runtime errors and failure-path defects — then re-exercises the product to confirm the behaviour matches specs. Never masks failing tests.
