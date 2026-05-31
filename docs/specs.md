@@ -19,7 +19,7 @@ Most specifications are unified across all platforms; platform-specific details 
 
 Spec IDs (e.g. `S-DM-N5`, `S-UX-NE4`) are stable identifiers. They MUST appear in:
 
-- test names / test descriptions covering the requirement,
+- test names / test descriptions covering the spec,
 - commit messages and PR descriptions that change behaviour governed by the spec,
 - design notes and ADRs referencing the constraint.
 

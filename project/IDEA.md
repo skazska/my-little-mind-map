@@ -57,7 +57,7 @@ Need to keep quick usefull notes, cheatsheets, how-tos from eventual learning ma
 As technical lead.
 
 Need to control actual and potential problems of product in development: identify, track, search and manage solutions. So need to keep all the contexts of problems and solutions.
-Need to keep all the contexts of project: goals, requirements, design decisions, implementation details, processes.
+Need to keep all the contexts of project: goals, expectations, design decisions, implementation details, processes.
 Need to maintain the big picture on all layers: from mid-senior employees to stakeholders and be able to understand and explain with arguments using consistent interconnections across layers.
 
 ### Hobby

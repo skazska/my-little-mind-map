@@ -6,7 +6,7 @@
   - folders for each plan milestone
     - status (.md and folder)
     - results (.md and folder)
-    - requirements (.md and folder)
+    - expectations (.md and folder)
     - decisions (.md and folder)
     - phases/sprints
       - tasks, issues, etc.

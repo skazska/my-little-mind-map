@@ -1,6 +1,6 @@
 # Project flow
 
-Project flow guidelines, including planning, requirements gathering, decision making, and other project management practices.
+Project flow guidelines, including planning, expectations gathering, decision making, and other project management practices.
 
 Project data and documentation in `project/`.
 
@@ -28,22 +28,22 @@ Project idea, vision, and goals in `project/IDEA.md`.
 - documentation: changes proposed to improve documentation (dev, project, spec), actualize docs, add new docs, update statuses.
 - plan & research: activities related to planning and researching for milestones, sprints, and tasks, including creating and updating project documentation, researching solutions, etc.
 - iteration: can be one or set of any of the above change types planed or unplanned, included in pull request.
-- task: planned unit of change that can be implemented, tested, and reviewed within a sprint, with clear goal, requirements, design, acceptance criteria, and deliverables.
-- sprint: planned transition between consistent states of the product, consisting of a set of tasks that can be performed in parallel or sequentially, with clear requirements, decisions, and status.
+- task: planned unit of change that can be implemented, tested, and reviewed within a sprint, with clear goal, expectations, design, acceptance criteria, and deliverables.
+- sprint: planned transition between consistent states of the product, consisting of a set of tasks that can be performed in parallel or sequentially, with clear expectations, decisions, and status.
 - milestone: a significant stage or event in the project, such as POC, MVP, etc.
 
 ## Flow structure
 
 1. [PLAN](../project/PLAN.md) - high-level plan and roadmap, milestones (like POC, MVP etc.).
-2. Each milestone consists of sprints and represented by file `project/{MILESTONE}.md` containing overall goals, requirements, open-questions, decisions, status and `results and learnings`, and a folder `project/{MILESTONE}/` with artifacts and optional detailed files for requirements, decisions, and results:
-    - `{MILESTONE}-requirements.md` - milestone requirements details.
+2. Each milestone consists of sprints and represented by file `project/{MILESTONE}.md` containing overall goals, expectations, open-questions, decisions, status and `results and learnings`, and a folder `project/{MILESTONE}/` with artifacts and optional detailed files for expectations, decisions, and results:
+    - `{MILESTONE}-expectations.md` - milestone expectations details.
     - `{MILESTONE}-decisions.md` - milestone implementation decisions details.
     - `{MILESTONE}-results.md` - results and learnings from this milestone, including further PLAN change decisions.
-3. Each sprint consists of tasks and represented by file `project/{MILESTONE}/{MILESTONE}-{SPRINT}.md` with overall goals, requirements, open-questions, decisions and status and a folder `project/{MILESTONE}/{MILESTONE}-{SPRINT}/` with artifacts and optional detailed files for requirements, decisions, and status:
-    - `{MILESTONE}-{SPRINT}-requirements.md` - requirements for this sprint, including features, improvements, bug fixes, etc.
+3. Each sprint consists of tasks and represented by file `project/{MILESTONE}/{MILESTONE}-{SPRINT}.md` with overall goals, expectations, open-questions, decisions and status and a folder `project/{MILESTONE}/{MILESTONE}-{SPRINT}/` with artifacts and optional detailed files for expectations, decisions, and status:
+    - `{MILESTONE}-{SPRINT}-expectations.md` - expectations for this sprint, including features, improvements, bug fixes, etc.
     - `{MILESTONE}-{SPRINT}-decisions.md` - decisions made for this sprint implementations, including design choices, trade-offs, etc.
     - `{MILESTONE}-{SPRINT}-status.md` - current status of this sprint.
-4. Each task represented by file `project/{MILESTONE}/{MILESTONE}-{SPRINT}/{MILESTONE}-{SPRINT}-{TASK}.md` with details of the task, including goal, requirements, open-questions, design, deliverables, acceptance criteria, etc. and optionally a folder `project/{MILESTONE}/{MILESTONE}-{SPRINT}/{MILESTONE}-{SPRINT}-{TASK}/` with additional artifacts or task details.
+4. Each task represented by file `project/{MILESTONE}/{MILESTONE}-{SPRINT}/{MILESTONE}-{SPRINT}-{TASK}.md` with details of the task, including goal, expectations, open-questions, design, deliverables, acceptance criteria, etc. and optionally a folder `project/{MILESTONE}/{MILESTONE}-{SPRINT}/{MILESTONE}-{SPRINT}-{TASK}/` with additional artifacts or task details.
 
 ## Flow process
 
@@ -55,4 +55,3 @@ Tasks can block each other and so sprints and milestones.
 4. Sprints can be started as planned and not blocked.
 5. Tasks can be performed in steps if needed, but should be completed in the same sprint.
 6. All tasks produce changes in repository which should commited, pushed and merged via PR with addressing code-review comments according to [git flow guidelines](../git-flow.md). Task file and folder should be updated with links to PR, commits, and other relevant artifacts.
-

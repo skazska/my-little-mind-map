@@ -9,8 +9,8 @@ argument-hint: 'yaml with fields:
     goals:
       - GOAL_{GOAL_CODE}: description
       - ...
-    requirements:
-      - REQ_{REQUIREMENT_CODE}: description
+    expectations:
+      - EXP_{EXPECTATION_CODE}: description
       - ...
     design_notes?:
       - DN_{DESIGN_NOTE_CODE}: description
@@ -33,7 +33,7 @@ argument-hint: 'yaml with fields:
   patch_{milestone|sprint|task}:
     name: {MILESTONE_NAME}[-{SPRINT}[-{TASK}]]:
     description?: short description of the milestone/sprint/task
-    {goals|requirements|design_notes|deliverables|open_questions|acceptance_criteria|decisions|status|results|blockers|custom_section_name}?:
+    {goals|expectations|design_notes|deliverables|open_questions|acceptance_criteria|decisions|status|results|blockers|custom_section_name}?:
       - {section_code}: description
       - ...
   rename_{milestone|sprint|task}:
@@ -50,8 +50,8 @@ argument-hint: 'yaml with fields:
       - ...
   details_{milestone|sprint}:
     name: {MILESTONE_NAME}[-{SPRINT}]
-    requirements?:
-      - REQ_{REQUIREMENT_CODE}: details
+    expectations?:
+      - EXP_{EXPECTATION_CODE}: details
       - ...
     decisions?:
       - D_{DECISION_CODE}: details
@@ -76,7 +76,7 @@ Use this skill when you need to:
 - Add, patch tasks in a sprint
 - Update task, sprint, milestone status, results, decisions so progress stays internally consistent
 - Rename milestones, sprints, or tasks to keep naming consistent and clear
-- Add details to milestone or sprint requirements, decisions, or results as dedicated files linked from summary file.
+- Add details to milestone or sprint expectations, decisions, or results as dedicated files linked from summary file.
 - Add artifact files to milestone, sprint, or task folders to be linked from summary file. 
 
 ## Inputs
@@ -121,9 +121,9 @@ short description.
 - [BLK_2](link to blocker details file and section if exists)
 ...
 
-## Requirements
-- [REQ_1]
-- [REQ_2]
+## Expectations
+- [EXP_1]
+- [EXP_2]
 ... 
 
 ## Open questions
@@ -163,7 +163,7 @@ short description.
 
 ```
 
-Template for milestone/sprint requirements, decisions, and results details files:
+Template for milestone/sprint expectations, decisions, and results details files:
 ```
 # {MILESTONE} / {MILESTONE}-{SPRINT} / {MILESTONE}-{SPRINT}-{TASK} {section}
 
@@ -192,17 +192,17 @@ Description
 
 2. Ensure milestone artifacts exist and are current
 - For a new milestone, create a milestone file and milestone folder with required companion docs used by this repository.
-- For an existing milestone, update goals, requirements, open-questions, decisions, status, and results sections as needed.
+- For an existing milestone, update goals, expectations, open-questions, decisions, status, and results sections as needed.
 - Keep links between milestone summary and milestone folder files current.
 
 3. Ensure sprint/phase artifacts exist and are current
 - Create or update sprint/phase summary file under the milestone path.
-- Create or update sprint companion docs (goals, requirements, open-questions, decisions, status) if that pattern is used for the milestone.
+- Create or update sprint companion docs (goals, expectations, open-questions, decisions, status) if that pattern is used for the milestone.
 - Make sure sprint status reflects task states and blockers.
 
 4. Ensure task artifacts exist and are current
 - Create or update task file using task numbering and naming used in the sprint.
-- Include goal, requirements, open-questions, design notes, deliverables, acceptance criteria, and status.
+- Include goal, expectations, open-questions, design notes, deliverables, acceptance criteria, and status.
 - Record implementation artifacts (PRs, commits, follow-ups) when available.
 
 5. Update status chain bottom-up
@@ -243,7 +243,7 @@ Status roll-up rules:
 
 ## Quality Criteria
 
-- Documentation-first: decisions, open-questions, requirements, and goals are documented before implementation status is marked complete.
+- Documentation-first: decisions, open-questions, expectations, and goals are documented before implementation status is marked complete.
 - Traceability: each status update is backed by links to tasks and implementation artifacts when available.
 - Consistency over novelty: prefer existing repository structure and naming conventions over inventing new ones.
 - Minimal drift: update all impacted docs in one pass to avoid stale status snapshots.
