@@ -24,6 +24,20 @@ Inspired by personal knowledge management, note-taking, and project management t
 **Prefer Markdown and human-readable formats**.
 **Prefer standards over custom solutions**.
 **Performance and scalability matters**.
+**Specification notation & tooling**: one notation per purpose; all renderable from plain text with no extra infrastructure.
+
+- Markdown is the source of truth for all specifications (prose, structured `S-*`/`TC-*` lists, tables).
+- Diagrams use [Mermaid](https://mermaid.js.org/) (renders natively in GitHub/VS Code); prefer Mermaid over hand-drawn ASCII for new diagrams.
+- Notation per purpose:
+  - prose / structured specs → Markdown.
+  - lo-fi wireframes (expectations) → [wireMD](https://github.com/wireMD/spec) text sketches.
+  - hi-fi UI layout wireframes → Mermaid block diagrams (`block-beta`).
+  - interaction flows / state / sequences → Mermaid `flowchart` / `stateDiagram` / `sequenceDiagram`.
+  - data model / relationships → Mermaid `erDiagram` / `classDiagram`.
+  - architecture → Mermaid.
+  - file / folder layouts → plain code-block tree (kept as text, not a diagram).
+- Excluded: notations requiring rendering infrastructure or external tools (e.g. PlantUML/Salt, design-tool-only exports).
+- Traceability is unaffected: `S-*`/`TC-*` codes stay in prose and diagram captions, not encoded in diagram syntax.
 **Specs driven development**:
 
 - write specs first

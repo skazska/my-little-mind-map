@@ -6,29 +6,25 @@ My Little Mind Map architecture
 
 Cross-platform
 
-```
-┌───────────────────────────────────────────────────────────────┐
-│                        Platform Shells                        │
-│                                                               │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────────┐  │
-│  │   iOS    │  │ Android  │  │   Web    │  │    Desktop    │  │
-│  │ SwiftUI  │  │ Compose  │  │  React   │  │ Tauri+React   │  │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └──────┬────────┘  │
-│       │UniFFI       │UniFFI       │WASM           │Direct     │
-│  ┌────┴─────────────┴─────────────┴───────────────┴────────┐  │
-│  │              CRUX Shared Core (Rust)                    │  │
-│  │  Events → update(Model) → Effects + ViewModel → render  │  │
-│  └─────────────────────────┬───────────────────────────────┘  │
-│                            │ HTTP                             │
-│  ┌─────────────────────────┴───────────────────────────────┐  │
-│  │            Backend Service (Axum)                       │  │
-│  │            REST API for advanced features               │  │
-│  └──────────────────────────┬──────────────────────────────┘  │
-│                             │                                 │
-│  ┌──────────────────────────┴──────────────────────────────┐  │
-│  │            Database (SQLite → PostgreSQL)               │  │
-│  └─────────────────────────────────────────────────────────┘  │
-└───────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Shells["Platform Shells"]
+        direction LR
+        iOS["iOS<br/>SwiftUI"]
+        Android["Android<br/>Compose"]
+        Web["Web<br/>React"]
+        Desktop["Desktop<br/>Tauri+React"]
+    end
+    Core["CRUX Shared Core (Rust)<br/>Events → update(Model) → Effects + ViewModel → render"]
+    Backend["Backend Service (Axum)<br/>REST API for advanced features"]
+    DB[("Database<br/>SQLite → PostgreSQL")]
+
+    iOS -->|UniFFI| Core
+    Android -->|UniFFI| Core
+    Web -->|WASM| Core
+    Desktop -->|Direct| Core
+    Core -->|HTTP| Backend
+    Backend --> DB
 ```
 
 ## CRUX Pattern
@@ -43,8 +39,12 @@ The shared core follows the Elm architecture:
 
 ## Data Flow
 
-```
-Shell (UI) ──Event──► Core.update() ──Effects──► Shell (execute)
-     ▲                     │                          │
-     └──── ViewModel ◄─────┘     response ────────────┘
+```mermaid
+sequenceDiagram
+    participant Shell as Shell (UI)
+    participant Core as Core.update()
+    Shell->>Core: Event
+    Core-->>Shell: ViewModel (render)
+    Core->>Shell: Effects (execute)
+    Shell->>Core: response
 ```
