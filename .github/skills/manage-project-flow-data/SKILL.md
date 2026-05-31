@@ -66,7 +66,7 @@ user-invocable: true
 
 # Manage Project Flow Data
 
-Create and update planning artifacts in `project/` using the repository [project-flow](../../../docs/project-flow.md) conventions.
+Create and update planning artifacts in `project/` using the repository [project-flow](../../../project/project-flow.md) conventions.
 
 create PLAN.md if it does not exist.
 
@@ -250,5 +250,5 @@ Status roll-up rules:
 
 ## References
 
-- Project flow guideline: `../../../docs/project-flow.md`
+- Project flow guideline: `../../../project/project-flow.md`
 - Workspace policies: `../../../AGENTS.md`

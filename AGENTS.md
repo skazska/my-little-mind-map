@@ -72,10 +72,10 @@ Inspired by personal knowledge management, note-taking, and project management t
 - `docs/`: documentation and guidelines for this project.
   - architecture: architecture overview (.md and folder)
   - development: development guidelines (.md and folder).
-  - project-flow: project management guidelines (.md and folder).
   - specs: specifications (.md and folder)
   - tests: testing guidelines and test cases (.md and folder)
 - `product/`: product implementation
+- `project/`: project management documentation and artifacts
 
 ## Product Key Expectations
 
