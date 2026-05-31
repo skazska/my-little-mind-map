@@ -79,7 +79,7 @@ Inspired by personal knowledge management, note-taking, and project management t
   - specs: specifications (.md and folder)
   - tests: testing guidelines and test cases (.md and folder)
 - `product/`: product implementation
-- `project/`: project management documentation and artifacts
+- `project/`: project flow artifacts
 
 ## Product Key Expectations
 
