@@ -10,7 +10,17 @@ Inspired by personal knowledge management, note-taking, and project management t
 
 ## Policies
 
-**Prefer folder note filestructures**.
+**Prefer folder-notes directory structure to organize content detalization**:
+
+- structure-folders can group by content type, for example, `docs/`, `specs/`, `tests/`, `src/`, `src/lib/`, `src/components/`.
+- note-folders can contain details for a specific artifact, for example:
+  - `project/milestones`:
+    - `milestone-1.md`: summary of the milestone.
+    - `milestone-1/`: note-folder for the milestone-1.md different artifacts, and even own `structure folder`s inside note-folder like `project/milestones/milestone-1/tasks/`.
+  - `src/modules`:
+    - `module-1.js`: main file for the module.
+    - `module-1/`: note-folder for the module-1 incapsulated files and even own `structure folder`s inside note-folder like `src/modules/module-1/services/`.
+
 **Prefer Markdown and human-readable formats**.
 **Prefer standards over custom solutions**.
 **Performance and scalability matters**.
@@ -18,35 +28,36 @@ Inspired by personal knowledge management, note-taking, and project management t
 
 - write specs first
 - specs must be codified
-- spec codes must start with `S_`
+- spec codes must start with `S-`
 - specs can only be written/modified by user or generated from expectations by agents with user interview and confirmation.
-- specs must refer to expectations
 
 **Test driven code**:
 
 - write test cases based on specs before implementation.
 - test-cases must be codified
-- tets-codes must must start with `TC_`
-- test-cases must refer specs
+- test-codes must must start with `TC-`
 - implement tests before code.
-- tests must refer test-cases.
 
 **Specs->Tests->Code**:
 
-- implement only what is in the specs
-- code must refer to specs
+- implementation should follow specs
+- code should refer to specs
 - specs and test cases are the documentation for how to implement the code.
 
 **Spec coverage**:
 
-- all expectations must be covered by specs.
-- all specs must be covered by test cases.
-- all test cases must be covered by tests.
-- all tests must be passed by code implementation.
-- **Track spec coverage**:
-- test cases reference spec IDs (e.g. `S-DM-N5`).
-- test implementations reference test case IDs.
-- code references spec IDs.
+- expectations must be covered by specs.
+- specs must be covered by test cases.
+- test cases must be covered by tests.
+- tests must be passed by code implementation.
+
+**Track spec coverage**:
+
+- referencing:
+  - expectation <- specs <- test cases <- tests
+  - specs <- code implementation
+- reference by codes
+- maintain traceability and internal consistency between expectations, specs, test cases, tests, and code.
 
 **Refer to documentation for how to do**:
 
