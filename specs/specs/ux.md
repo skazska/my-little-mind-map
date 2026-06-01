@@ -2,6 +2,8 @@
 
 Spec IDs in this document use the `S-UX-*` prefix. Editor behaviour is included here as a sub-spec of UX.
 
+Satisfies: [E-EDIT](../expectations.md) (`S-UX-*`).
+
 ## App Frame and Navigation
 
 ### Main Frame

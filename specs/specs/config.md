@@ -2,6 +2,8 @@
 
 Spec IDs in this document use the `S-CFG-*` prefix.
 
+Satisfies: [E-CROSS-PLATFORM](../expectations.md) (`S-CFG-*`).
+
 - [S-CFG-1] Path to data folder and sync settings are platform-specific and stored in app settings (outside the data folder):
   - **Desktop** — OS-conventional config location:
     - Linux: `$XDG_CONFIG_HOME/my-little-mind-map/config.json` (default `~/.config/my-little-mind-map/config.json`).

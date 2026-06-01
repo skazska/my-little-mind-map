@@ -2,6 +2,8 @@
 
 Spec IDs in this document use the `S-ST-*` prefix. See [data model](data-model.md) for content semantics.
 
+Satisfies: [E-LOCAL-FIRST](../expectations.md) (`S-ST-LS*`, `S-ST-DM*`), [E-SYNC](../expectations.md) (`S-ST-CS*`, `S-ST-SYN*`), [E-STANDARDS](../expectations.md) (`S-ST-DM*` human-readable JSON).
+
 ## Cloud Storage
 
 - [S-ST-CS1] Git compatible. [TBD] Research and evaluation of options for cloud storage with git compatibility, ease of integration, performance, cost, etc.: GitHub, GitLab, Bitbucket, Cloudflare Artifacts, …

@@ -2,6 +2,8 @@
 
 Spec IDs in this document use the `S-DM-*` prefix. See [glossary](glossary.md) for terminology and the [specs index](../specs.md) for cross-cutting notes.
 
+Satisfies: [E-TEXT](../expectations.md) (`S-DM-N*`, `S-DM-ND*`), [E-INTERLINK](../expectations.md) (`S-DM-L*`, `S-DM-V*`, `S-DM-S*`, `S-DM-NR*`), [E-MUTATE](../expectations.md) (`S-DM-MV*`).
+
 ## Labels
 
 - [S-DM-L1] Label: single word: alphanumeric + hyphens, lowercase `^[a-z0-9-]+$`. Used for categorization and search.

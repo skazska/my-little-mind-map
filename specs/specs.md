@@ -8,6 +8,7 @@ Most specifications are unified across all platforms; platform-specific details 
 
 ## Contents
 
+- [Expectations](expectations.md) — high-level `E-*` expectations that the specs below satisfy.
 - [Data Model](specs/data-model.md) — labels, views, spaces, notes, references, definitions, mutation semantics. Prefix: `S-DM-*`.
 - [Storage](specs/storage.md) — local/cloud storage, sync, on-disk layout, indexes. Prefix: `S-ST-*`.
 - [UX](specs/ux.md) — app frame, navigation, tabs, and the note-editor sub-spec. Prefix: `S-UX-*`.
@@ -23,7 +24,7 @@ Spec IDs (e.g. `S-DM-N5`, `S-UX-NE4`) are stable identifiers. They MUST appear i
 - commit messages and PR descriptions that change behaviour governed by the spec,
 - design notes and ADRs referencing the constraint.
 
-The intended flow is: **spec → test cases → tests → code implementation** (see [AGENTS.md](../AGENTS.md) "Specs→Tests→Code").
+The intended flow is: **expectation → spec → test cases → tests → code implementation** (see [expectations](expectations.md) and [AGENTS.md](../AGENTS.md) "Specs→Tests→Code"). Each spec family declares the `E-*` expectation(s) it satisfies near the top of its file.
 
 ## Status
 
