@@ -24,23 +24,10 @@ Inspired by personal knowledge management, note-taking, and project management t
 **Prefer Markdown and human-readable formats**.
 **Prefer standards over custom solutions**.
 **Performance and scalability matters**.
-**Specification notation & tooling**: one notation per purpose; all renderable from plain text with no extra infrastructure.
 
-- Markdown is the source of truth for all specifications (prose, structured `S-*`/`TC-*` lists, tables).
-- Diagrams use [Mermaid](https://mermaid.js.org/) (renders natively in GitHub/VS Code); prefer Mermaid over hand-drawn ASCII for new diagrams.
-- Notation per purpose:
-  - prose / structured specs → Markdown.
-  - lo-fi wireframes (expectations) → [wireMD](https://github.com/wireMD/spec) text sketches.
-  - hi-fi UI layout wireframes → Mermaid block diagrams (`block-beta`).
-  - interaction flows / state / sequences → Mermaid `flowchart` / `stateDiagram` / `sequenceDiagram`.
-  - data model / relationships → Mermaid `erDiagram` / `classDiagram`.
-  - architecture → Mermaid.
-  - file / folder layouts → plain code-block tree (kept as text, not a diagram).
-- Excluded: notations requiring rendering infrastructure or external tools (e.g. PlantUML/Salt, design-tool-only exports).
-- Traceability is unaffected: `S-*`/`TC-*` codes stay in prose and diagram captions, not encoded in diagram syntax.
 **Specs driven development**:
 
-- write specs first
+- write specifications first
 - specs must be codified
 - spec codes must start with `S-`
 - specs can only be written/modified by user or generated from expectations by agents with user interview and confirmation.
@@ -58,21 +45,6 @@ Inspired by personal knowledge management, note-taking, and project management t
 - code should refer to specs
 - specs and test cases are the documentation for how to implement the code.
 
-**Spec coverage**:
-
-- expectations must be covered by specs.
-- specs must be covered by test cases.
-- test cases must be covered by tests.
-- tests must be passed by code implementation.
-
-**Track spec coverage**:
-
-- referencing:
-  - expectation <- specs <- test cases <- tests
-  - specs <- code implementation
-- reference by codes
-- maintain traceability and internal consistency between expectations, specs, test cases, tests, and code.
-
 **Refer to documentation for how to do**:
 
 - rich internal linking in documentation.
@@ -88,12 +60,13 @@ Inspired by personal knowledge management, note-taking, and project management t
 ## Repo structure
 
 - `specs/`: product definitions (expectations, specs, architecture, test-cases, acceptance-criteria)
-  - `expectations.md`: high-level business/user expectations
-  - `architecture.md`: system architecture overview
-  - `specs.md` + `specs/`: technical specifications (`S-*` prefixes)
-  - `testing.md` + `testing/`: test cases (`TC-*` prefixes)
+  - `expectations.md` + `expectations/`: high-level business/user expectations
+  - `architecture.md` + `architecture/`: system architecture overview
+  - `specs.md` + `specs/`: technical specifications.
+  - `testing.md` + `testing/`: test cases.
 - `docs/`: developer, user, and ops documentation
-  - `development.md` + `development/`: developer guides, setup, code standards, test strategy/tooling
+  - `development.md` + `development/`: developer guides, setup, code standards,
+  - `testing.md` + `testing/`: test strategy/tooling
 - `product/`: product implementation
 - `project/`: project flow artifacts
 
@@ -113,6 +86,47 @@ Inspired by personal knowledge management, note-taking, and project management t
 **Testing**: unit for reusable or non-typing protected logic, integration and E2E for user flows and critical features.
 **Git Flow**
 **CI/CD**: GitHub Actions
+
+## Specification notation and tooling
+
+### Specification Layers
+
+- Expectations - high-level business/user needs and goals. Codified, codes start with `E-`.
+- Specs - technical specifications derived from expectations. Codified, codes start with `S-`.
+- Test cases - testable conditions derived from specs. Codified, codes start with `TC-`.
+
+### Notation principles
+
+- One notation per purpose; all renderable from plain text with no extra infrastructure.
+- Markdown first).
+- Diagrams use [Mermaid](https://mermaid.js.org/) (renders natively in GitHub/VS Code); prefer Mermaid over hand-drawn ASCII for new diagrams.
+- Notation per purpose:
+  - prose / structured specs → Markdown.
+  - lo-fi wireframes (expectations) → [wireMD](https://github.com/wireMD/spec) text sketches.
+  - hi-fi UI layout wireframes → Mermaid block diagrams (`block-beta`).
+  - interaction flows / state / sequences → Mermaid `flowchart` / `stateDiagram` / `sequenceDiagram`.
+  - data model / relationships → Mermaid `erDiagram` / `classDiagram`.
+  - architecture → Mermaid.
+  - file / folder layouts → plain code-block tree (kept as text, not a diagram).
+- Excluded: notations requiring rendering infrastructure or external tools (e.g. PlantUML/Salt, design-tool-only exports).
+- Traceability is unaffected: `E-*`/`S-*`/`TC-*` codes stay in prose and diagram captions, not encoded in diagram syntax.
+
+### Track spec coverage
+
+- referencing:
+  - expectation <- specs <- test cases <- tests <-functional coverage- code implementation.
+  - specs <- code implementation
+- reference by codes
+- maintain traceability and internal consistency between expectations, specs, test cases, tests, and code.
+
+## types of documentation:
+
+- Specifications (in other words `product definitions`) (`/specs`): expectations, specs, architecture, test-cases, acceptance-criteria.
+- Product documentation (`/docs`):
+  - developer guides, setup, code standards, test strategy/tooling.
+  - product maintenance, deployment, monitoring, and operations.
+  - user guides, FAQs, troubleshooting.
+- Project flow artifacts (`/project`): planning, expectations gathering, decision making, and other project management practices.
 
 ## QA agents
 
