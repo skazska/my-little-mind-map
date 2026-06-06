@@ -6,13 +6,13 @@ Satisfies: [E-LOCAL-FIRST](../expectations.md) (`S-ST-LS*`, `S-ST-DM*`), [E-SYNC
 
 ## Cloud Storage
 
-- [S-ST-CS1] Git compatible. [TBD post-POC] Research and evaluation of options for cloud storage with git compatibility, ease of integration, performance, cost, etc.: GitHub, GitLab, Bitbucket, Cloudflare Artifacts, …
+- [S-ST-CS1] Git compatible. Sync is delegated to **version-control hosting** rather than a bespoke cloud backend (see [E-SYNC](../expectations.md)). [TBD post-POC] Research and evaluation of git-compatible hosting options by ease of integration, performance, cost, etc.: GitHub, GitLab, Bitbucket, Cloudflare Artifacts, …
 
 ## Local Storage
 
 - [S-ST-LS1] Local storage: same approach across all apps (preferred).
 - [S-ST-LS2] Desktop: file-system based. Git versioning. Can run on any project folder as storage.
-- [S-ST-LS3] [TBD post-POC] Web app: research and evaluation of options for local storage compatible with git in the web app.
+- [S-ST-LS3] [TBD post-POC] Web app: research and evaluation of options for local storage compatible with git in the web app. **POC-value decision** (see [E-LOCAL-FIRST](../expectations.md)): the web shell currently uses a stub store; to make version-control-hosting sync plausible from the web, the POC likely needs a minimum non-stub web local store whose layout maps cleanly onto a git working tree.
 - [S-ST-LS4] [TBD post-POC] Mobile app: research and evaluation of options for local storage compatible with git in the mobile app.
 
 ## Sync

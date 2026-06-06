@@ -14,7 +14,7 @@ These sub-codes sit under [E-UX](../expectations.md) and are satisfied by `S-UX-
 - [E-UX-CONSISTENCY] **Cross-platform UX consistency.** The same conceptual experience — screen structure, navigation model, terminology, and interaction patterns — is presented across desktop, web, and mobile shells, deviating only where platform conventions or constraints require (e.g. no folder picker on web). This refines [E-CROSS-PLATFORM](../expectations.md) at the UX surface. *In-POC.*
 - [E-UX-NAV] **Navigation and information architecture.** A predictable, shallow information architecture: a persistent app frame with primary navigation (spaces, labels, notes views, recent, search), breadcrumbs and back/forward, and context-based content. Users always know where they are and how to get home. *In-POC.*
 - [E-UX-INPUT] **Input and interaction.** Natural, low-friction input across modalities: keyboard-first interaction (shortcuts, Enter/Esc, in-content editor commands), pointer, and touch. Inline editor commands (e.g. `/:labels …;`) let users act without leaving the keyboard. This refines [E-MINIMAL-ACTIONS](../expectations.md). *In-POC.*
-- [E-UX-THEME] **Theming and appearance.** A clean, modern visual theme with light and dark appearances. Theming is consistent across screens and respects the platform/system appearance where available. *Deferred (POC ships a single dark theme; light theme and system-appearance following are post-POC).*
+- [E-UX-THEME] **Theming and appearance.** A clean, modern visual theme with light and dark appearances. Theming is consistent across screens and respects the platform/system appearance where available. This concern is **visual appearance only**; viewport/orientation **layout adaptation** is owned by [E-RESPONSIVE](../expectations.md) (in-POC). *Deferred (POC ships a single dark theme; light theme and system-appearance following are post-POC).*
 
 ## Screen Wireframes
 
@@ -73,11 +73,74 @@ Persistent app frame: left sidebar with primary navigation + footer status; main
 +-------------+------------------------------------+
 ```
 
-Tabs share the frame; content area swaps:
+Tabs share the frame; content area swaps. The Spaces tab can present spaces either as cards (above) or as a navigable tree (`S-UX-ST1`):
+
+```wireMD
+| ( Spaces )  |  Spaces                 [+ New ]   |
+|             |  ________________________ (search) |  (S-UX-ST1)
+|             |  v My                    3  [✕]    |  <- expanded node
+|             |    - getting-started               |
+|             |    > work                2         |  <- collapsed child space
+|             |  > personal              5         |
+```
 
 - **Labels** (`S-UX-LT1`, `S-UX-LT2`): searchable list of labels in use, each a clickable chip with note count → opens cross-space filtered notes view.
+
+```wireMD
+| ( Labels )  |  Labels                            |
+|             |  ________________________ (search) |  (S-UX-LT1)
+|             |  [#rust 4]  [#notes 3]  [#python 2]|  <- chips w/ counts (S-UX-LT2)
+|             |  [#learning 2]  [#draft 1]         |
+```
+
 - **Views** (`S-UX-NVT1`): list of saved views.
+
+```wireMD
+| ( Views )   |  Saved views                       |
+|             |  +------------------------------+  |
+|             |  | #rust in work                |  |  <- saved filter (S-DM-V1)
+|             |  | spaces: work · labels: #rust |  |
+|             |  +------------------------------+  |
+|             |  | recent python                |  |
+|             |  +------------------------------+  |
+```
+
 - **Recent / Search** (`S-UX-MF1`): placeholders in POC ("Coming soon").
+
+### Empty states (`S-UX-FB5`)
+
+Lists and content areas show guidance + a call-to-action instead of a blank pane:
+
+```wireMD
++-------------+------------------------------------+
+| ( Spaces )  |  Notes                  [+ New ]   |
+|             |  -------------------------------   |
+|             |          No notes yet              |  (S-UX-FB5)
+|             |     Create your first note.        |
+|             |        [ + New note ]   (primary)  |
++-------------+------------------------------------+
+```
+
+Labels empty: "No labels yet — add labels in the editor with `/:labels …;`". Views empty: "No saved views yet".
+
+### Narrow viewport (`S-UX-MF2`)
+
+Below the 640px breakpoint the sidebar collapses behind a menu toggle and the editor metadata panel stacks above the content:
+
+```wireMD
++--------------------------------------+
+| [☰]  Spaces              [ + New ]   |  <- menu toggle reveals nav overlay
++--------------------------------------+
+| +----------------------------------+ |
+| | My                  3 notes  [✕] | |
+| +----------------------------------+ |
+| +----------------------------------+ |
+| | work                2 notes  [✕] | |
+| +----------------------------------+ |
++--------------------------------------+
+```
+
+In the editor at narrow width, the metadata panel (`S-UX-NE1`) stacks above the markdown pane and MAY omit `uuid`, `created_at`, `updated_at` (available in the expanded view).
 
 ### Notes list (`S-UX-NVT1`)
 

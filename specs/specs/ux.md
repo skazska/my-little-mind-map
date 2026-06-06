@@ -26,7 +26,10 @@ Satisfies:
     - context-based navigation.
   - Content area: context-based.
 - [S-UX-MF2] Responsive layout, adapts to screen size and orientation. Satisfies [E-RESPONSIVE](../expectations.md).
-- [S-UX-MF3] All elements (navigation, actions, content) are always visible and accessible, except where another spec explicitly overrides this (e.g. [S-UX-SA1]).
+  - **Breakpoints**: a single breakpoint divides **narrow** (viewport width `< 640px`) from **regular** (`>= 640px`). Shells MAY add finer breakpoints but MUST honour this boundary.
+  - **Regular**: persistent two-pane frame — left navigation sidebar + main content (as in the wireframes).
+  - **Narrow**: the sidebar collapses behind a menu toggle and overlays the content when opened; the main content uses the full width; the note editor's metadata panel stacks above the content instead of beside it. ViewModel-field omission follows [S-UX-NE1].
+- [S-UX-MF3] All elements (navigation, actions, content) are always visible and accessible, except where another spec explicitly overrides this (e.g. [S-UX-SA1]) or where a responsive breakpoint collapses them behind an explicit affordance ([S-UX-MF2], narrow viewports).
 
 ### Starting the App
 
@@ -74,12 +77,15 @@ Satisfies:
   - **Editor commands** in content editor: `/:command [<arg>];` triggers an action. Commands are **editor-only sugar**: they are interpreted and **stripped before save**; the stored markdown never contains command syntax. This is the resolution of the apparent tension with [S-DM-N2](data-model.md#notes) ("no custom syntax").
     - `labels` set via `/:labels <tag1> <tag2> <tag3>;` (each tag matches `^[a-z0-9-]+$`).
 - [S-UX-NE3] Editor actions: save, undo/redo, delete.
+  - **Undo/redo scope**: undo/redo operates on the in-editor content of the current note (text edits), not on cross-note or structural actions (create/delete note, label changes applied via the metadata panel). History is per-note and is not required to persist across navigating away from the note.
 - [S-UX-NE4] Draft autosave:
   - Debounced (triggered after a pause in typing, not on each keystroke). Must not interrupt editing or reposition the cursor.
   - Debounce window: 1–10 seconds. Platform shells may choose a value within this range based on I/O cost; the chosen value MUST be documented in the shell's implementation notes. Default recommendation: 2 s for low-latency storage (web/browser), up to 10 s for filesystem-backed storage.
+  - **Save-state feedback**: while changes are pending the editor shows the "Unsaved" indicator ([S-UX-FB2]); when a debounced save is in flight it MAY show a transient "Saving…" state; on success the indicator clears ("Saved"). Feedback MUST NOT steal focus or move the cursor. On failure, surface via [S-UX-ERR].
   - No empty drafts: if content is empty, no draft is saved and any existing draft file is deleted (see [S-DM-N7](data-model.md#notes)).
 - [S-UX-NE5] Content fidelity: trailing whitespace, newlines, and spaces are preserved exactly as entered during autosave. No content normalization during editing.
 - [S-UX-NE6] Content prettification (whitespace normalization, formatting): only on explicit publish action, and only after user confirmation.
+  - **What "formatting will be applied" means**: on publish the stored markdown is normalised — trailing whitespace trimmed, surrounding blank lines collapsed to a single blank line, and a single trailing newline enforced. Publish does not rewrite the user's wording, headings, or link targets. The confirmation dialog ([S-UX-FB*], wireframe in [UX expectations](../expectations/ux-expectations.md)) warns that this normalisation will occur.
 
 ## Error Handling
 
@@ -94,7 +100,7 @@ Satisfies:
 Satisfies [E-INTENTIONS](../expectations.md).
 
 - [S-UX-INT1] The app MAY be launched with an intention that directs the initial screen and context: open a specific note (`note://`, see [S-DM-NR1](data-model.md#note-references)), open a view or space, or create a new note in a given space. When an intention is present it overrides the default landing behaviour of [S-UX-SA3].
-- [S-UX-INT2] When no intention is provided, the app falls back to [S-UX-SA3] (a new note in the default space's notes view). An unrecognised or unresolvable intention (e.g. a missing target) falls back to the same default and surfaces a non-blocking notice ([S-UX-FB1]).
+- [S-UX-INT2] When no intention is provided, the app falls back to [S-UX-SA3] (a new note in the default space's notes view). An unrecognised or unresolvable intention (e.g. a missing target) falls back to the same default and surfaces a non-blocking notice ([S-UX-FB1], [S-UX-FB6]).
 
 ## Feedback and Affordances
 
@@ -104,6 +110,12 @@ Satisfies [E-UX-FEEDBACK](../expectations/ux-expectations.md).
 - [S-UX-FB2] Editor state indicators: the note editor shows an "Unsaved" indicator while there are pending changes and a "Draft" indicator while the note is a draft; both clear when no longer applicable (see [S-UX-NE3], [S-UX-NE4]).
 - [S-UX-FB3] Filtering and context indicators: active filters (e.g. label/view filter on the notes list) are shown as a removable badge; the active navigation context (tab, space) is visually distinguished.
 - [S-UX-FB4] Interactive affordances: actionable elements are visually distinguishable from static content and expose their disabled state (e.g. Save disabled when there are no unsaved changes).
+- [S-UX-FB5] Empty states: when a list or content area has no items, it shows a short explanatory message and, where an action can resolve it, a primary call-to-action rather than a blank area. Minimum cases:
+  - No notes in the selected space/view: "No notes yet" + "New note" action.
+  - No labels in use: "No labels yet" + hint that labels are added in the editor (`/:labels …;`).
+  - No spaces (default space absent): offer to create a space; the default space `My` is normally created by [S-UX-SA2].
+  - No saved views: "No saved views yet".
+- [S-UX-FB6] Non-blocking notice: a notice (used by [S-UX-INT2] and other non-fatal events) is a transient, non-blocking message (toast or inline banner) that does not interrupt the current task, is dismissible, and auto-dismisses after a short interval. It is distinct from the dedicated error screen ([S-UX-ERR]), which is reserved for recoverable failures that block the current context.
 
 ## Navigation and Information Architecture
 
@@ -118,6 +130,13 @@ Satisfies [E-UX-NAV](../expectations/ux-expectations.md). Refines the app-frame 
 Satisfies [E-UX-INPUT](../expectations/ux-expectations.md). Refines [E-MINIMAL-ACTIONS] (see [S-UX-MIN1]).
 
 - [S-UX-IN1] Keyboard-first: primary actions are reachable from the keyboard. In short text inputs with a confirm/cancel pair (e.g. add-label input, create-space form), Enter confirms and Esc cancels.
+  - **Baseline shortcut map** (shells MAY map platform-idiomatic modifiers — `Ctrl` on desktop/web, `Cmd` on macOS):
+    - Save / flush draft: `Ctrl/Cmd+S` (in editor).
+    - New note: `Ctrl/Cmd+N`.
+    - Back / leave editor: `Esc` (when no inline input is focused).
+    - Confirm dialog primary action: `Enter`; cancel: `Esc`.
+    - Focus search: `Ctrl/Cmd+F` within a list that has a search input.
+  - Shortcuts beyond this baseline are optional; the baseline MUST be honoured where the corresponding action exists on the screen.
 - [S-UX-IN2] In-content editor commands: the editor supports `/:command …;` sugar for label actions without leaving the keyboard (see [S-UX-NE2]).
 - [S-UX-IN3] Pointer and touch: all keyboard-accessible actions are also operable via pointer/touch; touch targets remain usable on small viewports (see [S-UX-MF2]).
 
