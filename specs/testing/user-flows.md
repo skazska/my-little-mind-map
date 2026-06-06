@@ -3,7 +3,7 @@
 End-to-end tests that drive the full application through the UI. Each test starts the app via Tauri WebDriver.
 
 **Layer**: E2E (`product/desktop-app/tests/e2e/`, WebdriverIO + `tauri-driver`)
-**Spec coverage**: [S-DM-L2], [S-DM-L4], [S-DM-N2], [S-DM-N7], [S-DM-S4], [S-DM-V1], [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-MF1], [S-UX-ST1], [S-UX-ST2], [S-UX-ST3], [S-UX-LT1], [S-UX-LT2], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-UX-ERR], [S-CFG-1], [S-CFG-2]
+**Spec coverage**: [S-DM-L2], [S-DM-L4], [S-DM-N2], [S-DM-N7], [S-DM-S4], [S-DM-V1], [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-MF1], [S-UX-ST1], [S-UX-ST2], [S-UX-ST3], [S-UX-LT1], [S-UX-LT2], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-UX-ERR], [S-UX-FB4], [S-UX-IN1], [S-UX-INT1], [S-UX-INT2], [S-CFG-1], [S-CFG-2]
 **Implementation**: `product/e2e-shared/scenarios/` (shared), `product/desktop-app/tests/e2e/specs/` (desktop), `product/web-app/tests/e2e/specs/` (web)
 **Implementation status**: All test cases implemented unless marked `[skipped]`.
 
@@ -363,6 +363,52 @@ End-to-end tests that drive the full application through the UI. Each test start
 **Given** the label `"rust"` is in use on 3 notes across 2 spaces  
 **When** the user opens the label view for `"rust"`  
 **Then** the view displays the label name, any description, and statistics showing `note_count == 3` and `space_count == 2` (or equivalently named indicators)
+
+---
+
+## UX Feedback and Input
+
+> Editor state and filter indicators are also exercised by the Note Editor tests ([S-UX-FB2] via TC-E2E-NE-04/05/12/13) and the Note List tests ([S-UX-FB3] via TC-E2E-NL-06/07). Keyboard editor commands are covered by [S-UX-IN2] tests TC-E2E-NE-10/17.
+
+### TC-E2E-FB-01 — Save button is disabled until there are unsaved changes [S-UX-FB4]
+
+**Given** a note editor is open with no pending changes  
+**When** the editor first renders  
+**Then** the Save button is disabled  
+**And** after the user types in the content area, the Save button becomes enabled
+
+### TC-E2E-IN-01 — Enter in the add-label input adds the label [S-UX-IN1], [S-UX-NE1]
+
+**Given** the note editor is open  
+**When** the user types `"keyboard"` in the add-label input and presses Enter  
+**Then** `"keyboard"` appears in the label list in the metadata panel without using a pointer
+
+### TC-E2E-IN-02 — Enter submits the create-space form [S-UX-IN1], [S-UX-ST3]
+
+**Given** the overview Spaces tab is visible with the new-space form open  
+**When** the user types a space name and presses Enter in the name field  
+**Then** the space is created and appears in the spaces list
+
+---
+
+## Intention-Driven Launch
+
+### TC-E2E-INT-01 — Launch with a note intention opens that note [S-UX-INT1] `[skipped]`
+
+> **Status**: skipped — launch-intention plumbing is not yet implemented in the shells; this test is a placeholder for when [S-UX-INT1] lands.
+
+**Given** the app is launched with an intention to open a specific existing note  
+**When** the app finishes loading  
+**Then** the `note_editor` screen is shown for that note rather than the default new-note landing ([S-UX-SA3])
+
+### TC-E2E-INT-02 — Unresolvable intention falls back to default landing [S-UX-INT2] `[skipped]`
+
+> **Status**: skipped — depends on [S-UX-INT1] plumbing (see TC-E2E-INT-01).
+
+**Given** the app is launched with an intention whose target does not exist  
+**When** the app finishes loading  
+**Then** the app lands on the default new note in the default space's notes view ([S-UX-SA3])  
+**And** a non-blocking notice is shown ([S-UX-FB1])
 
 ---
 

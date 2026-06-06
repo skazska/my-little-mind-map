@@ -2,7 +2,16 @@
 
 Spec IDs in this document use the `S-UX-*` prefix. Editor behaviour is included here as a sub-spec of UX.
 
-Satisfies: [E-EDIT](../expectations.md) (`S-UX-*`).
+Satisfies:
+
+- [E-EDIT](../expectations.md) — note authoring and navigation (`S-UX-MF*`, `S-UX-SA*`, `S-UX-ST*`, `S-UX-LT*`, `S-UX-NVT*`, `S-UX-NE*`).
+- [E-UX](../expectations.md) and its sub-codes (see [UX expectations](../expectations/ux-expectations.md)): [E-UX-FEEDBACK] (`S-UX-FB*`), [E-UX-CONSISTENCY] (`S-UX-CON*`), [E-UX-NAV] (`S-UX-NAV*`), [E-UX-INPUT] (`S-UX-IN*`), [E-UX-THEME] (`S-UX-TH*`).
+- [E-INTENTIONS](../expectations.md) — intention-driven launch (`S-UX-INT*`).
+- [E-RESPONSIVE](../expectations.md) — responsive behaviour (`S-UX-MF2`).
+- [E-MINIMAL-ACTIONS](../expectations.md) — minimal user actions (`S-UX-MIN*`).
+- [E-ERRORS](../expectations.md) — graceful error handling (`S-UX-ERR`).
+
+> Screen wireframes and user flows illustrating these specs are maintained in [UX expectations](../expectations/ux-expectations.md). They are illustrative, not authoritative; this spec governs behaviour.
 
 ## App Frame and Navigation
 
@@ -16,7 +25,7 @@ Satisfies: [E-EDIT](../expectations.md) (`S-UX-*`).
     - switch: spaces, labels, notes views, recent activity, search.
     - context-based navigation.
   - Content area: context-based.
-- [S-UX-MF2] Responsive layout, adapts to screen size and orientation.
+- [S-UX-MF2] Responsive layout, adapts to screen size and orientation. Satisfies [E-RESPONSIVE](../expectations.md).
 - [S-UX-MF3] All elements (navigation, actions, content) are always visible and accessible, except where another spec explicitly overrides this (e.g. [S-UX-SA1]).
 
 ### Starting the App
@@ -24,7 +33,7 @@ Satisfies: [E-EDIT](../expectations.md) (`S-UX-*`).
 - [S-UX-SA1] Select or create data folder on first launch, with option to skip to default. Main frame elements are not visible until a data folder is selected.
   - **Platform note — Web**: The web shell has no filesystem access. On first launch it initialises browser storage (see [S-CFG-1](config.md)) and proceeds directly to the main frame; there is no folder-selection dialog. This is the specified exception to the "main frame hidden" rule for the web shell.
 - [S-UX-SA2] If no space exists, create default space `My`.
-- [S-UX-SA3] If no intention is provided on launch (e.g. opening a specific note or view), default content area is a new note in notes view with default space.
+- [S-UX-SA3] If no intention is provided on launch (e.g. opening a specific note or view), default content area is a new note in notes view with default space. Intention handling is specified in [S-UX-INT1].
 
 ## Spaces Tab
 
@@ -49,7 +58,7 @@ Satisfies: [E-EDIT](../expectations.md) (`S-UX-*`).
   - tree of notes matching selected filters: title, labels in short, description and metadata in expanded detail. Sort by relevance, `created_at`, `updated_at`.
 - [S-UX-NVT2] Note view/edit.
 - [S-UX-NVT3] Note management: edit mode; delete [TBD future]; move [TBD future].
-- [S-UX-NVT4] [TBD, deferred] Search: dedicated "Search" notes view. The `[?<query>]` suffix on references (see [S-DM-NR3](data-model.md#note-references)) parametrizes Notes view, Space view, and in-note navigation. Search relevance, indexing strategy, and query grammar are pending.
+- [S-UX-NVT4] [TBD post-POC] Search: dedicated "Search" notes view. The `[?<query>]` suffix on references (see [S-DM-NR3](data-model.md#note-references)) parametrizes Notes view, Space view, and in-note navigation. Search relevance, indexing strategy, and query grammar are pending.
 
 ## Note Editing (Editor Sub-Spec)
 
@@ -79,3 +88,57 @@ Satisfies: [E-EDIT](../expectations.md) (`S-UX-*`).
   - Display: human-readable message describing what failed and, where possible, why.
   - Recovery actions: at minimum a "Go home" action returning the app to the overview (or first-launch if no data folder is configured); retry where the failed operation is idempotent.
   - Out of scope here: developer-facing diagnostics, telemetry. Error message wording is not part of the spec.
+
+## Intention-Driven Launch
+
+Satisfies [E-INTENTIONS](../expectations.md).
+
+- [S-UX-INT1] The app MAY be launched with an intention that directs the initial screen and context: open a specific note (`note://`, see [S-DM-NR1](data-model.md#note-references)), open a view or space, or create a new note in a given space. When an intention is present it overrides the default landing behaviour of [S-UX-SA3].
+- [S-UX-INT2] When no intention is provided, the app falls back to [S-UX-SA3] (a new note in the default space's notes view). An unrecognised or unresolvable intention (e.g. a missing target) falls back to the same default and surfaces a non-blocking notice ([S-UX-FB1]).
+
+## Feedback and Affordances
+
+Satisfies [E-UX-FEEDBACK](../expectations/ux-expectations.md).
+
+- [S-UX-FB1] Action feedback: every user-initiated action that mutates state or triggers an effect produces visible feedback (state change, indicator, banner, or notice). Failures are surfaced (see [S-UX-ERR]) rather than swallowed.
+- [S-UX-FB2] Editor state indicators: the note editor shows an "Unsaved" indicator while there are pending changes and a "Draft" indicator while the note is a draft; both clear when no longer applicable (see [S-UX-NE3], [S-UX-NE4]).
+- [S-UX-FB3] Filtering and context indicators: active filters (e.g. label/view filter on the notes list) are shown as a removable badge; the active navigation context (tab, space) is visually distinguished.
+- [S-UX-FB4] Interactive affordances: actionable elements are visually distinguishable from static content and expose their disabled state (e.g. Save disabled when there are no unsaved changes).
+
+## Navigation and Information Architecture
+
+Satisfies [E-UX-NAV](../expectations/ux-expectations.md). Refines the app-frame navigation of [S-UX-MF1].
+
+- [S-UX-NAV1] Persistent frame: primary navigation (spaces, labels, notes views, recent, search) and the status bar remain available across screens, except where [S-UX-MF3]/[S-UX-SA1] explicitly hide them.
+- [S-UX-NAV2] Locatability: the user can always return to the overview ("home") and, within content, move via back/forward and breadcrumbs (see [S-UX-MF1]).
+- [S-UX-NAV3] Context-based content: the main content area reflects the active navigation context; switching context away from the editor saves pending changes first ([S-UX-NE3]) so navigation never silently discards edits.
+
+## Input and Interaction
+
+Satisfies [E-UX-INPUT](../expectations/ux-expectations.md). Refines [E-MINIMAL-ACTIONS] (see [S-UX-MIN1]).
+
+- [S-UX-IN1] Keyboard-first: primary actions are reachable from the keyboard. In short text inputs with a confirm/cancel pair (e.g. add-label input, create-space form), Enter confirms and Esc cancels.
+- [S-UX-IN2] In-content editor commands: the editor supports `/:command …;` sugar for label actions without leaving the keyboard (see [S-UX-NE2]).
+- [S-UX-IN3] Pointer and touch: all keyboard-accessible actions are also operable via pointer/touch; touch targets remain usable on small viewports (see [S-UX-MF2]).
+
+## Minimal User Actions
+
+Satisfies [E-MINIMAL-ACTIONS](../expectations.md). Cross-cutting principle applied across the UX specs.
+
+- [S-UX-MIN1] Sensible defaults: flows provide intuitive defaults that reduce required input — default space `My` ([S-UX-SA2]), a new note opened ready to edit ([S-UX-SA3]), and autosave ([S-UX-NE4]).
+- [S-UX-MIN2] Few action types: prefer a small, consistent set of interaction patterns over many specialised ones; reuse the same controls (cards, search inputs, badges) across tabs and screens.
+
+## Cross-Platform Consistency
+
+Satisfies [E-UX-CONSISTENCY](../expectations/ux-expectations.md). Refines [E-CROSS-PLATFORM](../expectations.md) at the UX surface.
+
+- [S-UX-CON1] Consistent structure: desktop, web, and mobile shells present the same screens (first launch, overview, notes list, note editor, error), navigation model, and terminology.
+- [S-UX-CON2] Specified deviations only: platform differences are limited to documented exceptions — e.g. the web shell's first launch (no folder picker, [S-UX-SA1]) and ViewModel-field omission on narrow viewports ([S-UX-NE1]). Such deviations MUST be specified, not incidental.
+- [S-UX-CON3] Behavioural parity: shared core logic ([S-ARCH-1](architecture.md)) drives equivalent behaviour across shells; shell-specific values (e.g. the autosave debounce within [S-UX-NE4]'s 1–10 s range) stay within spec-defined bounds.
+
+## Theming and Appearance
+
+Satisfies [E-UX-THEME](../expectations/ux-expectations.md).
+
+- [S-UX-TH1] [TBD post-POC] Light and dark appearances: a consistent visual theme offered in light and dark variants, applied uniformly across screens. The POC ships a single dark theme.
+- [S-UX-TH2] [TBD post-POC] System appearance: where the platform exposes a system light/dark preference, the app follows it by default, with an explicit override.

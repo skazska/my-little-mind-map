@@ -28,4 +28,9 @@ The intended flow is: **expectation → spec → test cases → tests → code i
 
 ## Status
 
-Items marked `[TBD]` are open spec questions. They are intentionally captured in-spec for now; tracking in `project/` was deferred during the POC and will resume once project-flow tracking is re-established.
+Open items are marked with one of two labels:
+
+- `[TBD post-POC]` — a deferred open question or capability, out of scope for the POC.
+- `[TBD future]` — a nice-to-have feature for a later iteration.
+
+They are intentionally captured in-spec for now; tracking in `project/` was deferred during the POC and will resume once project-flow tracking is re-established.

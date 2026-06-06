@@ -6,19 +6,19 @@ Satisfies: [E-LOCAL-FIRST](../expectations.md) (`S-ST-LS*`, `S-ST-DM*`), [E-SYNC
 
 ## Cloud Storage
 
-- [S-ST-CS1] Git compatible. [TBD] Research and evaluation of options for cloud storage with git compatibility, ease of integration, performance, cost, etc.: GitHub, GitLab, Bitbucket, Cloudflare Artifacts, …
+- [S-ST-CS1] Git compatible. [TBD post-POC] Research and evaluation of options for cloud storage with git compatibility, ease of integration, performance, cost, etc.: GitHub, GitLab, Bitbucket, Cloudflare Artifacts, …
 
 ## Local Storage
 
 - [S-ST-LS1] Local storage: same approach across all apps (preferred).
 - [S-ST-LS2] Desktop: file-system based. Git versioning. Can run on any project folder as storage.
-- [S-ST-LS3] [TBD] Web app: research and evaluation of options for local storage compatible with git in the web app.
-- [S-ST-LS4] [TBD] Mobile app: research and evaluation of options for local storage compatible with git in the mobile app.
+- [S-ST-LS3] [TBD post-POC] Web app: research and evaluation of options for local storage compatible with git in the web app.
+- [S-ST-LS4] [TBD post-POC] Mobile app: research and evaluation of options for local storage compatible with git in the mobile app.
 
 ## Sync
 
 - [S-ST-SYN1] Sync: via git-compatible operations (preferred).
-- [S-ST-SYN2] [TBD] Conflict resolution: **delegate to git**. Expected: merge of markdown is text-merge; indexes ([S-ST-IX1]) are regenerated post-merge from content rather than text-merged; frontmatter conflicts surface to the user. Full spec pending.
+- [S-ST-SYN2] [TBD post-POC] Conflict resolution: **delegate to git**. Expected: merge of markdown is text-merge; indexes ([S-ST-IX1]) are regenerated post-merge from content rather than text-merged; frontmatter conflicts surface to the user. Full spec pending.
 
 ## Storage Data Model
 

@@ -9,7 +9,7 @@ Terms used across spec documents.
 - **Folder note** — Storage convention where a note `foo.md` can be paired with a folder `foo/` containing its children, attachments, and draft.
 - **Draft** — Separate in-progress file (`draft.md`) alongside a note. At most one per note. Existence is reflected in the note's `draft: bool` frontmatter.
 - **Reference** — A URI link from a note to another artifact: `note://`, `space://`, `view://`, `file://`. Block-level granularity via `#block-id`.
-- **Block-id** — Stable identifier for a block within a note, used as the target of intra-note and inter-note references. (Generation rule TBD — see [S-DM-NR5](data-model.md#note-references).)
+- **Block-id** — Stable identifier for a block within a note, used as the target of intra-note and inter-note references. (Generation rule is an open item — see [S-DM-NR5](data-model.md#note-references), marked `[TBD post-POC]`.)
 - **Backlink** — Reverse of a forward reference; stored in the references index.
 - **Index** — Derived JSON cache file in the data folder. Most indexes are regenerable from content; some (`views.json`, `settings.json`, `history.json`) are source-of-truth. See [storage](storage.md#indexes).
 - **Source of truth** — Data that cannot be reconstructed from other artifacts and must be persisted.

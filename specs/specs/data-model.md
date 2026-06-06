@@ -44,7 +44,7 @@ Satisfies: [E-TEXT](../expectations.md) (`S-DM-N*`, `S-DM-ND*`), [E-INTERLINK](.
 - [S-DM-N6] Frontmatter format:
   - YAML, UTF-8.
   - Required fields MUST be present; optional fields MAY be omitted.
-  - Field order is not significant. [TBD, deferred: escaping rules for strings containing YAML control characters.]
+  - Field order is not significant. [TBD post-POC: escaping rules for strings containing YAML control characters.]
 - [S-DM-N7] Drafts:
   - A draft is a **separate file** alongside the note (see [storage layout](storage.md#S-ST-DM4)), not inline content.
   - At most one draft file per note.
@@ -59,24 +59,24 @@ Satisfies: [E-TEXT](../expectations.md) (`S-DM-N*`, `S-DM-ND*`), [E-INTERLINK](.
   - `note://<subspace>.<space>/<note>/<subnote>[#<block-id>][?<query>]`
   - `view://<view-name>[?<query>]`
   - `file://<relative.file.path>` for attached files.
-  - `[?<query>]` parametrizes the target view (Notes view, Space view) and/or in-note navigation. [TBD, deferred: query grammar.]
+  - `[?<query>]` parametrizes the target view (Notes view, Space view) and/or in-note navigation. [TBD post-POC: query grammar.]
 - [S-DM-NR4] Note-to-note references are bi-directional and support block-level granularity:
   - Forward link: `[text](note://<subspace>.<space>/<note>/<subnote>[#<block-id>][?<query>])` — links to a specific block in the target note.
   - Backlink: block-id where the reference is made is stored in the references index.
   - Indexed. Synced from content.
-- [S-DM-NR5] [TBD, deferred] Block-id production: how `#block-id` is generated and stabilized (manual anchors vs. heading slugs vs. auto-generated stable ids in frontmatter). Required for stable backlinks.
-- [S-DM-NR6] [TBD, deferred] Reference composer: interactive helper in the editor allowing the user to compose note references by searching notes and in-note blocks.
+- [S-DM-NR5] [TBD post-POC] Block-id production: how `#block-id` is generated and stabilized (manual anchors vs. heading slugs vs. auto-generated stable ids in frontmatter). Required for stable backlinks.
+- [S-DM-NR6] [TBD post-POC] Reference composer: interactive helper in the editor allowing the user to compose note references by searching notes and in-note blocks.
 
 ### Note Definitions
 
 - Provisional implementation currently covers a narrow candidate syntax and index shape; broader syntax options and richer metadata remain deferred.
-- [S-DM-ND1] Note definition (provisional candidate syntax): a markdown line matching `**Term** Definition text`, where both the extracted term and definition text are non-empty. [TBD, deferred: alternative syntaxes such as definition lists and configurable patterns via settings.]
+- [S-DM-ND1] Note definition (provisional candidate syntax): a markdown line matching `**Term** Definition text`, where both the extracted term and definition text are non-empty. [TBD post-POC: alternative syntaxes such as definition lists and configurable patterns via settings.]
 - [S-DM-ND2] Note definitions (provisional): indexed and synced from note content on create/update; entries belonging to a deleted note or replaced during re-sync are removed; index keys are normalized to lowercase.
-- [S-DM-ND3] Note definition content (provisional): definition entries are keyed by term and retain the extracted definition text plus the source note reference; `block_id` remains unset until [S-DM-NR5] is specified. [TBD, deferred] Statistics model.
+- [S-DM-ND3] Note definition content (provisional): definition entries are keyed by term and retain the extracted definition text plus the source note reference; `block_id` remains unset until [S-DM-NR5] is specified. [TBD post-POC] Statistics model.
 
 ## Mutation Semantics
 
-- [S-DM-MV1] [TBD, deferred] Move/rename of notes: behaviour of inbound references (rewrite vs. uuid-resolve), of derived `id`, of file-on-disk vs. frontmatter, of children.
-- [S-DM-MV2] [TBD, deferred] Move/rename of spaces: same questions as [S-DM-MV1] applied to space hierarchies.
-- [S-DM-MV3] [TBD, deferred] Deletion semantics: soft vs. hard delete; effect on children, attachments, inbound references, history index.
-- [S-DM-MV4] [TBD, deferred] Attachments lifecycle: orphan cleanup, size limits, allowed types, deduplication, behaviour when the owning note is moved or deleted.
+- [S-DM-MV1] [TBD post-POC] Move/rename of notes: behaviour of inbound references (rewrite vs. uuid-resolve), of derived `id`, of file-on-disk vs. frontmatter, of children.
+- [S-DM-MV2] [TBD post-POC] Move/rename of spaces: same questions as [S-DM-MV1] applied to space hierarchies.
+- [S-DM-MV3] [TBD post-POC] Deletion semantics: soft vs. hard delete; effect on children, attachments, inbound references, history index.
+- [S-DM-MV4] [TBD post-POC] Attachments lifecycle: orphan cleanup, size limits, allowed types, deduplication, behaviour when the owning note is moved or deleted.
