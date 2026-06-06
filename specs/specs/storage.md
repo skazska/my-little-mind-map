@@ -33,7 +33,7 @@ data_folder/
    |- references.json    <- note-note references index (derived)
    |- labels.json        <- labels index (derived)
    |- notes.json         <- notes index (derived from spaces/)
-   |- spaces.json        <- hierarchical data of spaces (derived from spaces/)
+   |- spaces.json        <- space metadata (name, description, labels — source-of-truth); hierarchy (child_ids, note_count — derived from spaces/)
    |- views.json         <- named views index (source of truth)
    |- settings.json      <- user settings (source of truth)
    |- history.json       <- recent activity and changes (source of truth)
@@ -55,6 +55,7 @@ data_folder/
 
 - [S-ST-IX1] Index files are **derived caches** unless explicitly marked source-of-truth:
   - Fully regenerable from note content alone: `labels.json`, `definitions.json`, `references.json`.
-  - Regenerable from the `spaces/` folder structure and note contents: `notes.json`, `spaces.json`.
+  - Fully regenerable from the `spaces/` folder structure and note contents: `notes.json`.
+  - **Hybrid** (partially source-of-truth, partially derived): `spaces.json` — `name`, `description`, and `labels` are **source-of-truth** (must be persisted; cannot be recovered from folder layout alone); `child_ids` and `note_count` are **derived** and regenerable from `parent_id` chains and note files.
   - **Not regenerable** (source of truth, must be persisted and committed): `views.json`, `settings.json`, `history.json`.
-- [S-ST-IX2] Derived indexes MAY be committed for performance but MUST be reproducible from sources; any divergence is resolved by regeneration.
+- [S-ST-IX2] Derived indexes MAY be committed for performance but MUST be reproducible from sources; any divergence is resolved by regeneration. This applies to the derived portions of hybrid indexes (e.g. `child_ids` and `note_count` in `spaces.json`); source-of-truth portions are governed by the Not-regenerable rule above and must always be persisted.

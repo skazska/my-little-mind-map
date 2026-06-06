@@ -40,7 +40,7 @@ Satisfies: [E-TEXT](../expectations.md) (`S-DM-N*`, `S-DM-ND*`), [E-INTERLINK](.
   - `labels`: (required) space-separated string; each token matches `^[a-z0-9-]+$`. Represents a set of labels.
   - `references`: array of URI references (`note://`, `space://`, `view://`, `file://`). Synced from content.
   - `created_at`, `updated_at`: (required) timestamps. Set automatically.
-  - `draft`: bool. Indicates that a separate draft file exists for this note. See [S-DM-N7].
+  - `draft`: bool. Indicates that a separate draft file exists for this note (see [S-DM-N7]). The published file's frontmatter reflects its last published state; the `draft` flag in `notes.json` and the ViewModel is computed from draft-file presence, not from the published file's frontmatter.
 - [S-DM-N6] Frontmatter format:
   - YAML, UTF-8.
   - Required fields MUST be present; optional fields MAY be omitted.
@@ -48,7 +48,7 @@ Satisfies: [E-TEXT](../expectations.md) (`S-DM-N*`, `S-DM-ND*`), [E-INTERLINK](.
 - [S-DM-N7] Drafts:
   - A draft is a **separate file** alongside the note (see [storage layout](storage.md#S-ST-DM4)), not inline content.
   - At most one draft file per note.
-  - Frontmatter `draft: true/false` indicates the presence of the draft file; it is derived and kept in sync.
+  - Frontmatter `draft: true` is written to the draft companion file only; the published file's `draft: false` reflects its last published state and is **not** rewritten when a new draft is created. The `draft` flag in indexes and the ViewModel is computed from draft-file presence.
 
 ### Note References
 

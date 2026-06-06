@@ -13,10 +13,10 @@
  *
  * ## State isolation
  *
- * The app stores its configuration and space/note data in the browser's
- * localStorage under keys prefixed with `mlmm:`.  `resetAndBootstrap()` wipes
- * those keys and refreshes the page so each suite begins from a clean state
- * without reloading the Vite dev server.
+ * The app stores its S-ST-LS3 browser-local virtual file tree in localStorage
+ * under keys prefixed with `mlmm:`. `resetAndBootstrap()` wipes those keys and
+ * refreshes the page so each suite begins from a clean state without reloading
+ * the Vite dev server.
  *
  * ## Note creation
  *

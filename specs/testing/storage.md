@@ -2,10 +2,11 @@
 
 Integration tests for filesystem-backed storage — CRUD operations, file layout, and index synchronization.
 
-**Layer**: Integration (`storage/tests/integration_test.rs`, `tokio::test`, `tempfile::TempDir`)
-**Spec coverage**: [S-DM-L2], [S-DM-L3], [S-DM-L4], [S-DM-N5], [S-DM-N6], [S-DM-N1], [S-DM-NR4], [S-DM-S4], [S-DM-V3], [S-ST-DM1], [S-ST-DM2], [S-ST-DM3], [S-ST-DM4], [S-ST-IX1], [S-ST-IX2], [S-CFG-2], [S-CFG-3], [S-UX-ERR]
+**Layer**: Integration (`storage/tests/integration_test.rs`, `tokio::test`, `tempfile::TempDir`); E2E (`product/web-app/tests/e2e/specs/`)
+**Spec coverage**: [S-DM-L2], [S-DM-L3], [S-DM-L4], [S-DM-N5], [S-DM-N6], [S-DM-N1], [S-DM-NR4], [S-DM-S4], [S-DM-V3], [S-ST-DM1], [S-ST-DM2], [S-ST-DM3], [S-ST-DM4], [S-ST-IX1], [S-ST-IX2], [S-ST-LS3], [S-DM-N7], [S-CFG-2], [S-CFG-3], [S-UX-ERR]
 **Provisional coverage**: [S-DM-ND1], [S-DM-ND2]
-**Implementation**: `product/storage/tests/integration_test.rs`
+**Integration implementation**: `product/storage/tests/integration_test.rs`
+**E2E implementation**: `product/web-app/tests/e2e/specs/03-space-management.spec.ts`, `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`
 **Implementation status**: All test cases implemented unless marked `[skipped]`.
 
 **Conventions**:
@@ -323,3 +324,82 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **Then** each derived index file is recreated  
 **And** its contents are byte-equivalent (or value-equivalent after canonicalisation) to the snapshot taken before deletion  
 **And** source-of-truth files (`views.json`, `settings.json`, `history.json`) are untouched
+
+---
+
+## Web Virtual File Tree (S-ST-LS3)
+
+Test cases for the web app's browser-local virtual file tree, which mirrors the [S-ST-DM4](../specs/storage.md) folder-note layout using path-keyed `localStorage` entries (`mlmm:file:<path>`).
+
+**Layer**: E2E (`product/web-app/tests/e2e/specs/03-space-management.spec.ts`, `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`)  
+**Spec coverage**: [S-ST-LS3], [S-ST-DM4], [S-ST-IX1], [S-ST-IX2], [S-DM-N7], [S-DM-N5]
+
+> **ImplementationDev follow-up**: the `.spec.ts` test descriptions currently borrow desktop `TC-ST-*` codes or use bare spec-refs. Wire the canonical `TC-ST-LS3-*` codes below into the test descriptions in `product/web-app/tests/e2e/specs/03-space-management.spec.ts` and `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`.
+
+---
+
+### TC-ST-LS3-01 — Note save creates path-keyed markdown file under spaces/ [S-ST-LS3], [S-ST-DM4]
+
+**Given** the user creates a note in a space and types content in the web editor  
+**When** the autosave debounce fires  
+**Then** a `localStorage` entry with key `mlmm:file:spaces/<space>/<note>/draft.md` is created  
+**And** its value is a valid markdown file with YAML front matter containing the typed content  
+**And** no legacy `mlmm:data` blob key is present
+
+**Implementation**: `TC-E2E-NE-06-web` / `TC-ST-N-02/TC-ST-N-04` in `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`
+
+---
+
+### TC-ST-LS3-02 — Derived index files updated on note save [S-ST-LS3], [S-ST-IX1], [S-ST-IX2]
+
+**Given** a note is saved to the web local store  
+**When** the autosave debounce fires  
+**Then** `mlmm:file:labels.json` reflects any labels on the note  
+**And** `mlmm:file:notes.json` contains an entry for the note with correct `id`, `path`, and `draft` flag  
+**And** `mlmm:file:definitions.json` is updated to include any `**Term** Definition` patterns in the note content  
+**And** no legacy `mlmm:data` blob key is present
+
+**Implementation**: `TC-E2E-NE-06-web`, `TC-ST-DI-01` in `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`
+
+---
+
+### TC-ST-LS3-03 — Draft file removed when editor content is cleared [S-ST-LS3], [S-DM-N7]
+
+**Given** a note with an existing draft file at `spaces/<space>/<note>/draft.md`  
+**When** the editor content is cleared and the autosave debounce fires  
+**Then** the `mlmm:file:spaces/<space>/<note>/draft.md` `localStorage` key is removed
+
+**Implementation**: `TC-E2E-NE-16/TC-AL-N-12` in `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`
+
+---
+
+### TC-ST-LS3-04 — Publish replaces draft file with published markdown [S-ST-LS3], [S-DM-N7], [S-ST-DM4], [S-DM-N5]
+
+**Given** a note with an existing draft file at `spaces/<space>/<note>/draft.md`  
+**When** the user publishes the note  
+**Then** `mlmm:file:spaces/<space>/<note>/draft.md` is removed  
+**And** `mlmm:file:spaces/<space>/<note>.md` exists with `draft: false` in its front matter
+
+**Implementation**: `TC-E2E-NE-13/TC-DM-FM-09` in `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`
+
+---
+
+### TC-ST-LS3-05 — spaces.json space metadata is source-of-truth [S-ST-LS3], [S-ST-IX1]
+
+**Given** a space is created via the web app  
+**When** `mlmm:file:spaces.json` is read  
+**Then** the entry for that space contains the correct `name`, `description`, and `labels` values  
+**And** `child_ids` and `note_count` reflect the current derived state (regenerable from folder structure)
+
+**Implementation**: `TC-E2E-SP-01-ls` in `product/web-app/tests/e2e/specs/03-space-management.spec.ts`
+
+---
+
+### TC-ST-LS3-06 — Nested note keys mirror folder-note layout [S-ST-LS3], [S-ST-DM4]
+
+**Given** a web local store space contains a parent note at `spaces/<space>/<parent>/draft.md`  
+**When** a child note is saved with id `<space>/<parent>/<child>`  
+**Then** the draft file is stored at `mlmm:file:spaces/<space>/<parent>/<child>/draft.md`  
+**And** publishing removes the draft key and stores `mlmm:file:spaces/<space>/<parent>/<child>.md` with `draft: false`
+
+**Implementation**: `TC-ST-LS3-06` in `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`

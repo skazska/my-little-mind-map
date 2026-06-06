@@ -9,6 +9,6 @@ See [docs/testing.md](../docs/testing.md) for test strategy, tooling, and infras
 | File | Layer | Covers |
 |------|-------|--------|
 | [testing/data-model.md](testing/data-model.md) | Unit | Types, IDs, labels, frontmatter |
-| [testing/storage.md](testing/storage.md) | Integration | Storage CRUD, filesystem layout, indexes |
+| [testing/storage.md](testing/storage.md) | Integration + E2E | Storage CRUD, filesystem layout, indexes; web virtual file tree ([S-ST-LS3]) |
 | [testing/app-logic.md](testing/app-logic.md) | Unit / Integration | Shared core: `update()`, `view()`, effects |
 | [testing/user-flows.md](testing/user-flows.md) | E2E | Full user flows via Tauri WebDriver |
