@@ -3,7 +3,7 @@
 End-to-end tests that drive the full application through the UI. Each test starts the app via Tauri WebDriver.
 
 **Layer**: E2E (`product/desktop-app/tests/e2e/`, WebdriverIO + `tauri-driver`)
-**Spec coverage**: [S-DM-L2], [S-DM-L4], [S-DM-N2], [S-DM-N7], [S-DM-S4], [S-DM-V1], [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-MF1], [S-UX-ST1], [S-UX-ST2], [S-UX-ST3], [S-UX-LT1], [S-UX-LT2], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-UX-ERR], [S-UX-FB4], [S-UX-IN1], [S-UX-INT1], [S-UX-INT2], [S-CFG-1], [S-CFG-2]
+**Spec coverage**: [S-DM-L2], [S-DM-L4], [S-DM-N2], [S-DM-N7], [S-DM-S4], [S-DM-V1], [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-MF1], [S-UX-ST1], [S-UX-ST2], [S-UX-ST3], [S-UX-LT1], [S-UX-LT2], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6], [S-UX-ERR], [S-UX-FB4], [S-UX-FB5], [S-UX-FB6], [S-UX-IN1], [S-UX-INT1], [S-UX-INT2], [S-CFG-1], [S-CFG-2]
 **Implementation**: `product/e2e-shared/scenarios/` (shared), `product/desktop-app/tests/e2e/specs/` (desktop), `product/web-app/tests/e2e/specs/` (web)
 **Implementation status**: All test cases implemented unless marked `[skipped]`.
 
@@ -377,6 +377,26 @@ End-to-end tests that drive the full application through the UI. Each test start
 **Then** the Save button is disabled  
 **And** after the user types in the content area, the Save button becomes enabled
 
+### TC-E2E-FB-02 — Empty lists show guidance instead of a blank area [S-UX-FB5]
+
+> Covers the empty-list cases that are implemented (notes, labels, saved views). The "No notes" call-to-action and the "no spaces" case are pending and tracked under [S-UX-FB5].
+
+**Given** a fresh data folder whose default space `My` has no notes, no labels in use, and no saved views  
+**When** the user opens the Notes list, the Labels tab, and the Views tab in turn  
+**Then** the Notes list shows a "No notes yet" message rather than an empty pane  
+**And** the Labels tab shows a "No labels yet" message  
+**And** the Views tab shows a "No saved views yet" message
+
+### TC-E2E-FB-03 — Non-fatal events surface a transient, dismissible notice [S-UX-FB6] `[skipped]`
+
+> **Status**: skipped — no notice/toast component exists in the shells yet; this encodes the newly-authored [S-UX-FB6] spec and is the shared dependency of TC-E2E-INT-02.
+
+**Given** the app triggers a non-fatal event that warrants user notice (e.g. an unresolvable launch intention, see [S-UX-INT2])  
+**When** the event occurs  
+**Then** a non-blocking notice is shown that does not interrupt the current task  
+**And** the notice is dismissible and also auto-dismisses after a short interval  
+**And** the dedicated error screen ([S-UX-ERR]) is not shown for this non-fatal event
+
 ### TC-E2E-IN-01 — Enter in the add-label input adds the label [S-UX-IN1], [S-UX-NE1]
 
 **Given** the note editor is open  
@@ -388,6 +408,17 @@ End-to-end tests that drive the full application through the UI. Each test start
 **Given** the overview Spaces tab is visible with the new-space form open  
 **When** the user types a space name and presses Enter in the name field  
 **Then** the space is created and appears in the spaces list
+
+### TC-E2E-IN-03 — Baseline keyboard shortcuts drive primary actions [S-UX-IN1] `[skipped]`
+
+> **Status**: skipped — only the in-input Enter/Esc handling exists today; the global shortcut map (Save, New note, Back, Focus search) in [S-UX-IN1] is not yet implemented in the shells.
+
+**Given** the app is on a screen where the corresponding actions exist (note editor with unsaved changes; a list with a search input)  
+**When** the user presses `Ctrl/Cmd+S` in the editor, `Ctrl/Cmd+N` to create a note, `Esc` to leave the editor, and `Ctrl/Cmd+F` in a searchable list  
+**Then** `Ctrl/Cmd+S` flushes the draft (Unsaved indicator clears)  
+**And** `Ctrl/Cmd+N` opens a new draft note  
+**And** `Esc` (with no inline input focused) navigates back from the editor  
+**And** `Ctrl/Cmd+F` moves focus to the list's search input
 
 ---
 
@@ -408,7 +439,7 @@ End-to-end tests that drive the full application through the UI. Each test start
 **Given** the app is launched with an intention whose target does not exist  
 **When** the app finishes loading  
 **Then** the app lands on the default new note in the default space's notes view ([S-UX-SA3])  
-**And** a non-blocking notice is shown ([S-UX-FB1])
+**And** a non-blocking notice is shown ([S-UX-FB1], [S-UX-FB6])
 
 ---
 
