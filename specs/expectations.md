@@ -9,6 +9,11 @@ Status legend:
 - **In-POC** — expected to be satisfied within the POC.
 - **Deferred** — out of scope for the POC; tracked for later iterations. Some deferred expectations map to specs currently marked `[TBD]`.
 
+## Product feature policies
+
+- [E-P-HAI] **Both AI and Human usability optimization.**: maximum UX/UI and data usable, accessible, structured, and presented in a way that optimizes for both human users and AI agents with minimum friction while requiuing minimum development and support effort.
+- [E-P-APPLY-RANGE] **APPLY-RANGE.**: Maximim wide range of product applicability, from personal note-taking to team project management, knowledge base, and agent memory with minimum use friction, while requiring minimum development and support effort.  
+
 ## Functional Expectations
 
 - [E-TEXT] **Text-centric content.** Markdown notes are the source of truth; other artifacts are referenced from text; metadata is derived from content.

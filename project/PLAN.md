@@ -2,9 +2,19 @@
 
 ## POC
 
-Desktop App + Web App.
+Expectations:
 
-status: TBD
+1. proof dev and support effort minimization approaches:
+   1.1. rust-core reusable, maximization
+   1.2. platforms ui implementations minimization
+   1.3. architect decisions and exact expectations
+2. proof AI
+   2.1. 
+3.
+
+Scope: Desktop App + Web App.
+
+status: IN-Progress
 
 ## MVP1
 
