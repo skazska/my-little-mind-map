@@ -42,7 +42,7 @@ Satisfies:
 
 - [S-UX-ST1] Space navigation: tree, search.
 - [S-UX-ST2] Space view: name, description, labels, statistics.
-- [S-UX-ST3] Space management: create; rename [TBD future]; move [TBD future]; open notes view with space selected.
+- [S-UX-ST3] Space management: create; delete; rename [TBD post-POC]; move [TBD post-POC]; open notes view with space selected.
 
 ## Labels Tab
 
@@ -60,16 +60,16 @@ Satisfies:
   - search: text to search in note content and metadata.
   - tree of notes matching selected filters: title, labels in short, description and metadata in expanded detail. Sort by relevance, `created_at`, `updated_at`.
 - [S-UX-NVT2] Note view/edit.
-- [S-UX-NVT3] Note management: edit mode; delete [TBD future]; move [TBD future].
+- [S-UX-NVT3] Note management: edit mode; delete; move [TBD post-POC].
 - [S-UX-NVT4] [TBD post-POC] Search: dedicated "Search" notes view. The `[?<query>]` suffix on references (see [S-DM-NR3](data-model.md#note-references)) parametrizes Notes view, Space view, and in-note navigation. Search relevance, indexing strategy, and query grammar are pending.
 
 ## Note Editing (Editor Sub-Spec)
 
 - [S-UX-NE1] Metadata panel above / top-inside content. Synced. Interactive, expandable: all metadata and actions.
   - Draft: indicator and action to publish note.
-  - Id: indicators — absence of space/parent, title. Actions — move.
+  - Id: indicators — absence of space/parent, title. Actions — move [TBD post-POC] (see [S-DM-MV1](data-model.md)).
   - Labels: actions — add, remove.
-  - Attachments: indicators — count. Actions — add file, capture screen part.
+  - Attachments: [TBD post-POC] (lifecycle deferred, see [S-DM-MV4](data-model.md)) indicators — count. Actions — add file, capture screen part.
   - **Platform note — ViewModel fields**: Shells MAY omit display of `uuid`, `created_at`, and `updated_at` from the metadata panel when screen space is constrained (e.g. narrow viewports). These fields MUST still be present in the ViewModel and MUST be displayable in the expanded metadata view.
 - [S-UX-NE2] Note editor with markdown support and live preview.
   - Inline suggests, autocomplete, and validation.

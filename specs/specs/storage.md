@@ -12,7 +12,7 @@ Satisfies: [E-LOCAL-FIRST](../expectations.md) (`S-ST-LS*`, `S-ST-DM*`), [E-SYNC
 
 - [S-ST-LS1] Local storage: same approach across all apps (preferred).
 - [S-ST-LS2] Desktop: file-system based. Git versioning. Can run on any project folder as storage.
-- [S-ST-LS3] [TBD post-POC] Web app: research and evaluation of options for local storage compatible with git in the web app. **POC-value decision** (see [E-LOCAL-FIRST](../expectations.md)): the web shell currently uses a stub store; to make version-control-hosting sync plausible from the web, the POC likely needs a minimum non-stub web local store whose layout maps cleanly onto a git working tree.
+- [S-ST-LS3] Web app: the POC provides a minimum non-stub local store whose layout maps cleanly onto a git working tree ([S-ST-DM4]), so that version-control-hosting sync ([E-SYNC](../expectations.md)) is plausible from the web. Replaces the earlier stub store (see [E-LOCAL-FIRST](../expectations.md)). [TBD post-POC] research and evaluation of richer git-compatible web local-storage backends (e.g. OPFS, IndexedDB-backed FS) by performance and integration effort.
 - [S-ST-LS4] [TBD post-POC] Mobile app: research and evaluation of options for local storage compatible with git in the mobile app.
 
 ## Sync
