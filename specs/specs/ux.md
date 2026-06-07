@@ -34,7 +34,7 @@ Satisfies:
 ### Starting the App
 
 - [S-UX-SA1] Select or create data folder on first launch, with option to skip to default. Main frame elements are not visible until a data folder is selected.
-  - **Platform note — Web**: The web shell has no filesystem access. On first launch it initialises browser storage (see [S-CFG-1](config.md)) and proceeds directly to the main frame; there is no folder-selection dialog. This is the specified exception to the "main frame hidden" rule for the web shell.
+  - **Platform note — Web**: On first launch, the web shell prompts the user to select a data folder via `showDirectoryPicker()` with no option to skip.
 - [S-UX-SA2] If no space exists, create default space `My`.
 - [S-UX-SA3] If no intention is provided on launch (e.g. opening a specific note or view), default content area is a new note in notes view with default space. Intention handling is specified in [S-UX-INT1].
 

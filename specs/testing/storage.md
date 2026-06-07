@@ -329,39 +329,34 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 
 ---
 
-## Web Virtual File Tree (S-ST-LS3)
+## Web File System Access (S-ST-LS3)
 
-Test cases for the web app's browser-local virtual file tree, which mirrors the [S-ST-DM4](../specs/storage.md) folder-note layout using path-keyed `localStorage` entries (`mlmm:file:<path>`).
+Test cases for the web app's filesystem access via File System Access API (FSA), which provides direct read/write access to a user-selected folder with the same [S-ST-DM4] layout as desktop storage.
 
 **Layer**: E2E (`product/web-app/tests/e2e/specs/03-space-management.spec.ts`, `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`)  
 **Spec coverage**: [S-ST-LS3], [S-ST-DM4], [S-ST-IX1], [S-ST-IX2], [S-DM-N7], [S-DM-N5]
 
-> **ImplementationDev follow-up**: the `.spec.ts` test descriptions currently borrow desktop `TC-ST-*` codes or use bare spec-refs. Wire the canonical `TC-ST-LS3-*` codes below into the test descriptions in `product/web-app/tests/e2e/specs/03-space-management.spec.ts` and `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`.
+> **ImplementationDev follow-up**: The `.spec.ts` test descriptions currently borrow desktop `TC-ST-*` codes or use bare spec-refs. Wire the canonical `TC-ST-LS3-*` codes below into the test descriptions in `product/web-app/tests/e2e/specs/03-space-management.spec.ts` and `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`.
 
 ---
 
-### TC-ST-LS3-01 — Note save creates path-keyed markdown file under spaces/ [S-ST-LS3], [S-ST-DM4]
+### TC-ST-LS3-01 — Note save creates markdown file under spaces/ [S-ST-LS3], [S-ST-DM4]
 
 **Given** the user creates a note in a space and types content in the web editor  
 **When** the autosave debounce fires  
-**Then** a `localStorage` entry with key `mlmm:file:spaces/<space>/<note>/draft.md` is created  
-**And** its value is a valid markdown file with YAML front matter containing the typed content  
-**And** no legacy `mlmm:data` blob key is present
-
-**Implementation**: `TC-E2E-NE-06-web` / `TC-ST-N-02/TC-ST-N-04` in `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`
+**Then** a file with path `spaces/<space>/<note>/draft.md` is created in the FSA-selected folder  
+**And** its content is a valid markdown file with YAML front matter containing the typed content  
+**And** the file is readable via standard filesystem operations
 
 ---
 
 ### TC-ST-LS3-02 — Derived index files updated on note save [S-ST-LS3], [S-ST-IX1], [S-ST-IX2]
 
-**Given** a note is saved to the web local store  
+**Given** a note is saved to the FSA folder  
 **When** the autosave debounce fires  
-**Then** `mlmm:file:labels.json` reflects any labels on the note  
-**And** `mlmm:file:notes.json` contains an entry for the note with correct `id`, `path`, and `draft` flag  
-**And** `mlmm:file:definitions.json` is updated to include any `**Term** Definition` patterns in the note content  
-**And** no legacy `mlmm:data` blob key is present
-
-**Implementation**: `TC-E2E-NE-06-web`, `TC-ST-DI-01` in `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`
+**Then** `labels.json` reflects any labels on the note  
+**And** `notes.json` contains an entry for the note with correct `id`, `path`, and `draft` flag  
+**And** `definitions.json` is updated to include any `**Term** Definition` patterns in the note content
 
 ---
 
@@ -369,15 +364,16 @@ Test cases for the web app's browser-local virtual file tree, which mirrors the 
 
 **Given** a note with an existing draft file at `spaces/<space>/<note>/draft.md`  
 **When** the editor content is cleared and the autosave debounce fires  
-**Then** the `mlmm:file:spaces/<space>/<note>/draft.md` `localStorage` key is removed
-
-**Implementation**: `TC-E2E-NE-16/TC-AL-N-12` in `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`
+**Then** the draft file is removed from the FSA folder
 
 ---
 
 ### TC-ST-LS3-04 — Publish replaces draft file with published markdown [S-ST-LS3], [S-DM-N7], [S-ST-DM4], [S-DM-N5]
 
 **Given** a note with an existing draft file at `spaces/<space>/<note>/draft.md`  
+**When** the user publishes the draft  
+**Then** the draft file is removed  
+**And** `spaces/<space>/<note>.md` is created (or updated if it already exists) with `draft: false` in the frontmatter  
 **When** the user publishes the note  
 **Then** `mlmm:file:spaces/<space>/<note>/draft.md` is removed  
 **And** `mlmm:file:spaces/<space>/<note>.md` exists with `draft: false` in its front matter

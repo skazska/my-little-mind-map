@@ -10,14 +10,15 @@ Satisfies: [E-LOCAL-FIRST](../expectations.md) (`S-ST-LS*`, `S-ST-DM*`), [E-SYNC
 
 ## Local Storage
 
-- [S-ST-LS1] Local storage: same approach across all apps (preferred).
+- [S-ST-LS1] Local storage: same approach across all apps.
 - [S-ST-LS2] Desktop: file-system based. Git versioning. Can run on any project folder as storage.
-- [S-ST-LS3] Web app: the POC provides a minimum non-stub local store whose layout maps cleanly onto a git working tree ([S-ST-DM4]), so that version-control-hosting sync ([E-SYNC](../expectations.md)) is plausible from the web. Replaces the earlier stub store (see [E-LOCAL-FIRST](../expectations.md)). [TBD post-POC] research and evaluation of richer git-compatible web local-storage backends (e.g. OPFS, IndexedDB-backed FS) by performance and integration effort.
-- [S-ST-LS4] [TBD post-POC] Mobile app: research and evaluation of options for local storage compatible with git in the mobile app.
-
+- [S-ST-LS3] Web app: File System Access API (FSA). User grants the web app access to a folder on disk.
+  - **Browser support:** Chrome, Edge (latest); Firefox (limited); Safari (not supported). [TBD post-POC] research into fallback strategies (e.g., OPFS) for unsupported browsers.
+  - **Security model:** User explicitly grants per-folder access; operations are confined to the selected folder.
+  
 ## Sync
 
-- [S-ST-SYN1] Sync: via git-compatible operations (preferred).
+- [S-ST-SYN1] Sync: via git-compatible operations.
 - [S-ST-SYN2] [TBD post-POC] Conflict resolution: **delegate to git**. Expected: merge of markdown is text-merge; indexes ([S-ST-IX1]) are regenerated post-merge from content rather than text-merged; frontmatter conflicts surface to the user. Full spec pending.
 
 ## Storage Data Model

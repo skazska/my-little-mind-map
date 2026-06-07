@@ -73,13 +73,15 @@ End-to-end tests that drive the full application through the UI. Each test start
 
 ## First Launch (web-specific)
 
-> The web shell has no filesystem access. On first launch it initialises browser storage and proceeds directly to the main frame ([S-UX-SA1], [S-UX-CON2]).
+> On first launch, the web shell prompts the user to select a data folder via `showDirectoryPicker()` (File System Access API, [S-UX-SA1], [S-ST-LS3]). The selected folder becomes the app's data store and can be a git working tree for version control integration.
 
-### TC-E2E-FL-W-01 — Web: localStorage is clean before first use [S-UX-SA1], [S-UX-CON2]
+### TC-E2E-FL-W-01 — Web: FSA folder selection on first launch [S-UX-SA1], [S-ST-LS3]
 
-**Given** all `mlmm:*` keys have been cleared from localStorage and the page has been refreshed  
-**When** no mlmm operations have yet been performed in this session  
-**Then** `localStorage` contains no keys prefixed with `mlmm:` that leaked from a previous test suite
+**Given** the web app is opened for the first time (no FSA handle stored)  
+**When** the app starts  
+**Then** a `showDirectoryPicker()` dialog is presented to the user  
+**And** upon folder selection, the FSA handle and folder path are stored in `localStorage` (key: `mlmm:config:fsa-handle`)  
+**And** the app proceeds to the main frame
 
 ---
 

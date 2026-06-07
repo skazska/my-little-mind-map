@@ -9,14 +9,14 @@ Satisfies: [E-CROSS-PLATFORM](../expectations.md) (`S-CFG-*`).
     - Linux: `$XDG_CONFIG_HOME/my-little-mind-map/config.json` (default `~/.config/my-little-mind-map/config.json`).
     - macOS: `~/Library/Application Support/my-little-mind-map/config.json`.
     - Windows: `%APPDATA%\my-little-mind-map\config.json`.
-  - **Web** — browser `localStorage`, using key prefix `mlmm:` to namespace all app data.
+  - **Web** — browser `localStorage` (for config data only, not for user data). Config key prefix: `mlmm:config:*`. FSA folder handle and path reference are stored here; actual data files are accessed via File System Access API ([S-ST-LS3](storage.md)).
   - **Mobile** — app local storage or secure storage.
 - [S-CFG-2] Defaults for settings are platform-specific:
   - **Desktop**:
     - Default data folder: `~/MyLittleMindMapData`.
     - Default sync: disabled.
   - **Web**:
-    - Default data folder: `MyLittleMindMapData` stored under the `mlmm:` prefix in browser `localStorage`.
+    - No default data folder; user must select one via `showDirectoryPicker()` on first launch ([S-UX-SA1](ux.md)). Selected folder path and FSA handle are stored in browser `localStorage` (key: `mlmm:config:fsa-handle`).
     - Default sync: disabled.
   - **Mobile**:
     - Default data folder: `MyLittleMindMapData` in app local storage / secure storage.
