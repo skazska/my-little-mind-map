@@ -72,7 +72,7 @@ Inspired by personal knowledge management, note-taking, and project management t
 - code items: function, method, param, type, variable, etc.
 - code purpose: the reason why the code item exists, what it does, what it is for, etc.
 
-### General Code Principles
+### General Code Quality Principles
 
 - simple and idiomatic
 - readability and maintainability over cleverness
@@ -83,7 +83,8 @@ Inspired by personal knowledge management, note-taking, and project management t
   - no purpose-splitting, code items/files should not be split into multiple code items/files without clear purpose separation.
 - Clear purpose (code items and files):
   - name: short, descriptive, concise, purpose-aligned.
-  - header comment: short, describe, purpose, behavior, usage, spec references.
+  - header comment: short, describe, purpose.
+  - spec references: if directly impacted by a spec.
 - no code errors
 - no code warnings in main branches
 - CI must pass before merge
