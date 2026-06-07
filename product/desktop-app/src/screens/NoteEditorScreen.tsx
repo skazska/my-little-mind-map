@@ -52,6 +52,9 @@ export function NoteEditorScreen({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [labels]);
 
+    // Clean up pending auto-save timer on unmount.
+    useEffect(() => () => { if (saveTimer.current) clearTimeout(saveTimer.current); }, []);
+
     function handleContentChange(value: string) {
         setLocalContent(value);
         setDirty(true);

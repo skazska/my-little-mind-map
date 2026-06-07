@@ -416,11 +416,15 @@ function rawTargetToReferenceTarget(raw: RawReference): NoteReferenceTarget {
 }
 
 function readNote(id: string): Note | null {
-    const draft = readFile(draftNotePath(id));
-    if (draft !== null) return parseNoteFile(id, draft);
-    const published = readFile(publishedNotePath(id));
-    if (published !== null) return parseNoteFile(id, published);
-    return null;
+    try {
+        const draft = readFile(draftNotePath(id));
+        if (draft !== null) return parseNoteFile(id, draft);
+        const published = readFile(publishedNotePath(id));
+        if (published !== null) return parseNoteFile(id, published);
+        return null;
+    } catch {
+        return null;
+    }
 }
 
 function readAllNotes(): Note[] {

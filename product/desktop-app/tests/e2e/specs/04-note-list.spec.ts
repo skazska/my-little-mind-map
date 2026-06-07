@@ -2,7 +2,7 @@
  * TC-E2E-NL — Note List tests
  *
  * Covers: TC-E2E-NL-01..08
- * Spec refs: [S-UX-NLV1], [S-UX-NLV2]
+ * Spec refs: [S-UX-NVT1], [S-UX-NVT2]
  */
 
 import {

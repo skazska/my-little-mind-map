@@ -81,7 +81,7 @@ fn split_front_matter(raw: &str) -> Result<(&str, &str), FrontMatterError> {
     // Find the closing `---` on its own line.
     if let Some(end) = after_open.find("\n---") {
         let fm_str = &after_open[..end];
-        let body = &after_open[end + 4..]; // skip `\n---`
+        let body = &after_open[end + "\n---".len()..]; // skip `\n---`
         Ok((fm_str, body))
     } else {
         Err(FrontMatterError::NoFrontMatter)

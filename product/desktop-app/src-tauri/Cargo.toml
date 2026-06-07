@@ -3,7 +3,7 @@ name = "desktop-app"
 version = "0.1.0"
 description = "My Little Mind Map – desktop app"
 authors = ["you"]
-edition = "2021"
+edition = "2024"
 
 [lib]
 name = "desktop_app_lib"

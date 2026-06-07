@@ -47,9 +47,9 @@ describe('First Launch (web)', () => {
     })
 
     /**
-     * TC-E2E-FL-02 — localStorage is empty at the start of the test (no leaked state).
+     * TC-E2E-FL-W-01 — Web: localStorage is clean before first use (no leaked state from previous suites).
      */
-    it('TC-E2E-FL-02: localStorage has no mlmm keys before first use', async () => {
+    it('TC-E2E-FL-W-01: localStorage has no mlmm keys before first use', async () => {
         const keys: string[] = await browser.execute(() => {
             const result: string[] = []
             for (let i = 0; i < localStorage.length; i++) {

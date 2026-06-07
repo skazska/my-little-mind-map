@@ -71,6 +71,18 @@ End-to-end tests that drive the full application through the UI. Each test start
 
 ---
 
+## First Launch (web-specific)
+
+> The web shell has no filesystem access. On first launch it initialises browser storage and proceeds directly to the main frame ([S-UX-SA1], [S-UX-CON2]).
+
+### TC-E2E-FL-W-01 — Web: localStorage is clean before first use [S-UX-SA1], [S-UX-CON2]
+
+**Given** all `mlmm:*` keys have been cleared from localStorage and the page has been refreshed  
+**When** no mlmm operations have yet been performed in this session  
+**Then** `localStorage` contains no keys prefixed with `mlmm:` that leaked from a previous test suite
+
+---
+
 ## Overview
 
 ### TC-E2E-OV-01 — Overview shows navigation options for Spaces, Labels, Notes views, Recent, and Search [S-UX-MF1]

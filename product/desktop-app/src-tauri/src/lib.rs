@@ -17,17 +17,17 @@ struct AppConfig {
     data_folder: Option<String>,
 }
 
-fn app_config_path(app: &tauri::AppHandle) -> PathBuf {
-    app.path()
+fn app_config_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    Ok(app.path()
         .app_config_dir()
-        .unwrap_or_else(|_| PathBuf::from("."))
-        .join("config.json")
+        .map_err(|e| e.to_string())?
+        .join("config.json"))
 }
 
 /// Read persisted data-folder path from app config dir.
 #[tauri::command]
 fn get_data_folder_config(app: tauri::AppHandle) -> Option<String> {
-    let text = std_fs::read_to_string(app_config_path(&app)).ok()?;
+    let text = std_fs::read_to_string(app_config_path(&app).ok()?).ok()?;
     let cfg: AppConfig = serde_json::from_str(&text).ok()?;
     cfg.data_folder
 }
@@ -35,7 +35,7 @@ fn get_data_folder_config(app: tauri::AppHandle) -> Option<String> {
 /// Persist data-folder path to app config dir.
 #[tauri::command]
 fn save_data_folder_config(app: tauri::AppHandle, path: String) -> Result<(), String> {
-    let cfg_path = app_config_path(&app);
+    let cfg_path = app_config_path(&app)?;
     if let Some(parent) = cfg_path.parent() {
         std_fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
@@ -49,11 +49,9 @@ fn save_data_folder_config(app: tauri::AppHandle, path: String) -> Result<(), St
 
 /// Return the default data folder path (~/MyLittleMindMapData). [S-CFG-2]
 #[tauri::command]
-fn get_default_data_folder() -> Result<String, String> {
-    let home = std::env::var("HOME")
-        .or_else(|_| std::env::var("USERPROFILE"))
-        .unwrap_or_else(|_| "/tmp".to_string());
-    Ok(PathBuf::from(home)
+fn get_default_data_folder(app: tauri::AppHandle) -> Result<String, String> {
+    let home = app.path().home_dir().map_err(|e| e.to_string())?;
+    Ok(home
         .join("MyLittleMindMapData")
         .to_string_lossy()
         .into_owned())
@@ -119,20 +117,21 @@ async fn execute_effects(effects: Vec<Effect>, data_folder: Option<&str>) -> Vec
         None => return responses,
     };
 
+    let storage = match FsStorage::new(&folder).await {
+        Ok(s) => s,
+        Err(e) => {
+            responses.push(Event::EffectError {
+                message: e.to_string(),
+            });
+            return responses;
+        }
+    };
+
     for effect in effects {
         match effect {
             Effect::Render => {}
             Effect::Http(_) => {}
             Effect::Storage(req) => {
-                let storage = match FsStorage::new(&folder).await {
-                    Ok(s) => s,
-                    Err(e) => {
-                        responses.push(Event::EffectError {
-                            message: e.to_string(),
-                        });
-                        continue;
-                    }
-                };
                 let event = execute_storage(req, &storage).await;
                 responses.push(event);
             }

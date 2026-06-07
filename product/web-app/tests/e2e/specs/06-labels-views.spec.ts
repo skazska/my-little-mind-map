@@ -2,7 +2,7 @@
  * TC-E2E-LV — Labels and Views tests (web)
  *
  * Covers: TC-E2E-LV-01..03
- * Spec refs: [S-UX-OV3], [S-UX-LV1], [S-UX-LV2]
+ * Spec refs: [S-UX-NVT1], [S-UX-LT1], [S-UX-LT2]
  */
 
 import { helpers, UI_TIMEOUT_MS } from '../helpers/app.js'

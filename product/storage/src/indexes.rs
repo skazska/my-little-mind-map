@@ -120,10 +120,11 @@ impl ReferencesIndex {
 
     /// Remove all forward refs from `source` and their corresponding backlinks.
     pub fn remove_source(&mut self, source: &NoteId) {
-        if let Some(targets) = self.forward.remove(&source.to_string()) {
+        let source_key = source.to_string();
+        if let Some(targets) = self.forward.remove(&source_key) {
             for t in &targets {
                 if let Some(backlinks) = self.backward.get_mut(&t.note_id) {
-                    backlinks.retain(|e| e.note_id != source.to_string());
+                    backlinks.retain(|e| e.note_id != source_key);
                 }
             }
         }

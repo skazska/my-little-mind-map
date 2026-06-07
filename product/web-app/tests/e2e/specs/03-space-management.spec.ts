@@ -2,7 +2,7 @@
  * TC-E2E-SP — Space Management tests (web)
  *
  * Covers: TC-E2E-SP-01..04
- * Spec refs: [S-UX-SA2], [S-UX-NLV1]
+ * Spec refs: [S-UX-SA2], [S-UX-NVT1]
  *
  * UI assertions run via the shared scenario. Web-specific S-ST-LS3 file-tree
  * verification runs in the second describe block.

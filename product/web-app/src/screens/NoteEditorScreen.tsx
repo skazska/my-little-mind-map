@@ -46,6 +46,9 @@ export function NoteEditorScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [labels]);
 
+  // Clean up pending auto-save timer on unmount.
+  useEffect(() => () => { if (saveTimer.current) clearTimeout(saveTimer.current); }, []);
+
   function handleContentChange(value: string) {
     setLocalContent(value);
     setDirty(true);
@@ -54,14 +57,14 @@ export function NoteEditorScreen({
     saveTimer.current = setTimeout(() => save(value, localLabels), 1500);
   }
 
-  function save(c: string, l: string[]) {
-    dispatch({ type: "update_note", id, content: c, labels: l });
+  async function save(c: string, l: string[]) {
     setDirty(false);
+    await dispatch({ type: "update_note", id, content: c, labels: l });
   }
 
-  function handleSaveNow() {
+  async function handleSaveNow() {
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    save(localContent, localLabels);
+    await save(localContent, localLabels);
   }
 
   function handleBack() {
@@ -74,9 +77,9 @@ export function NoteEditorScreen({
     setConfirmPublish(true);
   }
 
-  function confirmPublishAction() {
+  async function confirmPublishAction() {
     setConfirmPublish(false);
-    handleSaveNow();
+    await handleSaveNow();
     dispatch({ type: "publish_note", id });
   }
 

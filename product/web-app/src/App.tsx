@@ -70,8 +70,6 @@ function App() {
         </div>
       );
 
-    default:
-      return null;
   }
 }
 

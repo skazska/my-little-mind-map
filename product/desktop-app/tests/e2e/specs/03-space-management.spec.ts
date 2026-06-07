@@ -2,7 +2,7 @@
  * TC-E2E-SP — Space Management tests
  *
  * Covers: TC-E2E-SP-01..04
- * Spec refs: [S-UX-SA2], [S-UX-NLV1]
+ * Spec refs: [S-UX-SA2], [S-UX-NVT1]
  *
  * UI assertions run via the shared scenario. Desktop-specific disk-layout
  * verification runs in the additional describe block below.

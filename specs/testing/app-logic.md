@@ -80,11 +80,13 @@ Unit and integration tests for the shared core — event dispatch, state transit
 **When** `update(CreateSpace { name: "my-space", description: None, parent_id: None }, &mut model)` is called  
 **Then** effects include `StorageRequest::CreateSpace { space }` where `space.id.as_str() == "my-space"`
 
-### TC-AL-SP-02 — SpaceCreated triggers LoadSpaces [S-UX-ST3]
+### TC-AL-SP-02 — SpaceCreated does optimistic local insert without LoadSpaces roundtrip [S-UX-ST3]
 
 **Given** any state  
-**When** `update(SpaceCreated { id: "my-space" }, &mut model)` is called  
-**Then** effects include `StorageRequest::LoadSpaces`
+**When** `update(SpaceCreated { space }, &mut model)` is called  
+**Then** `space` is immediately added to `model.spaces` (optimistic local insert)  
+**And** effects include `Effect::Render`  
+**And** effects do NOT include `StorageRequest::LoadSpaces`
 
 ### TC-AL-SP-03 — DeleteSpace emits StorageRequest::DeleteSpace [S-UX-ST3]
 
@@ -105,11 +107,13 @@ Unit and integration tests for the shared core — event dispatch, state transit
 
 ## Note Management
 
-### TC-AL-N-01 — CreateNote emits StorageRequest::CreateNote [S-UX-NVT2], [S-DM-N7]
+### TC-AL-N-01 — CreateNote opens unsaved local draft editor (local-draft-first design) [S-UX-NVT2], [S-DM-N7]
 
 **Given** a model in a space view  
 **When** `update(CreateNote { space_id: "space1", parent_id: None }, &mut model)` is called  
-**Then** effects include `StorageRequest::CreateNote` with a note in `"space1"` with `draft: true`
+**Then** `view(model).screen == "note_editor"` with a new draft note populated  
+**And** no `StorageRequest` is emitted (the note is an unsaved local draft until the user types content)  
+**And** `model.current_note_persisted == false`
 
 ### TC-AL-N-02 — UpdateNote syncs title from first heading [S-DM-N5]
 

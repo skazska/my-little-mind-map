@@ -19,7 +19,7 @@ pub enum ViewModel {
 
 // ── Overview ──────────────────────────────────────────────────────────────────
 
-/// [S-UX-SA1, UX-OV1]
+/// [S-UX-SA1, S-UX-MF1]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OverviewViewModel {
     pub active_tab: OverviewTab,
@@ -49,7 +49,7 @@ pub struct LabelSummary {
 
 // ── Note list ─────────────────────────────────────────────────────────────────
 
-/// [S-UX-NLV1, S-UX-NLV2]
+/// [S-UX-NVT1, S-UX-NVT2]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NoteListViewModel {
     pub space_id: String,

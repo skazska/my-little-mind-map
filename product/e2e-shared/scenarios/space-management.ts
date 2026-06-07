@@ -5,7 +5,7 @@
  * checks — disk layout on desktop, localStorage on web — belong in the
  * platform wrapper describe block alongside the shared call).
  *
- * Spec refs: [S-UX-SA2], [S-UX-NLV1]
+ * Spec refs: [S-UX-SA2], [S-UX-NVT1]
  *
  * Call inside a `describe('Space Management', ...)` block:
  *   describe('Space Management', () => runSpaceManagementSpec(h))
@@ -48,7 +48,7 @@ export function runSpaceManagementSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-SP-03 — Navigate into a space opens note list [S-UX-NLV1]
+     * TC-E2E-SP-03 — Navigate into a space opens note list [S-UX-NVT1]
      */
     it('TC-E2E-SP-03: clicking a space opens the note list screen', async () => {
         await h.navigateIntoSpace('my-space')

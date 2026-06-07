@@ -389,6 +389,10 @@ impl Storage for FsStorage {
         Ok(())
     }
 
+    /// Removes a draft note (and its subnote tree) without preserving any
+    /// published counterpart. In `FsStorage` each note has a single backing
+    /// file regardless of draft status, so this simply delegates to
+    /// `delete_note`. [S-UX-NE4]
     async fn delete_draft(&self, id: &NoteId) -> Result<()> {
         self.delete_note(id).await
     }

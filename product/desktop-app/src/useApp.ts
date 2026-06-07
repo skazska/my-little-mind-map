@@ -36,11 +36,15 @@ export function useApp() {
 
     // Bootstrap the app on mount.
     useEffect(() => {
+        let cancelled = false;
         (async () => {
             // Read the persisted data-folder from app config dir. [S-CFG-1]
             const dataFolder = await invoke<string | null>("get_data_folder_config").catch(() => null);
-            await dispatch({ type: "app_started", data_folder: dataFolder ?? undefined });
+            if (!cancelled) {
+                await dispatch({ type: "app_started", data_folder: dataFolder ?? undefined });
+            }
         })();
+        return () => { cancelled = true; };
     }, [dispatch]);
 
     return { viewModel, dispatch, busy, error };

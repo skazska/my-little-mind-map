@@ -74,7 +74,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
             let current_screen = model.screen.clone();
             model.current_note = None;
             model.current_note_persisted = false;
-            model.error = None; // [TC-AL-ERR-02] dismiss error on back navigation
+            model.error = None; // [S-UX-ERR] dismiss error on back navigation
             model.cross_space_view = false;
             model.note_opening = false; // cancel any in-flight note open
             model.startup_open_default_note = false;
@@ -271,7 +271,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                     .retain(|n| owning_space_id(&n.id, &spaces) == space_id.as_str());
             }
             model.loading = false;
-            // Load each note into the list cache. [S-UX-NLV1]
+            // Load each note into the list cache. [S-UX-NVT1]
             let mut effects: Vec<Effect> = note_ids
                 .into_iter()
                 .map(|id| Effect::Storage(StorageRequest::LoadNoteForList { id }))
@@ -683,7 +683,7 @@ fn timestamp_slug() -> u128 {
     use std::time::{SystemTime, UNIX_EPOCH};
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .unwrap_or_default()
+        .expect("system clock before Unix epoch")
         .as_millis()
 }
 
@@ -706,6 +706,7 @@ mod tests {
         assert!(effects.iter().any(|e| matches!(e, Effect::Render)));
     }
 
+    /// TC-AL-LIFE-01 — AppStarted with folder emits LoadSettings + LoadSpaces (partial: LoadSpaces) [S-UX-SA1]
     #[test]
     fn app_started_with_folder_requests_storage() {
         let mut model = fresh_model();
@@ -763,6 +764,7 @@ mod tests {
             .any(|e| matches!(e, Effect::Storage(StorageRequest::CreateSpace { .. }))));
     }
 
+    /// TC-AL-N-01 — CreateNote opens unsaved local draft editor (local-draft-first design) [S-UX-NVT2], [S-DM-N7]
     #[test]
     fn create_note_opens_unsaved_editor_without_storage_effect() {
         let mut model = fresh_model();
@@ -848,11 +850,37 @@ mod tests {
         assert_eq!(space.parent_id.as_ref(), Some(&parent));
     }
 
-    /// TC-AL-N-01 — CreateNote emits StorageRequest::CreateNote [S-UX-NVT2], [S-DM-N7]
+    /// TC-AL-N-01 — CreateNote opens local draft with no StorageRequest (local-draft-first design) [S-UX-NVT2], [S-DM-N7]
     #[test]
-    #[ignore = "test-first: StorageRequest::CreateNote is not implemented; current CreateNote opens an unsaved local draft"]
-    fn create_note_emits_storage_create_note() {
-        panic!("blocked: add StorageRequest::CreateNote or update the documented test case to match local unsaved drafts");
+    fn create_note_opens_local_draft_no_storage_request() {
+        let mut model = fresh_model();
+        let space_id = SpaceId::new("space1").unwrap();
+        model.spaces = vec![Space {
+            id: space_id.clone(),
+            name: "Space1".into(),
+            description: None,
+            labels: vec![],
+            parent_id: None,
+            note_count: 0,
+        }];
+        let effects = update(
+            Event::CreateNote {
+                space_id,
+                parent_id: None,
+            },
+            &mut model,
+        );
+        // Local-draft-first design: no StorageRequest on CreateNote. [S-DM-N7]
+        assert!(
+            !effects.iter().any(|e| matches!(e, Effect::Storage(_))),
+            "CreateNote must not emit any StorageRequest; note is a local unsaved draft"
+        );
+        assert!(matches!(model.screen, Screen::NoteEditor));
+        assert!(model.current_note.is_some());
+        assert!(
+            !model.current_note_persisted,
+            "new note must not be marked as persisted"
+        );
     }
 
     #[test]
@@ -895,6 +923,7 @@ mod tests {
         assert!(effects.iter().any(|e| matches!(e, Effect::Render)));
     }
 
+    /// TC-AL-NAV-03 — NavigateBack without space goes to overview [S-UX-MF1]
     #[test]
     fn navigate_back_without_space_goes_to_overview() {
         let mut model = fresh_model();
@@ -907,6 +936,7 @@ mod tests {
         assert!(effects.iter().any(|e| matches!(e, Effect::Render)));
     }
 
+    /// TC-AL-N-13 — Editor command syntax is stripped before save [S-UX-NE2], [S-DM-N2]
     #[test]
     fn label_command_applied_and_stripped_from_content() {
         let content = "# My Note\n\n/:labels rust learning;\n\nReal content.";
@@ -927,6 +957,7 @@ mod tests {
         assert!(result.ends_with('\n'), "trailing newline must be preserved");
     }
 
+    /// TC-AL-SF-01 — SearchChanged filters note list by title [S-UX-NVT1]
     #[test]
     fn search_filter_applied_in_view() {
         let mut model = fresh_model();
@@ -1121,6 +1152,7 @@ mod tests {
 
     // ── Space management (TC-AL-SP-01..03) ──────────────────────────────────
 
+    /// TC-AL-SP-02 — SpaceCreated does optimistic local insert, no LoadSpaces roundtrip [S-UX-ST3]
     #[test]
     fn space_created_inserts_and_renders() {
         let mut model = fresh_model();
@@ -1150,11 +1182,33 @@ mod tests {
         );
     }
 
-    /// TC-AL-SP-02 — SpaceCreated triggers LoadSpaces [S-UX-ST3]
+    /// TC-AL-SP-02 — SpaceCreated does optimistic local insert, no LoadSpaces roundtrip [S-UX-ST3]
     #[test]
-    #[ignore = "test-first: current SpaceCreated handles optimistic local insert and render without LoadSpaces"]
-    fn space_created_triggers_load_spaces() {
-        panic!("blocked: decide whether SpaceCreated should reload spaces or the test case should document optimistic local insertion");
+    fn space_created_optimistic_local_insert() {
+        let mut model = fresh_model();
+        let space = Space {
+            id: SpaceId::new("my-space").unwrap(),
+            name: "My Space".into(),
+            description: None,
+            labels: vec![],
+            parent_id: None,
+            note_count: 0,
+        };
+        let effects = update(
+            Event::SpaceCreated {
+                space: space.clone(),
+            },
+            &mut model,
+        );
+        // Optimistic local insert: space is in model immediately, no LoadSpaces roundtrip.
+        assert!(model.spaces.iter().any(|s| s.id == space.id));
+        assert!(effects.iter().any(|e| matches!(e, Effect::Render)));
+        assert!(
+            !effects
+                .iter()
+                .any(|e| matches!(e, Effect::Storage(StorageRequest::LoadSpaces))),
+            "SpaceCreated must not trigger LoadSpaces"
+        );
     }
 
     /// TC-AL-SP-03 — DeleteSpace emits StorageRequest::DeleteSpace
@@ -1744,7 +1798,7 @@ mod tests {
 
     /// TC-AL-SF-08 — SaveView persists named view to storage [S-DM-V1]
     #[test]
-    #[ignore = "test-first: SaveView event and storage request are not implemented yet"]
+    #[ignore = "test-first [post-POC]: SaveView event and storage request are not implemented yet"]
     fn save_view_persists_named_view_to_storage() {
         panic!(
             "blocked: add Event::SaveView and StorageRequest::SaveView before enabling this test"
@@ -1753,14 +1807,14 @@ mod tests {
 
     /// TC-AL-SF-09 — LoadView retrieves and applies saved filter [S-DM-V1]
     #[test]
-    #[ignore = "test-first: ViewLoaded event is not implemented yet"]
+    #[ignore = "test-first [post-POC]: ViewLoaded event is not implemented yet"]
     fn view_loaded_applies_saved_filter() {
         panic!("blocked: add a ViewLoaded event/result path before enabling this test");
     }
 
     /// TC-AL-SF-10 — Empty view emits no-results indicator [S-DM-V1], [S-UX-NVT1]
     #[test]
-    #[ignore = "test-first: NoteListViewModel has no explicit empty-state indicator yet"]
+    #[ignore = "test-first [post-POC]: NoteListViewModel has no explicit empty-state indicator yet"]
     fn empty_view_emits_no_results_indicator() {
         panic!("blocked: add an explicit empty-state field to NoteListViewModel before enabling this test");
     }

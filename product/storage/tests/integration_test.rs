@@ -50,6 +50,7 @@ async fn create_and_retrieve_space() {
     assert_eq!(retrieved.name, space.name);
 }
 
+/// TC-ST-SP-04 — List spaces returns all created spaces [S-ST-DM1]
 #[tokio::test]
 async fn list_spaces() {
     let (_tmp, storage) = make_storage().await;
@@ -691,7 +692,7 @@ async fn cross_space_label_spans_spaces() {
 
 /// TC-ST-LI-06 — Label index entry exposes statistics [S-DM-L4]
 #[tokio::test]
-#[ignore = "test-first: LabelsIndex maps labels to note IDs and has no statistics fields yet"]
+#[ignore = "test-first [post-POC]: LabelsIndex maps labels to note IDs and has no statistics fields yet"]
 async fn label_index_entry_exposes_statistics() {
     panic!("blocked: add note_count and spaces statistics, or an equivalent statistics API, to LabelsIndex");
 }
@@ -746,14 +747,14 @@ async fn spaces_index_entry_exposes_note_count_statistics() {
 
 /// TC-ST-SI-02 — Space index entry exposes label_count statistics [S-DM-S4]
 #[tokio::test]
-#[ignore = "test-first: SpaceEntry does not expose label_count yet"]
+#[ignore = "test-first [post-POC]: SpaceEntry does not expose label_count yet"]
 async fn spaces_index_entry_exposes_label_count_statistics() {
     // blocked: add label_count or equivalent distinct-label statistics to SpaceEntry
 }
 
 /// TC-ST-VI-01 — View index entry exposes statistics [S-DM-V3]
 #[tokio::test]
-#[ignore = "test-first: ViewsIndex and Storage::get_views_index are not implemented yet"]
+#[ignore = "test-first [post-POC]: ViewsIndex and Storage::get_views_index are not implemented yet"]
 async fn view_index_entry_exposes_statistics() {
     panic!("blocked: add ViewsIndex and Storage::get_views_index before enabling this test");
 }
@@ -1076,7 +1077,7 @@ async fn invalid_definition_candidates_ignored() {
 
 /// TC-ST-IX-01 — Derived indexes reproducible after deletion [S-ST-IX2]
 #[tokio::test]
-#[ignore = "test-first: rebuild_indexes API is not implemented yet"]
+#[ignore = "test-first [post-POC]: rebuild_indexes API is not implemented yet"]
 async fn derived_indexes_reproducible_after_deletion() {
     // blocked: add Storage::rebuild_indexes or equivalent maintenance API before enabling this test
 }

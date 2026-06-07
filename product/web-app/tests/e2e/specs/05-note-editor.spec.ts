@@ -2,7 +2,7 @@
  * TC-E2E-NE — Note Editor tests (web)
  *
  * Covers: TC-E2E-NE-01..14, TC-E2E-NE-17
- * Spec refs: [S-UX-NLV5], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE6]
+ * Spec refs: [S-UX-NVT3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE6]
  *
  * TC-E2E-NE-01, 03–05, 08–13 run via the shared scenario.
  * TC-E2E-NE-02, 06, 14, 17 are web-specific and live in the second describe block.
