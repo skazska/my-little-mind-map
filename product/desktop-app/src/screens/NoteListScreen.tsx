@@ -1,6 +1,36 @@
 import { useState } from "react";
 import type { Event, NoteListItem } from "../types";
 
+interface TreeRow {
+    note: NoteListItem;
+    depth: number;
+}
+
+// Flatten the note list into a depth-first ordered tree using parent_id, so the
+// note list can render nested child notes indented. [S-DM-N3, S-UX-NLV1]
+function orderNoteTree(notes: NoteListItem[]): TreeRow[] {
+    const ids = new Set(notes.map((n) => n.id));
+    const byParent = new Map<string, NoteListItem[]>();
+    const roots: NoteListItem[] = [];
+    for (const n of notes) {
+        const parent = n.parent_id && ids.has(n.parent_id) ? n.parent_id : null;
+        if (parent === null) {
+            roots.push(n);
+        } else {
+            const siblings = byParent.get(parent) ?? [];
+            siblings.push(n);
+            byParent.set(parent, siblings);
+        }
+    }
+    const rows: TreeRow[] = [];
+    const visit = (note: NoteListItem, depth: number) => {
+        rows.push({ note, depth });
+        for (const child of byParent.get(note.id) ?? []) visit(child, depth + 1);
+    };
+    for (const root of roots) visit(root, 0);
+    return rows;
+}
+
 interface Props {
     spaceId: string;
     spaceName: string;
@@ -85,12 +115,14 @@ export function NoteListScreen({
                 />
 
                 <ul className="card-list">
-                    {notes.map((n) => (
+                    {orderNoteTree(notes).map(({ note: n, depth }) => (
                         <li
                             key={n.id}
                             className="card card--clickable"
                             data-testid="note-list-item"
                             data-title={n.title}
+                            data-depth={depth}
+                            style={depth > 0 ? { marginLeft: `${depth * 1.5}rem` } : undefined}
                             onClick={() => dispatch({ type: "navigate_to_note", id: n.id })}
                         >
                             <div className="card__title" data-testid="note-title">
@@ -112,6 +144,18 @@ export function NoteListScreen({
                                     </span>
                                 )}
                             </div>
+                            {spaceId !== "view://active-view" && (
+                                <button
+                                    className="btn btn--small"
+                                    data-testid="add-child-note-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        dispatch({ type: "create_note", space_id: spaceId, parent_id: n.id });
+                                    }}
+                                >
+                                    + Subnote
+                                </button>
+                            )}
                         </li>
                     ))}
                     {notes.length === 0 && (

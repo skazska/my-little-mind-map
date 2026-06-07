@@ -119,6 +119,24 @@ export function runNoteListSpec(h: E2eHelpers): void {
     })
 
     /**
+     * TC-E2E-NL-09 — Child note nests indented under its parent [S-DM-N1], [S-DM-N3]
+     */
+    it('TC-E2E-NL-09: creating a child note shows it indented under its parent', async () => {
+        await h.createChildNote('note-a', 'child-a')
+        await h.clickBack()
+        await h.assertScreen('note_list')
+
+        await browser.waitUntil(
+            async () => (await h.visibleNoteTitles()).includes('child-a'),
+            { timeout: h.UI_TIMEOUT_MS, timeoutMsg: 'child note "child-a" not visible in list' },
+        )
+
+        // The parent stays at the tree root; the child is indented one level.
+        expect(await h.noteDepth('note-a')).toBe(0)
+        expect(await h.noteDepth('child-a')).toBe(1)
+    })
+
+    /**
      * TC-E2E-NL-08 — Back button returns to overview [S-UX-MF1]
      */
     it('TC-E2E-NL-08: Back button from note list returns to overview', async () => {

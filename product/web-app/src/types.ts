@@ -8,6 +8,7 @@ export interface SpaceSummary {
   description?: string;
   labels: string[];
   note_count: number;
+  parent_id?: string;
 }
 
 export interface LabelSummary {
@@ -22,6 +23,7 @@ export interface NoteListItem {
   labels: string[];
   draft: boolean;
   updated_at: string;
+  parent_id?: string;
 }
 
 export interface OverviewViewModel {
@@ -69,7 +71,7 @@ export type Event =
   | { type: "navigate_to_space"; id: string }
   | { type: "navigate_to_note"; id: string }
   | { type: "navigate_back" }
-  | { type: "create_space"; name: string; description?: string }
+  | { type: "create_space"; name: string; description?: string; parent_id?: string }
   | { type: "delete_space"; id: string }
   | { type: "create_note"; space_id: string; parent_id?: string }
   | { type: "update_note"; id: string; content: string; labels: string[] }

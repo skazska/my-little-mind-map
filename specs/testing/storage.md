@@ -3,7 +3,7 @@
 Integration tests for filesystem-backed storage — CRUD operations, file layout, and index synchronization.
 
 **Layer**: Integration (`storage/tests/integration_test.rs`, `tokio::test`, `tempfile::TempDir`); E2E (`product/web-app/tests/e2e/specs/`)
-**Spec coverage**: [S-DM-L2], [S-DM-L3], [S-DM-L4], [S-DM-N5], [S-DM-N6], [S-DM-N1], [S-DM-NR4], [S-DM-S4], [S-DM-V3], [S-ST-DM1], [S-ST-DM2], [S-ST-DM3], [S-ST-DM4], [S-ST-IX1], [S-ST-IX2], [S-ST-LS3], [S-DM-N7], [S-CFG-2], [S-CFG-3], [S-UX-ERR]
+**Spec coverage**: [S-DM-L2], [S-DM-L3], [S-DM-L4], [S-DM-N5], [S-DM-N6], [S-DM-N1], [S-DM-NR4], [S-DM-S1], [S-DM-S4], [S-DM-V3], [S-ST-DM1], [S-ST-DM2], [S-ST-DM3], [S-ST-DM4], [S-ST-DM5], [S-ST-IX1], [S-ST-IX2], [S-ST-LS3], [S-DM-N7], [S-CFG-2], [S-CFG-3], [S-UX-ERR]
 **Provisional coverage**: [S-DM-ND1], [S-DM-ND2]
 **Integration implementation**: `product/storage/tests/integration_test.rs`
 **E2E implementation**: `product/web-app/tests/e2e/specs/03-space-management.spec.ts`, `product/web-app/tests/e2e/specs/05-note-editor.spec.ts`
@@ -133,11 +133,13 @@ Integration tests for filesystem-backed storage — CRUD operations, file layout
 **When** `get_note(&unknown_id)` is called  
 **Then** it returns `Ok(None)`
 
-### TC-ST-N-10 — List notes returns direct children only [S-DM-N1]
+### TC-ST-N-10 — List notes returns the space subtree, excluding child-space notes [S-DM-N1], [S-DM-S1], [S-ST-DM5]
 
-**Given** notes `"space1/a"`, `"space1/b"`, and `"space1/a/child"` created  
-**When** `list_notes(&space_id)` is called  
-**Then** the result contains `"space1/a"` and `"space1/b"` but not `"space1/a/child"`
+**Given** notes `"space1/a"`, `"space1/b"`, and `"space1/a/child"` created in `space1`, plus a note `"space1/sub/cnote"` owned by child space `"sub.space1"`  
+**When** `list_notes(&space1)` is called  
+**Then** the result contains `"space1/a"`, `"space1/b"`, and the descendant `"space1/a/child"` (the full owned subtree)  
+**And** it does NOT contain `"space1/sub/cnote"` (that note belongs to the child space)  
+**And** `list_notes(&"sub.space1")` contains `"space1/sub/cnote"` with `parent_id == None` (it is a root note of the child space)
 
 ---
 

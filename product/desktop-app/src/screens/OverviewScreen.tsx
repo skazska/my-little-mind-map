@@ -1,6 +1,36 @@
 import { useState } from "react";
 import type { Event, LabelSummary, OverviewTab, SpaceSummary } from "../types";
 
+interface SpaceRow {
+    space: SpaceSummary;
+    depth: number;
+}
+
+// Flatten spaces into a depth-first ordered tree using parent_id so child spaces
+// render indented under their parent. [S-DM-S1]
+function orderSpaceTree(spaces: SpaceSummary[]): SpaceRow[] {
+    const ids = new Set(spaces.map((s) => s.id));
+    const byParent = new Map<string, SpaceSummary[]>();
+    const roots: SpaceSummary[] = [];
+    for (const s of spaces) {
+        const parent = s.parent_id && ids.has(s.parent_id) ? s.parent_id : null;
+        if (parent === null) {
+            roots.push(s);
+        } else {
+            const siblings = byParent.get(parent) ?? [];
+            siblings.push(s);
+            byParent.set(parent, siblings);
+        }
+    }
+    const rows: SpaceRow[] = [];
+    const visit = (space: SpaceSummary, depth: number) => {
+        rows.push({ space, depth });
+        for (const child of byParent.get(space.id) ?? []) visit(child, depth + 1);
+    };
+    for (const root of roots) visit(root, 0);
+    return rows;
+}
+
 interface Props {
     activeTab: OverviewTab;
     spaces: SpaceSummary[];
@@ -31,6 +61,7 @@ export function OverviewScreen({
     const [newSpaceName, setNewSpaceName] = useState("");
     const [newSpaceDesc, setNewSpaceDesc] = useState("");
     const [showNewSpace, setShowNewSpace] = useState(false);
+    const [parentForNew, setParentForNew] = useState<string | null>(null);
 
     function handleCreateSpace(e: React.FormEvent) {
         e.preventDefault();
@@ -40,10 +71,12 @@ export function OverviewScreen({
             type: "create_space",
             name,
             description: newSpaceDesc.trim() || undefined,
+            parent_id: parentForNew ?? undefined,
         });
         setNewSpaceName("");
         setNewSpaceDesc("");
         setShowNewSpace(false);
+        setParentForNew(null);
     }
 
     return (
@@ -87,7 +120,7 @@ export function OverviewScreen({
                             <button
                                 className="btn btn--primary"
                                 data-testid="create-space-btn"
-                                onClick={() => setShowNewSpace((v) => !v)}
+                                onClick={() => { setParentForNew(null); setShowNewSpace((v) => !v); }}
                             >
                                 + New Space
                             </button>
@@ -95,6 +128,11 @@ export function OverviewScreen({
 
                         {showNewSpace && (
                             <form className="card form-card" onSubmit={handleCreateSpace}>
+                                {parentForNew && (
+                                    <div className="form-hint" data-testid="create-space-parent">
+                                        Child of {spaces.find((s) => s.id === parentForNew)?.name ?? parentForNew}
+                                    </div>
+                                )}
                                 <input
                                     className="input"
                                     placeholder="Space name"
@@ -126,12 +164,14 @@ export function OverviewScreen({
                         )}
 
                         <ul className="card-list" data-testid="spaces-list">
-                            {spaces.map((s) => (
+                            {orderSpaceTree(spaces).map(({ space: s, depth }) => (
                                 <li
                                     key={s.id}
                                     className="card card--clickable"
                                     data-testid="space-item"
                                     data-name={s.name}
+                                    data-depth={depth}
+                                    style={depth > 0 ? { marginLeft: `${depth * 1.5}rem` } : undefined}
                                     onClick={() => dispatch({ type: "navigate_to_space", id: s.id })}
                                 >
                                     <div className="card__title">{s.name}</div>
@@ -150,14 +190,28 @@ export function OverviewScreen({
                                             </span>
                                         )}
                                     </div>
-                                    <button
-                                        data-testid="delete-space-btn"
-                                        className="btn btn--danger btn--small"
-                                        title="Delete space"
-                                        onClick={(e) => { e.stopPropagation(); dispatch({ type: "delete_space", id: s.id }); }}
-                                    >
-                                        ✕
-                                    </button>
+                                    <div className="card__actions">
+                                        <button
+                                            data-testid="create-child-space-btn"
+                                            className="btn btn--small"
+                                            title="Add child space"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setParentForNew(s.id);
+                                                setShowNewSpace(true);
+                                            }}
+                                        >
+                                            + Child
+                                        </button>
+                                        <button
+                                            data-testid="delete-space-btn"
+                                            className="btn btn--danger btn--small"
+                                            title="Delete space"
+                                            onClick={(e) => { e.stopPropagation(); dispatch({ type: "delete_space", id: s.id }); }}
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
                                 </li>
                             ))}
                             {spaces.length === 0 && (

@@ -17,6 +17,7 @@ export function NoteEditorScreen({
   title,
   content,
   labels,
+  spaceId,
   draft,
   error,
   dispatch,
@@ -85,6 +86,15 @@ export function NoteEditorScreen({
     }
   }
 
+  // Create a child note under the current one, saving pending edits first so the
+  // parent persists before the child is opened. [S-DM-N3]
+  function handleAddChild() {
+    if (!spaceId) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    if (dirty) save(localContent, localLabels);
+    dispatch({ type: "create_note", space_id: spaceId, parent_id: id });
+  }
+
   function addLabel(label: string) {
     const trimmed = label.trim().toLowerCase();
     if (!trimmed || localLabels.includes(trimmed)) return;
@@ -129,6 +139,15 @@ export function NoteEditorScreen({
               onClick={handlePublish}
             >
               Publish
+            </button>
+          )}
+          {spaceId && (
+            <button
+              className="btn"
+              data-testid="add-child-note-btn"
+              onClick={handleAddChild}
+            >
+              + Subnote
             </button>
           )}
           <button className="btn btn--danger" data-testid="delete-note-btn" onClick={handleDelete}>

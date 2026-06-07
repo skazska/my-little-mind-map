@@ -51,6 +51,8 @@ data_folder/
            |- note2.md                     <note://space2/note2>
 ```
 
+- [S-ST-DM5] Note-folder vs child-space disambiguation: a path segment under `spaces/` is a **note** iff a sibling `<segment>.md` file exists; a directory without such a sibling is a **child space**. A note's owning space is the space whose root-first path is the **longest prefix** of the note's id segments; descendant notes (folder-notes) belong to the same space as their ancestor, while notes under a child-space directory belong to that child space. `list_notes(space)` returns the space's full owned subtree (all descendant folder-notes) but **excludes** notes owned by nested child spaces.
+
 ## Indexes
 
 - [S-ST-IX1] Index files are **derived caches** unless explicitly marked source-of-truth:

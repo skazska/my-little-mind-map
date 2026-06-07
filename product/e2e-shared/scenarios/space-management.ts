@@ -82,6 +82,28 @@ export function runSpaceManagementSpec(h: E2eHelpers): void {
     })
 
     /**
+     * TC-E2E-SP-06 — Create a nested child space [S-DM-S1], [S-DM-S3]
+     */
+    it('TC-E2E-SP-06: creating a child space nests it indented under its parent', async () => {
+        await h.createSpace('parent-space')
+        await browser.waitUntil(() => h.isSpaceVisible('parent-space'), {
+            timeout: h.UI_TIMEOUT_MS,
+            timeoutMsg: '"parent-space" not visible in spaces list',
+        })
+
+        await h.createChildSpace('parent-space', 'child-space')
+
+        await browser.waitUntil(() => h.isSpaceVisible('child-space'), {
+            timeout: h.UI_TIMEOUT_MS,
+            timeoutMsg: '"child-space" not visible after creation',
+        })
+
+        // The parent stays at the tree root; the child is indented one level.
+        expect(await h.spaceDepth('parent-space')).toBe(0)
+        expect(await h.spaceDepth('child-space')).toBe(1)
+    })
+
+    /**
      * TC-E2E-SP-05 — Space view shows statistics [S-UX-ST2], [S-DM-S4]
      * [BLOCKED] The app does not expose a dedicated space statistics view yet.
      */

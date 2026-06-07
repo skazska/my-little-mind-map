@@ -42,6 +42,22 @@ pub struct FsStorage {
     root: PathBuf,
 }
 
+/// Returns the space whose root-first path is the longest prefix of `id` — the
+/// space that owns the note, distinguishing nested child spaces from notes that
+/// merely share a leading path segment. [S-DM-S1, S-DM-N3]
+fn owning_space_in_index(id: &NoteId, index: &SpacesIndex) -> Option<SpaceId> {
+    let segs = id.segments();
+    index
+        .spaces
+        .iter()
+        .filter(|e| {
+            let sp = e.id.segments_root_first();
+            sp.len() < segs.len() && sp.iter().enumerate().all(|(i, s)| segs[i] == *s)
+        })
+        .max_by_key(|e| e.id.segments_root_first().len())
+        .map(|e| e.id.clone())
+}
+
 impl FsStorage {
     const MARKDOWN_STRONG_DELIMITER_LEN: usize = 2;
 
@@ -269,14 +285,15 @@ impl Storage for FsStorage {
         let content = serialize_note_content(&note.metadata, &note.content)?;
         fs::write(&path, content).await?;
 
-        // Bump note_count in spaces index.
-        let space_seg = note.id.space_segment();
-        if let Ok(space_id) = SpaceId::new(space_seg) {
-            let mut idx: SpacesIndex = self.read_index("spaces.json").await?;
+        // Bump note_count in the owning space. [S-DM-S4]
+        let mut idx: SpacesIndex = self.read_index("spaces.json").await?;
+        let owner = owning_space_in_index(&note.id, &idx)
+            .or_else(|| SpaceId::new(note.id.space_segment()).ok());
+        if let Some(space_id) = owner {
             if let Some(entry) = idx.spaces.iter_mut().find(|e| e.id == space_id) {
                 entry.note_count += 1;
+                self.write_index("spaces.json", &idx).await?;
             }
-            self.write_index("spaces.json", &idx).await?;
         }
 
         self.sync_indexes_for_note(note).await?;
@@ -291,7 +308,9 @@ impl Storage for FsStorage {
         let raw = fs::read_to_string(&path).await?;
         let (metadata, content) = parse_note_content(&raw)?;
 
-        let parent_id = id.parent();
+        // A note's parent is the next path segment up, but only when that path is
+        // itself a note (a sibling `.md` exists); otherwise it is the space dir. [S-DM-N3]
+        let parent_id = id.parent().filter(|p| self.note_path(p).exists());
         Ok(Some(Note {
             id: id.clone(),
             metadata,
@@ -301,23 +320,37 @@ impl Storage for FsStorage {
     }
 
     async fn list_notes(&self, space_id: &SpaceId) -> Result<Vec<NoteId>> {
-        let dir = self.space_dir(space_id);
-        if !dir.exists() {
+        let base = self.space_dir(space_id);
+        if !base.exists() {
             return Ok(vec![]);
         }
+        let base_prefix = space_id.segments_root_first().join("/");
         let mut ids = Vec::new();
-        let mut entries = fs::read_dir(&dir).await?;
-        while let Some(entry) = entries.next_entry().await? {
-            let path = entry.path();
-            if path.extension().and_then(|e| e.to_str()) == Some("md") {
-                if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
-                    let id_str = format!("{}/{}", space_id.segments_root_first().join("/"), stem);
-                    if let Ok(note_id) = NoteId::new(&id_str) {
-                        ids.push(note_id);
+        // Walk the space subtree. Notes are `<name>.md`; a subdirectory belongs to
+        // a note (recurse) only when a sibling `<name>.md` exists, otherwise it is
+        // a nested child space and is excluded. [S-DM-N3, S-DM-S1]
+        let mut stack = vec![(base, base_prefix)];
+        while let Some((dir, prefix)) = stack.pop() {
+            let mut entries = fs::read_dir(&dir).await?;
+            while let Some(entry) = entries.next_entry().await? {
+                let path = entry.path();
+                if path.is_dir() {
+                    if path.with_extension("md").exists() {
+                        if let Some(name) = path.file_name().and_then(|s| s.to_str()) {
+                            stack.push((path.clone(), format!("{prefix}/{name}")));
+                        }
+                    }
+                } else if path.extension().and_then(|e| e.to_str()) == Some("md") {
+                    if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
+                        let id_str = format!("{prefix}/{stem}");
+                        if let Ok(note_id) = NoteId::new(&id_str) {
+                            ids.push(note_id);
+                        }
                     }
                 }
             }
         }
+        ids.sort_by(|a, b| a.as_str().cmp(b.as_str()));
         Ok(ids)
     }
 
@@ -343,13 +376,14 @@ impl Storage for FsStorage {
             fs::remove_dir_all(&folder).await?;
         }
         // [TC-ST-ERR-04] decrement note_count in spaces index
-        let space_seg = id.space_segment();
-        if let Ok(space_id) = SpaceId::new(space_seg) {
-            let mut idx: SpacesIndex = self.read_index("spaces.json").await?;
+        let mut idx: SpacesIndex = self.read_index("spaces.json").await?;
+        let owner = owning_space_in_index(id, &idx)
+            .or_else(|| SpaceId::new(id.space_segment()).ok());
+        if let Some(space_id) = owner {
             if let Some(entry) = idx.spaces.iter_mut().find(|e| e.id == space_id) {
                 entry.note_count = entry.note_count.saturating_sub(1);
+                self.write_index("spaces.json", &idx).await?;
             }
-            self.write_index("spaces.json", &idx).await?;
         }
         self.remove_note_from_indexes(id).await?;
         Ok(())

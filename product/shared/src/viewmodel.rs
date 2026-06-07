@@ -37,6 +37,8 @@ pub struct SpaceSummary {
     pub description: Option<String>,
     pub labels: Vec<String>,
     pub note_count: usize,
+    /// Parent space id; None for root spaces. [S-DM-S1]
+    pub parent_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -66,6 +68,8 @@ pub struct NoteListItem {
     pub labels: Vec<String>,
     pub draft: bool,
     pub updated_at: String,
+    /// Parent note id; None for notes directly under their space. [S-DM-N3]
+    pub parent_id: Option<String>,
 }
 
 // ── Note editor ───────────────────────────────────────────────────────────────
@@ -104,6 +108,7 @@ impl From<&Note> for NoteListItem {
             labels: n.metadata.labels.iter().map(|l| l.0.clone()).collect(),
             draft: n.metadata.draft,
             updated_at: n.metadata.updated_at.to_rfc3339(),
+            parent_id: n.parent_id.as_ref().map(|p| p.to_string()),
         }
     }
 }
@@ -140,6 +145,7 @@ impl From<&Space> for SpaceSummary {
             description: s.description.clone(),
             labels: s.labels.iter().map(|l| l.0.clone()).collect(),
             note_count: s.note_count,
+            parent_id: s.parent_id.as_ref().map(|p| p.to_string()),
         }
     }
 }

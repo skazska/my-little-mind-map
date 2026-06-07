@@ -197,6 +197,38 @@ export async function isSpaceVisible(spaceName: string): Promise<boolean> {
     return false
 }
 
+/** Create a nested child space under `parentName` via its per-row action. */
+export async function createChildSpace(
+    parentName: string,
+    childName: string,
+    description?: string,
+): Promise<void> {
+    const childBtn = await $(
+        `[data-testid="space-item"][data-name="${parentName}"] [data-testid="create-child-space-btn"]`,
+    )
+    await childBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+    await browser.execute((el) => (el as HTMLElement).click(), childBtn)
+
+    const nameInput = await $('[data-testid="create-space-name"]')
+    await nameInput.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+    await nameInput.setValue(childName)
+    if (description !== undefined) {
+        const descInput = await $('[data-testid="create-space-description"]')
+        await descInput.setValue(description)
+    }
+    const submitBtn = await $('[data-testid="create-space-submit"]')
+    await submitBtn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+    await browser.execute((el) => (el as HTMLElement).click(), submitBtn)
+}
+
+/** Indentation depth of a space row in the spaces tree. */
+export async function spaceDepth(spaceName: string): Promise<number | null> {
+    const item = await $(`[data-testid="space-item"][data-name="${spaceName}"]`)
+    if (!(await item.isExisting())) return null
+    const depth = await item.getAttribute('data-depth')
+    return depth === null ? null : Number(depth)
+}
+
 // ── Note list helpers ──────────────────────────────────────────────────────────
 
 /** Create a new note from the note list screen. */
@@ -218,6 +250,36 @@ export async function createNote(title: string): Promise<void> {
         nativeSetter?.call(textarea, text)
         textarea.dispatchEvent(new Event('input', { bubbles: true }))
     }, editor, `# ${title}\n\n`)
+}
+
+/** Create a nested child note under `parentTitle` via its per-row action. */
+export async function createChildNote(parentTitle: string, childTitle: string): Promise<void> {
+    const btn = await $(
+        `[data-testid="note-list-item"][data-title="${parentTitle}"] [data-testid="add-child-note-btn"]`,
+    )
+    await btn.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+    await browser.execute((el) => (el as HTMLElement).click(), btn)
+
+    await waitForScreen('note_editor')
+    const editor = await $('[data-testid="note-editor-content"]')
+    await editor.waitForDisplayed({ timeout: UI_TIMEOUT_MS })
+    await browser.execute((el: HTMLElement, text: string) => {
+        const textarea = el as HTMLTextAreaElement
+        const nativeSetter = Object.getOwnPropertyDescriptor(
+            HTMLTextAreaElement.prototype,
+            'value',
+        )?.set
+        nativeSetter?.call(textarea, text)
+        textarea.dispatchEvent(new Event('input', { bubbles: true }))
+    }, editor, `# ${childTitle}\n\n`)
+}
+
+/** Indentation depth of a note row in the note tree. */
+export async function noteDepth(noteTitle: string): Promise<number | null> {
+    const item = await $(`[data-testid="note-list-item"][data-title="${noteTitle}"]`)
+    if (!(await item.isExisting())) return null
+    const depth = await item.getAttribute('data-depth')
+    return depth === null ? null : Number(depth)
 }
 
 /** Type text into the search input on the note list. */
@@ -418,6 +480,8 @@ export const helpers = {
     navigateIntoSpace,
     deleteSpace,
     isSpaceVisible,
+    createChildSpace,
+    spaceDepth,
     createNote,
     openNote,
     typeInEditor,
@@ -427,6 +491,8 @@ export const helpers = {
     searchNotes,
     clearSearch,
     visibleNoteTitles,
+    createChildNote,
+    noteDepth,
     addLabel,
     removeLabel,
     visibleLabels,

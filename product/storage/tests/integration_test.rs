@@ -545,9 +545,11 @@ async fn delete_note_removes_companion_folder() {
     assert!(!companion_dir.exists(), "companion dir must be removed");
 }
 
-/// TC-ST-N-10 — list_notes returns direct children only [S-DM-N1]
+/// TC-ST-N-10 — list_notes returns the full note subtree of a space (descendants
+/// included for tree rendering) but excludes notes owned by nested child spaces
+/// [S-DM-N1, S-DM-N3, S-DM-S1]
 #[tokio::test]
-async fn list_notes_returns_direct_children_only() {
+async fn list_notes_returns_space_subtree_excluding_child_spaces() {
     let (_tmp, storage) = make_storage().await;
     let space = sample_space();
     storage.create_space(&space).await.unwrap();
@@ -557,7 +559,7 @@ async fn list_notes_returns_direct_children_only() {
     storage.create_note(&note_a).await.unwrap();
     storage.create_note(&note_b).await.unwrap();
 
-    // Create a child note inside note-a (nested)
+    // Create a child note inside note-a (nested descendant)
     let child_id = NoteId::new("test-space/note-a/child").unwrap();
     let mut child_meta = NoteMetadata::new("child", Some(space.id.clone()));
     child_meta.draft = false;
@@ -573,8 +575,49 @@ async fn list_notes_returns_direct_children_only() {
     assert!(ids.contains(&note_a.id), "note-a must be in list");
     assert!(ids.contains(&note_b.id), "note-b must be in list");
     assert!(
-        !ids.contains(&child_id),
-        "nested note must NOT be in direct children list"
+        ids.contains(&child_id),
+        "nested descendant note must be listed for tree rendering"
+    );
+
+    // A note in a nested child space must be attributed to the child space, not
+    // the parent space. Child space id is reverse-domain, leaf-first.
+    let child_space_id = SpaceId::new("sub.test-space").unwrap();
+    let child_space = Space {
+        id: child_space_id.clone(),
+        name: "Sub".to_string(),
+        description: None,
+        labels: vec![],
+        parent_id: Some(space.id.clone()),
+        note_count: 0,
+    };
+    storage.create_space(&child_space).await.unwrap();
+    let cs_note_id = NoteId::new("test-space/sub/cnote").unwrap();
+    let mut cs_meta = NoteMetadata::new("cnote", Some(child_space_id.clone()));
+    cs_meta.draft = false;
+    let cs_note = Note {
+        id: cs_note_id.clone(),
+        metadata: cs_meta,
+        content: "# cnote\n\nIn child space.".into(),
+        parent_id: None,
+    };
+    storage.create_note(&cs_note).await.unwrap();
+
+    let parent_ids = storage.list_notes(&space.id).await.unwrap();
+    assert!(
+        !parent_ids.contains(&cs_note_id),
+        "child-space note must NOT appear in the parent space list"
+    );
+    let child_ids = storage.list_notes(&child_space_id).await.unwrap();
+    assert!(
+        child_ids.contains(&cs_note_id),
+        "child-space note must appear in its own space list"
+    );
+
+    // A root note in a nested child space has no parent note.
+    let loaded = storage.get_note(&cs_note_id).await.unwrap().unwrap();
+    assert_eq!(
+        loaded.parent_id, None,
+        "root note of a child space must have no parent note"
     );
 }
 

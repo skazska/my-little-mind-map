@@ -76,6 +76,18 @@ export interface E2eHelpers {
     deleteSpace(spaceName: string): Promise<void>
     isSpaceVisible(spaceName: string): Promise<boolean>
 
+    /**
+     * Create a nested child space under `parentName` via its per-row
+     * "+ Child" action, then submit the creation form for `childName`.
+     */
+    createChildSpace(parentName: string, childName: string, description?: string): Promise<void>
+
+    /**
+     * Indentation depth of a space row in the spaces tree (`data-depth`).
+     * Returns `null` when the space is not present.
+     */
+    spaceDepth(spaceName: string): Promise<number | null>
+
     // ── Notes ────────────────────────────────────────────────────────────────
 
     /**
@@ -87,6 +99,18 @@ export interface E2eHelpers {
     openNote(noteTitle: string): Promise<void>
     typeInEditor(content: string): Promise<void>
     saveNote(): Promise<void>
+
+    /**
+     * Create a nested child note under the note `parentTitle` via its per-row
+     * "+ Subnote" action, landing in the editor with `# childTitle` typed.
+     */
+    createChildNote(parentTitle: string, childTitle: string): Promise<void>
+
+    /**
+     * Indentation depth of a note row in the note tree (`data-depth`).
+     * Returns `null` when the note is not present.
+     */
+    noteDepth(noteTitle: string): Promise<number | null>
 
     /**
      * Click the Publish button and confirm the action (platform-specific:

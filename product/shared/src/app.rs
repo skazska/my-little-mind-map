@@ -103,23 +103,35 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         }
 
         // ── Spaces ────────────────────────────────────────────────────────────
-        Event::CreateSpace { name, description } => match SpaceId::new(slug(&name)) {
-            Err(e) => {
-                model.error = Some(e.to_string());
-                vec![Effect::Render]
+        Event::CreateSpace {
+            name,
+            description,
+            parent_id,
+        } => {
+            // Child space ids are reverse-domain, leaf-first: `leaf.parent`. [S-DM-S1]
+            let leaf = slug(&name);
+            let id_result = match &parent_id {
+                Some(parent) => SpaceId::new(format!("{leaf}.{}", parent.as_str())),
+                None => SpaceId::new(leaf),
+            };
+            match id_result {
+                Err(e) => {
+                    model.error = Some(e.to_string());
+                    vec![Effect::Render]
+                }
+                Ok(id) => {
+                    let space = Space {
+                        id,
+                        name,
+                        description,
+                        labels: vec![],
+                        parent_id,
+                        note_count: 0,
+                    };
+                    vec![Effect::Storage(StorageRequest::CreateSpace { space })]
+                }
             }
-            Ok(id) => {
-                let space = Space {
-                    id,
-                    name,
-                    description,
-                    labels: vec![],
-                    parent_id: None,
-                    note_count: 0,
-                };
-                vec![Effect::Storage(StorageRequest::CreateSpace { space })]
-            }
-        },
+        }
 
         Event::DeleteSpace { id } => {
             vec![Effect::Storage(StorageRequest::DeleteSpace { id })]
@@ -253,9 +265,10 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                 // Do not overwrite current_space or clear notes from other spaces.
             } else {
                 model.current_space = model.spaces.iter().find(|s| s.id == space_id).cloned();
+                let spaces = model.spaces.clone();
                 model
                     .notes
-                    .retain(|n| n.id.space_segment() == space_id.as_str());
+                    .retain(|n| owning_space_id(&n.id, &spaces) == space_id.as_str());
             }
             model.loading = false;
             // Load each note into the list cache. [S-UX-NLV1]
@@ -439,7 +452,7 @@ pub fn view(model: &Model) -> ViewModel {
                 model
                     .notes
                     .iter()
-                    .filter(|n| n.id.space_segment() == space_id)
+                    .filter(|n| owning_space_id(&n.id, &model.spaces) == space_id)
                     .collect()
             };
 
@@ -598,6 +611,22 @@ fn default_space() -> Space {
     }
 }
 
+/// Returns the id of the space that owns `note_id`: the known space whose
+/// root-first path is the longest prefix of the note id. Falls back to the
+/// note's first path segment when no known space matches. [S-DM-S1]
+fn owning_space_id(note_id: &NoteId, spaces: &[Space]) -> String {
+    let segs = note_id.segments();
+    spaces
+        .iter()
+        .filter(|s| {
+            let sp = s.id.segments_root_first();
+            sp.len() < segs.len() && sp.iter().enumerate().all(|(i, seg)| segs[i] == *seg)
+        })
+        .max_by_key(|s| s.id.segments_root_first().len())
+        .map(|s| s.id.to_string())
+        .unwrap_or_else(|| note_id.space_segment().to_string())
+}
+
 fn default_space_id_from(spaces: &[Space]) -> SpaceId {
     let default_id = SpaceId::new("my").expect("default space id is valid");
     if spaces.iter().any(|space| space.id == default_id) {
@@ -611,7 +640,13 @@ fn default_space_id_from(spaces: &[Space]) -> SpaceId {
 }
 
 fn open_new_note(model: &mut Model, space_id: SpaceId, parent_id: Option<NoteId>) -> Vec<Effect> {
-    let id_str = format!("{}/untitled-{}", space_id.as_str(), timestamp_slug());
+    // Mint the id under the parent note when nesting, else under the space root
+    // path (root-first slash notation). [S-DM-N3]
+    let prefix = match &parent_id {
+        Some(parent) => parent.as_str().to_string(),
+        None => space_id.segments_root_first().join("/"),
+    };
+    let id_str = format!("{}/untitled-{}", prefix, timestamp_slug());
     match NoteId::new(id_str) {
         Err(e) => {
             model.error = Some(e.to_string());
@@ -719,6 +754,7 @@ mod tests {
             Event::CreateSpace {
                 name: "My New Space".into(),
                 description: None,
+                parent_id: None,
             },
             &mut model,
         );
@@ -756,6 +792,60 @@ mod tests {
                 .any(|e| matches!(e, Effect::Storage(StorageRequest::SaveNote { .. }))),
             "empty new note must not be saved until it has content"
         );
+    }
+
+    /// TC-AL-N-14 — CreateNote with parent_id mints a nested note id under the parent [S-DM-N3]
+    #[test]
+    fn create_child_note_mints_id_under_parent() {
+        let mut model = fresh_model();
+        let space_id = SpaceId::new("space1").unwrap();
+        model.spaces = vec![Space {
+            id: space_id.clone(),
+            name: "Space1".into(),
+            description: None,
+            labels: vec![],
+            parent_id: None,
+            note_count: 0,
+        }];
+        let parent_id = NoteId::new("space1/parent").unwrap();
+        update(
+            Event::CreateNote {
+                space_id,
+                parent_id: Some(parent_id.clone()),
+            },
+            &mut model,
+        );
+        let note = model.current_note.as_ref().expect("note created");
+        assert_eq!(note.parent_id.as_ref(), Some(&parent_id));
+        assert!(
+            note.id.as_str().starts_with("space1/parent/untitled-"),
+            "child note id must be nested under the parent: {}",
+            note.id
+        );
+    }
+
+    /// TC-AL-SP-04 — CreateSpace with parent_id mints a nested reverse-domain id [S-DM-S1]
+    #[test]
+    fn create_child_space_mints_nested_id() {
+        let mut model = fresh_model();
+        let parent = SpaceId::new("root").unwrap();
+        let effects = update(
+            Event::CreateSpace {
+                name: "Sub Space".into(),
+                description: None,
+                parent_id: Some(parent.clone()),
+            },
+            &mut model,
+        );
+        let space = effects
+            .iter()
+            .find_map(|e| match e {
+                Effect::Storage(StorageRequest::CreateSpace { space }) => Some(space),
+                _ => None,
+            })
+            .expect("CreateSpace effect present");
+        assert_eq!(space.id.as_str(), "sub-space.root");
+        assert_eq!(space.parent_id.as_ref(), Some(&parent));
     }
 
     /// TC-AL-N-01 — CreateNote emits StorageRequest::CreateNote [S-UX-NVT2], [S-DM-N7]

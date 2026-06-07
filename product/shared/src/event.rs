@@ -38,6 +38,9 @@ pub enum Event {
     CreateSpace {
         name: String,
         description: Option<String>,
+        /// Parent space for nested (child) spaces; None for root spaces. [S-DM-S1]
+        #[serde(default)]
+        parent_id: Option<SpaceId>,
     },
     DeleteSpace {
         id: SpaceId,

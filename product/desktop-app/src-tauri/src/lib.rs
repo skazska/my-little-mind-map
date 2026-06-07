@@ -211,8 +211,11 @@ async fn execute_storage(req: StorageRequest, storage: &FsStorage) -> Event {
             // current id (e.g. created as "untitled-{ts}" but titled "test-note"),
             // rename the file to match the title. [S-DM-N5]
             if !title_slug.is_empty() && title_slug != id_name {
-                let space_seg = id.space_segment();
-                let new_id_str = format!("{}/{}", space_seg, title_slug);
+                // Preserve the note's parent path (space + ancestor notes) when
+                // renaming, so child notes stay nested. [S-DM-N3]
+                let segs = id.segments();
+                let prefix = segs[..segs.len() - 1].join("/");
+                let new_id_str = format!("{prefix}/{title_slug}");
                 if let Ok(new_id) = shared_types::ids::NoteId::new(new_id_str) {
                     // Only rename if the target file does not already exist.
                     let target_free = matches!(storage.get_note(&new_id).await, Ok(None));

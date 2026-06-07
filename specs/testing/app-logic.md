@@ -3,7 +3,7 @@
 Unit and integration tests for the shared core — event dispatch, state transitions, `update()` + `view()` functions, and cross-cutting logic.
 
 **Layer**: Unit / Integration (`shared/`, `cargo test`)
-**Spec coverage**: [S-DM-L2], [S-DM-N4], [S-DM-N5], [S-DM-N7], [S-DM-V1], [S-UX-MF1], [S-UX-SA1], [S-UX-ST3], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE2], [S-UX-NE4], [S-UX-ERR], [S-CFG-1]
+**Spec coverage**: [S-DM-L2], [S-DM-N1], [S-DM-N3], [S-DM-N4], [S-DM-N5], [S-DM-N7], [S-DM-S1], [S-DM-S3], [S-DM-V1], [S-UX-MF1], [S-UX-SA1], [S-UX-ST3], [S-UX-NVT1], [S-UX-NVT2], [S-UX-NVT3], [S-UX-NE2], [S-UX-NE4], [S-UX-ERR], [S-CFG-1]
 **Implementation**: `product/shared/src/app.rs` (`#[cfg(test)]` module)
 **Implementation status**: All test cases implemented unless marked `[skipped]`.
 
@@ -77,7 +77,7 @@ Unit and integration tests for the shared core — event dispatch, state transit
 ### TC-AL-SP-01 — CreateSpace emits StorageRequest::CreateSpace [S-UX-ST3]
 
 **Given** a model in overview state  
-**When** `update(CreateSpace { name: "my-space", description: None }, &mut model)` is called  
+**When** `update(CreateSpace { name: "my-space", description: None, parent_id: None }, &mut model)` is called  
 **Then** effects include `StorageRequest::CreateSpace { space }` where `space.id.as_str() == "my-space"`
 
 ### TC-AL-SP-02 — SpaceCreated triggers LoadSpaces [S-UX-ST3]
@@ -93,6 +93,13 @@ Unit and integration tests for the shared core — event dispatch, state transit
 **Given** a model with spaces loaded  
 **When** `update(DeleteSpace { id: "my-space" }, &mut model)` is called  
 **Then** effects include `StorageRequest::DeleteSpace { id: "my-space" }`
+
+### TC-AL-SP-04 — CreateSpace with parent_id mints a nested reverse-domain id [S-DM-S1], [S-DM-S3]
+
+**Given** a model with a parent space `"root"` loaded  
+**When** `update(CreateSpace { name: "Sub Space", description: None, parent_id: Some("root") }, &mut model)` is called  
+**Then** effects include `StorageRequest::CreateSpace { space }` where `space.id.as_str() == "sub-space.root"` (child leaf prepended to the parent id, leaf-first dotted)  
+**And** `space.parent_id` equals `Some("root")`
 
 ---
 
@@ -192,6 +199,13 @@ Unit and integration tests for the shared core — event dispatch, state transit
 **Given** a model waiting for note load  
 **When** `update(NoteLoaded { note }, &mut model)` is called  
 **Then** `view(model).screen == "note_editor"` with the note data populated
+
+### TC-AL-N-14 — CreateNote with parent_id mints a nested note id under the parent [S-DM-N1], [S-DM-N3]
+
+**Given** a model in space `"space1"` with parent note `"space1/parent"`  
+**When** `update(CreateNote { space_id: "space1", parent_id: Some("space1/parent") }, &mut model)` is called  
+**Then** the created note's `parent_id` equals `Some("space1/parent")`  
+**And** its `id` starts with `"space1/parent/untitled-"` (minted under the parent path so nesting survives a reload)
 
 ---
 
