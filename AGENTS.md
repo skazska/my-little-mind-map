@@ -47,7 +47,7 @@ Inspired by personal knowledge management, note-taking, and project management t
 
 **Refer to documentation for how to do**:
 
-- rich internal linking in documentation.
+- rich internal linking in project documentation.
 
 **api-first**: design API before implementation.
 **function over code deduplication**: duplication is acceptable only when the duplicated code serves genuinely distinct purposes likely to diverge; otherwise deduplicate. Same-purpose copies that share a change-reason are redundancy, not divergence.
@@ -57,28 +57,39 @@ Inspired by personal knowledge management, note-taking, and project management t
 - refer expectations, specs, test cases, and code from project flow artifacts, not the opposite.
 - plan changes, not calendar: no deadlines and time estimates, plan changes and iterations instead. Tasks are "units of change", sprints are "transitions between consistent states of the product".
 
-## Repo structure
+**token economy**:
 
-- `specs/`: product definitions (expectations, specs, architecture, test-cases, acceptance-criteria)
-  - `expectations.md` + `expectations/`: high-level business/user expectations
-  - `architecture.md` + `architecture/`: system architecture overview
-  - `specs.md` + `specs/`: technical specifications.
-  - `testing.md` + `testing/`: test cases.
-- `docs/`: developer, user, and ops documentation
-  - `development.md` + `development/`: developer guides, setup, code standards,
-  - `testing.md` + `testing/`: test strategy/tooling
-- `product/`: product implementation
-- `project/`: project flow artifacts
+- concise, information-dense prose and diagrams.
+- diagrams for complex relationships and flows.
+- minimum duplication, referencing, layered detalizations.
+- files focused, coherent, and short
+- modularity and reuse
 
-## Product Key Expectations
+## Development
 
-- Text-centric: markdown notes as source of truth, other artifacts referenced in text, metadata derived from content.
-- Local-first with cloud sync capability: local storage, git versioning and sync.
-- Backend service for advanced features.
-- Rich interlinking, notes tree, topics tree, topic relations.
-- AI-powered features: summarisation, visualisation, hypothesis generation, search, etc.
+### Terms
 
-## Development Stack
+- code items: function, method, param, type, variable, etc.
+- code purpose: the reason why the code item exists, what it does, what it is for, etc.
+
+### General Code Principles
+
+- simple and idiomatic
+- readability and maintainability over cleverness
+- community conventions and best practices
+- lint and format
+- Purpose-scoping and clarity:
+  - no purpose-mixing, clear separation of concerns, single responsibility principle.
+  - no purpose-splitting, code items/files should not be split into multiple code items/files without clear purpose separation.
+- Clear purpose (code items and files):
+  - name: short, descriptive, concise, purpose-aligned.
+  - header comment: short, describe, purpose, behavior, usage, spec references.
+- no code errors
+- no code warnings in main branches
+- CI must pass before merge
+- no dead code, no commented-out code without clear purpose and `TODO|FIXME`.
+
+### Stack
 
 **Just + App Specific CLIs**.
 **Rust first**: for backend and business logic, with FFI, WASM, and CRUX for cross-platform support.
@@ -86,6 +97,15 @@ Inspired by personal knowledge management, note-taking, and project management t
 **Testing**: unit for reusable or non-typing protected logic, integration and E2E for user flows and critical features.
 **Git Flow**
 **CI/CD**: GitHub Actions
+
+## Types of Documentation
+
+- Specifications (in other words `product definitions`) (`/specs`): expectations, specs, architecture, test-cases, acceptance-criteria.
+- Product documentation (`/docs`):
+  - developer guides, setup, code standards, test strategy/tooling.
+  - product maintenance, deployment, monitoring, and operations.
+  - user guides, FAQs, troubleshooting.
+- Project flow artifacts (`/project`): planning, expectations gathering, decision making, and other project management practices.
 
 ## Specification notation and tooling
 
@@ -98,7 +118,7 @@ Inspired by personal knowledge management, note-taking, and project management t
 ### Notation principles
 
 - One notation per purpose; all renderable from plain text with no extra infrastructure.
-- Markdown first).
+- Markdown first.
 - Diagrams use [Mermaid](https://mermaid.js.org/) (renders natively in GitHub/VS Code); prefer Mermaid over hand-drawn ASCII for new diagrams.
 - Notation per purpose:
   - prose / structured specs → Markdown.
@@ -114,21 +134,19 @@ Inspired by personal knowledge management, note-taking, and project management t
 ### Track spec coverage
 
 - referencing:
-  - expectation <- specs <- test cases <- tests <-functional coverage- code implementation.
+  - expectation <- specs <- test cases <- tests.
   - specs <- code implementation
 - reference by codes
 - maintain traceability and internal consistency between expectations, specs, test cases, tests, and code.
 
-## types of documentation:
+## Repo structure
 
-- Specifications (in other words `product definitions`) (`/specs`): expectations, specs, architecture, test-cases, acceptance-criteria.
-- Product documentation (`/docs`):
-  - developer guides, setup, code standards, test strategy/tooling.
-  - product maintenance, deployment, monitoring, and operations.
-  - user guides, FAQs, troubleshooting.
-- Project flow artifacts (`/project`): planning, expectations gathering, decision making, and other project management practices.
+- `specs/`: specifications (expectations, specs, architecture, test-cases, acceptance-criteria)
+- `docs/`: product documentation (developer guides)
+- `product/`: product implementation
+- `project/`: project flow artifacts
 
-## QA agents
+## Agents
 
 Specialized review agents in `.github/agents/` (invoke to assert, not to implement):
 
