@@ -3,7 +3,7 @@ use shared_types::model::{Note, Space};
 
 // ── Model ─────────────────────────────────────────────────────────────────────
 
-/// Full application state managed by the core. [S-ARCH-1]
+/// Full application state managed by the core. @S-ARCH-1
 #[derive(Debug, Default, Clone)]
 pub struct Model {
     pub screen: Screen,

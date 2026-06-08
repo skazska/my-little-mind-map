@@ -35,7 +35,7 @@ fn sample_note(space_id: &SpaceId, name: &str) -> Note {
     }
 }
 
-/// TC-ST-SP-01 — Create and retrieve space [S-ST-DM1]
+/// TC-ST-SP-01 — Create and retrieve space @S-ST-DM1
 #[tokio::test]
 async fn create_and_retrieve_space() {
     let (_tmp, storage) = make_storage().await;
@@ -50,7 +50,7 @@ async fn create_and_retrieve_space() {
     assert_eq!(retrieved.name, space.name);
 }
 
-/// TC-ST-SP-04 — List spaces returns all created spaces [S-ST-DM1]
+/// TC-ST-SP-04 — List spaces returns all created spaces @S-ST-DM1
 #[tokio::test]
 async fn list_spaces() {
     let (_tmp, storage) = make_storage().await;
@@ -62,7 +62,7 @@ async fn list_spaces() {
     assert_eq!(spaces[0].id, space.id);
 }
 
-/// TC-ST-SP-06 — Delete space removes directory and index entry [S-ST-DM1], [S-ST-DM4]
+/// TC-ST-SP-06 — Delete space removes directory and index entry @(S-ST-DM1,S-ST-DM4)
 #[tokio::test]
 async fn delete_space() {
     let (tmp, storage) = make_storage().await;
@@ -88,7 +88,7 @@ async fn delete_space() {
     );
 }
 
-/// TC-ST-N-01 — Create and retrieve note [S-ST-DM3]
+/// TC-ST-N-01 — Create and retrieve note @S-ST-DM3
 #[tokio::test]
 async fn create_and_retrieve_note() {
     let (_tmp, storage) = make_storage().await;
@@ -106,7 +106,7 @@ async fn create_and_retrieve_note() {
     assert!(retrieved.content.contains("Note content."));
 }
 
-/// TC-ST-N-05 — Update note persists changed content [S-ST-DM1], [S-ST-DM3]
+/// TC-ST-N-05 — Update note persists changed content @(S-ST-DM1,S-ST-DM3)
 #[tokio::test]
 async fn update_note_persists_changes() {
     let (_tmp, storage) = make_storage().await;
@@ -127,7 +127,7 @@ async fn update_note_persists_changes() {
     assert_eq!(retrieved.metadata.labels[0].0, "updated");
 }
 
-/// TC-ST-N-07 — Delete note removes file [S-ST-DM1], [S-ST-DM4]
+/// TC-ST-N-07 — Delete note removes file @(S-ST-DM1,S-ST-DM4)
 #[tokio::test]
 async fn delete_note() {
     let (tmp, storage) = make_storage().await;
@@ -167,7 +167,7 @@ async fn delete_draft_removes_note_file_and_indexes() {
     assert_eq!(spaces[0].note_count, 0);
 }
 
-/// TC-ST-LI-01 — Labels index populated on create [S-DM-L2]
+/// TC-ST-LI-01 — Labels index populated on create @S-DM-L2
 #[tokio::test]
 async fn labels_index_updated_on_create() {
     let (_tmp, storage) = make_storage().await;
@@ -184,7 +184,7 @@ async fn labels_index_updated_on_create() {
     assert!(testing_notes.iter().any(|id| id == &note.id));
 }
 
-/// TC-ST-LI-03 — Labels index cleaned on note delete [S-DM-L3]
+/// TC-ST-LI-03 — Labels index cleaned on note delete @S-DM-L3
 #[tokio::test]
 async fn labels_index_cleaned_on_delete() {
     let (_tmp, storage) = make_storage().await;
@@ -199,7 +199,7 @@ async fn labels_index_cleaned_on_delete() {
     assert!(index.notes_for_label("rust").is_empty());
 }
 
-/// TC-ST-LI-02 — Labels index updated on note update [S-DM-L3]
+/// TC-ST-LI-02 — Labels index updated on note update @S-DM-L3
 #[tokio::test]
 async fn labels_index_updated_on_update() {
     let (_tmp, storage) = make_storage().await;
@@ -222,7 +222,7 @@ async fn labels_index_updated_on_update() {
         .any(|id| id == &note.id));
 }
 
-/// TC-ST-SET-02 — Settings round-trip [S-ST-DM2]
+/// TC-ST-SET-02 — Settings round-trip @S-ST-DM2
 #[tokio::test]
 async fn settings_round_trip() {
     let (_tmp, storage) = make_storage().await;
@@ -235,7 +235,7 @@ async fn settings_round_trip() {
     assert_eq!(reloaded.theme.as_deref(), Some("dark"));
 }
 
-/// TC-ST-N-09 — Get non-existent note returns None [S-ST-DM1]
+/// TC-ST-N-09 — Get non-existent note returns None @S-ST-DM1
 #[tokio::test]
 async fn get_note_missing_returns_none() {
     let (_tmp, storage) = make_storage().await;
@@ -243,7 +243,7 @@ async fn get_note_missing_returns_none() {
     assert!(storage.get_note(&id).await.unwrap().is_none());
 }
 
-/// TC-ST-N-02 — Note file created at correct path [S-ST-DM4]
+/// TC-ST-N-02 — Note file created at correct path @S-ST-DM4
 #[tokio::test]
 async fn folder_note_layout_on_disk() {
     let (tmp, storage) = make_storage().await;
@@ -271,7 +271,7 @@ async fn folder_note_layout_on_disk() {
 
 // ── Spaces — additional (TC-ST-SP-02..05, TC-ST-SP-07, TC-ST-SP-08) ─────────
 
-/// TC-ST-SP-02 — Space directory created on disk [S-ST-DM4]
+/// TC-ST-SP-02 — Space directory created on disk @S-ST-DM4
 #[tokio::test]
 async fn space_directory_created_on_disk() {
     let (tmp, storage) = make_storage().await;
@@ -285,7 +285,7 @@ async fn space_directory_created_on_disk() {
     );
 }
 
-/// TC-ST-SP-03 — Nested space directory uses reversed dot notation [S-ST-DM4]
+/// TC-ST-SP-03 — Nested space directory uses reversed dot notation @S-ST-DM4
 #[tokio::test]
 async fn nested_space_directory_reversed_dot() {
     let (tmp, storage) = make_storage().await;
@@ -311,7 +311,7 @@ async fn nested_space_directory_reversed_dot() {
     );
 }
 
-/// TC-ST-SP-04 — List spaces returns all created spaces [S-ST-DM1]
+/// TC-ST-SP-04 — List spaces returns all created spaces @S-ST-DM1
 #[tokio::test]
 async fn list_spaces_returns_all_created_spaces() {
     let (_tmp, storage) = make_storage().await;
@@ -413,7 +413,7 @@ async fn spaces_index_reflects_hierarchy() {
 
 // ── Notes — additional (TC-ST-N-03, TC-ST-N-04, TC-ST-N-06, TC-ST-N-08, TC-ST-N-10) ──
 
-/// TC-ST-N-03 — Nested note file created at correct path [S-ST-DM4]
+/// TC-ST-N-03 — Nested note file created at correct path @S-ST-DM4
 #[tokio::test]
 async fn nested_note_file_correct_path() {
     let (tmp, storage) = make_storage().await;
@@ -440,7 +440,7 @@ async fn nested_note_file_correct_path() {
     assert!(expected.exists(), "nested note not found at {expected:?}");
 }
 
-/// TC-ST-N-04 — Note file starts with valid YAML front matter [S-ST-DM3]
+/// TC-ST-N-04 — Note file starts with valid YAML front matter @S-ST-DM3
 #[tokio::test]
 async fn note_file_contains_valid_front_matter() {
     let (tmp, storage) = make_storage().await;
@@ -465,7 +465,7 @@ async fn note_file_contains_valid_front_matter() {
     assert!(content.contains("title:"));
 }
 
-/// TC-ST-N-06 — Update note advances updated_at timestamp [S-DM-N5]
+/// TC-ST-N-06 — Update note advances updated_at timestamp @S-DM-N5
 #[tokio::test]
 async fn update_note_advances_updated_at() {
     let (_tmp, storage) = make_storage().await;
@@ -501,7 +501,7 @@ async fn update_note_advances_updated_at() {
     assert!(after > created_at, "updated_at must advance after update");
 }
 
-/// TC-ST-N-08 — Delete note removes companion folder [S-ST-DM4]
+/// TC-ST-N-08 — Delete note removes companion folder @S-ST-DM4
 #[tokio::test]
 async fn delete_note_removes_companion_folder() {
     let (tmp, storage) = make_storage().await;
@@ -548,7 +548,7 @@ async fn delete_note_removes_companion_folder() {
 
 /// TC-ST-N-10 — list_notes returns the full note subtree of a space (descendants
 /// included for tree rendering) but excludes notes owned by nested child spaces
-/// [S-DM-N1, S-DM-N3, S-DM-S1]
+/// @(S-DM-N1,S-DM-N3,S-DM-S1)
 #[tokio::test]
 async fn list_notes_returns_space_subtree_excluding_child_spaces() {
     let (_tmp, storage) = make_storage().await;
@@ -624,7 +624,7 @@ async fn list_notes_returns_space_subtree_excluding_child_spaces() {
 
 // ── Labels index — additional (TC-ST-LI-04, TC-ST-LI-05) ────────────────────
 
-/// TC-ST-LI-04 — Label shared by multiple notes remains after partial delete [S-DM-L4]
+/// TC-ST-LI-04 — Label shared by multiple notes remains after partial delete @S-DM-L4
 #[tokio::test]
 async fn shared_label_survives_partial_delete() {
     let (_tmp, storage) = make_storage().await;
@@ -647,7 +647,7 @@ async fn shared_label_survives_partial_delete() {
     );
 }
 
-/// TC-ST-LI-05 — Cross-space labels span spaces [S-DM-L2]
+/// TC-ST-LI-05 — Cross-space labels span spaces @S-DM-L2
 #[tokio::test]
 async fn cross_space_label_spans_spaces() {
     let (_tmp, storage) = make_storage().await;
@@ -690,14 +690,14 @@ async fn cross_space_label_spans_spaces() {
     assert!(testing_notes.iter().any(|id| id == &note2.id));
 }
 
-/// TC-ST-LI-06 — Label index entry exposes statistics [S-DM-L4]
+/// TC-ST-LI-06 — Label index entry exposes statistics @S-DM-L4
 #[tokio::test]
 #[ignore = "test-first [post-POC]: LabelsIndex maps labels to note IDs and has no statistics fields yet"]
 async fn label_index_entry_exposes_statistics() {
     panic!("blocked: add note_count and spaces statistics, or an equivalent statistics API, to LabelsIndex");
 }
 
-/// TC-ST-ERR-01 — Create note in non-existent space creates parent dirs [S-ST-DM1], [S-UX-ERR]
+/// TC-ST-ERR-01 — Create note in non-existent space creates parent dirs @(S-ST-DM1,S-UX-ERR)
 #[tokio::test]
 async fn create_note_in_nonexistent_space_creates_parent_dirs() {
     let (tmp, storage) = make_storage().await;
@@ -719,7 +719,7 @@ async fn create_note_in_nonexistent_space_creates_parent_dirs() {
 
 // ── References index (TC-ST-RI-01..04) ───────────────────────────────────────
 
-/// TC-ST-SI-01 — Space index entry exposes statistics [S-DM-S4]
+/// TC-ST-SI-01 — Space index entry exposes statistics @S-DM-S4
 #[tokio::test]
 async fn spaces_index_entry_exposes_note_count_statistics() {
     let (_tmp, storage) = make_storage().await;
@@ -745,14 +745,14 @@ async fn spaces_index_entry_exposes_note_count_statistics() {
     assert_eq!(entry.note_count, 4);
 }
 
-/// TC-ST-SI-02 — Space index entry exposes label_count statistics [S-DM-S4]
+/// TC-ST-SI-02 — Space index entry exposes label_count statistics @S-DM-S4
 #[tokio::test]
 #[ignore = "test-first [post-POC]: SpaceEntry does not expose label_count yet"]
 async fn spaces_index_entry_exposes_label_count_statistics() {
     // blocked: add label_count or equivalent distinct-label statistics to SpaceEntry
 }
 
-/// TC-ST-VI-01 — View index entry exposes statistics [S-DM-V3]
+/// TC-ST-VI-01 — View index entry exposes statistics @S-DM-V3
 #[tokio::test]
 #[ignore = "test-first [post-POC]: ViewsIndex and Storage::get_views_index are not implemented yet"]
 async fn view_index_entry_exposes_statistics() {
@@ -779,7 +779,7 @@ fn note_with_reference(space_id: &SpaceId, name: &str, target_id: &NoteId) -> No
     }
 }
 
-/// TC-ST-RI-01 — Forward reference stored on note create [S-DM-NR4]
+/// TC-ST-RI-01 — Forward reference stored on note create @S-DM-NR4
 #[tokio::test]
 async fn references_index_forward_on_create() {
     let (_tmp, storage) = make_storage().await;
@@ -801,7 +801,7 @@ async fn references_index_forward_on_create() {
     );
 }
 
-/// TC-ST-RI-02 — Backlink stored on note create [S-DM-NR4]
+/// TC-ST-RI-02 — Backlink stored on note create @S-DM-NR4
 #[tokio::test]
 async fn references_index_backlink_on_create() {
     let (_tmp, storage) = make_storage().await;
@@ -901,9 +901,9 @@ async fn references_index_cleared_on_delete() {
 
 // ── Definitions index (TC-ST-DI-01..05) ───────────────────────────────────────
 
-/// TC-ST-DI-01 — Definitions indexed on note create [S-DM-ND1], [S-DM-ND2]
-/// Covers candidate syntax recognition from [S-DM-ND1] and index insertion
-/// with lowercase keys from [S-DM-ND2].
+/// TC-ST-DI-01 — Definitions indexed on note create @(S-DM-ND1,S-DM-ND2)
+/// Covers candidate syntax recognition from @S-DM-ND1 and index insertion
+/// with lowercase keys from @S-DM-ND2.
 #[tokio::test]
 async fn definitions_indexed_on_create() {
     let (_tmp, storage) = make_storage().await;
@@ -929,7 +929,7 @@ async fn definitions_indexed_on_create() {
     assert!(entries.iter().any(|e| e.note_id == note.id));
 }
 
-/// TC-ST-DI-02 — Definitions removed on note delete [S-DM-ND2]
+/// TC-ST-DI-02 — Definitions removed on note delete @S-DM-ND2
 #[tokio::test]
 async fn definitions_removed_on_delete() {
     let (_tmp, storage) = make_storage().await;
@@ -955,7 +955,7 @@ async fn definitions_removed_on_delete() {
     );
 }
 
-/// TC-ST-DI-03 — Definitions index rebuilt on note update [S-DM-ND2]
+/// TC-ST-DI-03 — Definitions index rebuilt on note update @S-DM-ND2
 #[tokio::test]
 async fn definitions_index_rebuilt_on_update() {
     let (_tmp, storage) = make_storage().await;
@@ -991,9 +991,9 @@ async fn definitions_index_rebuilt_on_update() {
     assert!(new_entries.iter().any(|e| e.note_id == note.id));
 }
 
-/// TC-ST-DI-04 — Multiple definitions from one note are indexed [S-DM-ND1], [S-DM-ND2]
-/// Covers repeated candidate syntax recognition from [S-DM-ND1] and
-/// multi-entry index population from [S-DM-ND2].
+/// TC-ST-DI-04 — Multiple definitions from one note are indexed @(S-DM-ND1,S-DM-ND2)
+/// Covers repeated candidate syntax recognition from @S-DM-ND1 and
+/// multi-entry index population from @S-DM-ND2.
 #[tokio::test]
 async fn multiple_definitions_indexed_from_note_content() {
     let (_tmp, storage) = make_storage().await;
@@ -1017,7 +1017,7 @@ async fn multiple_definitions_indexed_from_note_content() {
     assert!(defs.entries.contains_key("gadget"));
 }
 
-/// TC-ST-DI-05 — Invalid candidate definition lines are ignored [S-DM-ND1]
+/// TC-ST-DI-05 — Invalid candidate definition lines are ignored @S-DM-ND1
 #[tokio::test]
 async fn invalid_definition_candidates_ignored() {
     let (_tmp, storage) = make_storage().await;
@@ -1075,7 +1075,7 @@ async fn invalid_definition_candidates_ignored() {
 
 // ── Index reproducibility — test-first stub (TC-ST-IX-01) ───────────────────
 
-/// TC-ST-IX-01 — Derived indexes reproducible after deletion [S-ST-IX2]
+/// TC-ST-IX-01 — Derived indexes reproducible after deletion @S-ST-IX2
 #[tokio::test]
 #[ignore = "test-first [post-POC]: rebuild_indexes API is not implemented yet"]
 async fn derived_indexes_reproducible_after_deletion() {
@@ -1084,7 +1084,7 @@ async fn derived_indexes_reproducible_after_deletion() {
 
 // ── Settings — additional (TC-ST-SET-01, TC-ST-SET-03) ───────────────────────
 
-/// TC-ST-SET-01 — Default settings returned when file absent [S-CFG-2]
+/// TC-ST-SET-01 — Default settings returned when file absent @S-CFG-2
 #[tokio::test]
 async fn default_settings_when_absent() {
     let (_tmp, storage) = make_storage().await;
@@ -1100,7 +1100,7 @@ async fn default_settings_when_absent() {
     );
 }
 
-/// TC-ST-SET-03 — Settings stored as JSON [S-ST-DM2]
+/// TC-ST-SET-03 — Settings stored as JSON @S-ST-DM2
 #[tokio::test]
 async fn settings_stored_as_valid_json() {
     let (tmp, storage) = make_storage().await;

@@ -2,7 +2,7 @@
  * TC-E2E-NE — Note Editor tests
  *
  * Covers: TC-E2E-NE-01..17
- * Spec refs: [S-UX-NVT2], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE5], [S-UX-NE6]
+ * Spec refs: @(S-UX-NVT2,S-UX-NE1,S-UX-NE2,S-UX-NE3,S-UX-NE4,S-UX-NE5,S-UX-NE6)
  *
  * TC-E2E-NE-01, 03–05, 08–13 run via the shared scenario.
  * TC-E2E-NE-02, 06, 07, 14, 15, 16, 17 are desktop-specific and live in the second describe block.
@@ -92,7 +92,7 @@ describe('Note Editor — desktop-specific', () => {
     })
 
     /**
-     * TC-E2E-NE-02 — Metadata panel shows title, labels, UUID, dates [S-UX-NE1]
+     * TC-E2E-NE-02 — Metadata panel shows title, labels, UUID, dates @S-UX-NE1
      */
     it('TC-E2E-NE-02: metadata panel displays title, labels, UUID, created_at, and updated_at', async () => {
         await openNote('ds-test-note')
@@ -112,7 +112,7 @@ describe('Note Editor — desktop-specific', () => {
     })
 
     /**
-     * TC-E2E-NE-06 — Autosave triggers after typing pause [S-UX-NE4]
+     * TC-E2E-NE-06 — Autosave triggers after typing pause @S-UX-NE4
      */
     it('TC-E2E-NE-06: autosave fires after the debounce period', async () => {
         const autosaveContent = `Autosave test ${Date.now()}`
@@ -133,7 +133,7 @@ describe('Note Editor — desktop-specific', () => {
     })
 
     /**
-     * TC-E2E-NE-07 — Autosave does not normalize content [S-UX-NE5]
+     * TC-E2E-NE-07 — Autosave does not normalize content @S-UX-NE5
      */
     it('TC-E2E-NE-07: autosave preserves trailing spaces and consecutive blank lines', async () => {
         await helpers.clickBack()
@@ -156,7 +156,7 @@ describe('Note Editor — desktop-specific', () => {
     })
 
     /**
-     * TC-E2E-NE-14 — Publish shows confirmation dialog [S-UX-NE6]
+     * TC-E2E-NE-14 — Publish shows confirmation dialog @S-UX-NE6
      */
     it('TC-E2E-NE-14: Publish action shows a confirmation dialog before formatting', async () => {
         await helpers.clickBack()
@@ -177,7 +177,7 @@ describe('Note Editor — desktop-specific', () => {
     })
 
     /**
-     * TC-E2E-NE-08-disk — Label persists to disk after save [S-UX-NE1]
+     * TC-E2E-NE-08-disk — Label persists to disk after save @S-UX-NE1
      */
     it('TC-E2E-NE-08-disk: added label appears in front matter after save', async () => {
         await openNote('ds-test-note')
@@ -192,7 +192,7 @@ describe('Note Editor — desktop-specific', () => {
     })
 
     /**
-     * TC-E2E-NE-12-disk — Draft flag on disk [S-UX-NE1]
+     * TC-E2E-NE-12-disk — Draft flag on disk @S-UX-NE1
      */
     it('TC-E2E-NE-12-disk: new note file has draft: true in front matter', async () => {
         await helpers.clickBack()
@@ -207,7 +207,7 @@ describe('Note Editor — desktop-specific', () => {
     })
 
     /**
-     * TC-E2E-NE-13-disk — Publish clears draft flag on disk [S-UX-NE1]
+     * TC-E2E-NE-13-disk — Publish clears draft flag on disk @S-UX-NE1
      */
     it('TC-E2E-NE-13-disk: publishing clears draft: false in front matter', async () => {
         await helpers.clickBack()
@@ -226,7 +226,7 @@ describe('Note Editor — desktop-specific', () => {
     })
 
     /**
-     * TC-E2E-NE-15 — Autosave does not create draft when content is empty [S-UX-NE4]
+     * TC-E2E-NE-15 — Autosave does not create draft when content is empty @S-UX-NE4
      *
      * Opens a fresh note, clears any pre-filled content so the editor is
      * empty, waits for the autosave debounce, then asserts no draft file
@@ -264,7 +264,7 @@ describe('Note Editor — desktop-specific', () => {
     })
 
     /**
-     * TC-E2E-NE-16 — Clearing all content removes an existing draft [S-UX-NE4]
+     * TC-E2E-NE-16 — Clearing all content removes an existing draft @S-UX-NE4
      *
      * Creates a note with content (which triggers autosave → draft on disk),
      * then clears the content and waits for the next autosave, asserting the
@@ -303,7 +303,7 @@ describe('Note Editor — desktop-specific', () => {
     })
 
     /**
-     * TC-E2E-NE-17 — Editor command syntax is not persisted to disk [S-UX-NE2], [S-DM-N2]
+     * TC-E2E-NE-17 — Editor command syntax is not persisted to disk @(S-UX-NE2,S-DM-N2)
      */
     it('TC-E2E-NE-17: /:labels command syntax is stripped before persistence', async () => {
         const screenEl = await $('[data-screen]')

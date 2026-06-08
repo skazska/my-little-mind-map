@@ -12,7 +12,7 @@ use crate::{
 /// Async storage abstraction for notes, spaces, and derived indexes.
 ///
 /// Async-first so both native (`FsStorage`) and browser (`OpfsStorage`) can
-/// implement the same interface. [S-ST-LS1]
+/// implement the same interface. @S-ST-LS1
 #[async_trait]
 pub trait Storage: Send + Sync {
     // ── Spaces ────────────────────────────────────────────────────────────────

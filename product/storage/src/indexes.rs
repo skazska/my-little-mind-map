@@ -8,7 +8,7 @@ use shared_types::{
 
 // ── Spaces index ──────────────────────────────────────────────────────────────
 
-/// Hierarchical list of spaces written to `spaces.json`. [S-ST-DM2]
+/// Hierarchical list of spaces written to `spaces.json`. @S-ST-DM2
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct SpacesIndex {
     pub spaces: Vec<SpaceEntry>,
@@ -45,7 +45,7 @@ impl SpacesIndex {
 
 // ── Labels index ──────────────────────────────────────────────────────────────
 
-/// Maps label string → list of note IDs. Written to `labels.json`. [S-ST-DM2]
+/// Maps label string → list of note IDs. Written to `labels.json`. @S-ST-DM2
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct LabelsIndex {
     pub entries: HashMap<String, Vec<NoteId>>,
@@ -64,7 +64,7 @@ impl LabelsIndex {
         for ids in self.entries.values_mut() {
             ids.retain(|id| id != note_id);
         }
-        // Prune empty label entries per [S-DM-L4].
+        // Prune empty label entries per @S-DM-L4.
         self.entries.retain(|_, ids| !ids.is_empty());
     }
 
@@ -79,7 +79,7 @@ impl LabelsIndex {
 
 // ── References index ──────────────────────────────────────────────────────────
 
-/// Forward + backward note reference index. Written to `references.json`. [S-DM-NR5]
+/// Forward + backward note reference index. Written to `references.json`. @S-DM-NR5
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ReferencesIndex {
     /// source note id → targets
@@ -133,7 +133,7 @@ impl ReferencesIndex {
 
 // ── Definitions index ─────────────────────────────────────────────────────────
 
-/// Term → definitions map. Written to `definitions.json`. [S-DM-ND2]
+/// Term → definitions map. Written to `definitions.json`. @S-DM-ND2
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct DefinitionsIndex {
     pub entries: HashMap<String, Vec<DefEntry>>,

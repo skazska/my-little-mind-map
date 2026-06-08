@@ -7,14 +7,14 @@ use crate::model::{Label, NoteMetadata, NoteReference, NoteReferenceKind};
 
 // ── Serialised form stored in .md front matter ────────────────────────────────
 
-// [S-DM-N5](../../../../specs/specs/data-model.md)
+// @S-DM-N5(../../../../specs/specs/data-model.md)
 #[derive(Debug, Serialize, Deserialize)]
 struct RawFrontMatter {
     uuid: Uuid,
     title: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     space: Option<String>,
-    /// Space-separated labels string, e.g. `"rust learning"`. [S-DM-N5]
+    /// Space-separated labels string, e.g. `"rust learning"`. @S-DM-N5
     #[serde(default)]
     labels: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -205,8 +205,8 @@ updated_at: "2024-01-01T00:00:00Z"
 
 Some content here."#;
 
-    /// TC-DM-FM-03 — Labels parsed as space-separated words [S-DM-N5]
-    /// TC-DM-FM-05 — Content body separated from front matter [S-DM-N2]
+    /// TC-DM-FM-03 — Labels parsed as space-separated words @S-DM-N5
+    /// TC-DM-FM-05 — Content body separated from front matter @S-DM-N2
     #[test]
     fn parse_basic() {
         let (meta, body) = parse_note_content(SAMPLE).unwrap();
@@ -219,8 +219,8 @@ Some content here."#;
         assert!(body.starts_with("# my-note"));
     }
 
-    /// TC-DM-FM-01 — Full front matter round-trip [S-DM-N2], [S-DM-N5]
-    /// TC-DM-FM-08 — UUID is preserved exactly on round-trip [S-DM-N5]
+    /// TC-DM-FM-01 — Full front matter round-trip @(S-DM-N2,S-DM-N5)
+    /// TC-DM-FM-08 — UUID is preserved exactly on round-trip @S-DM-N5
     #[test]
     fn round_trip() {
         let (meta, body) = parse_note_content(SAMPLE).unwrap();
@@ -232,7 +232,7 @@ Some content here."#;
         assert_eq!(body, body2);
     }
 
-    /// TC-DM-FM-06 — Missing front matter returns error [S-DM-N6]
+    /// TC-DM-FM-06 — Missing front matter returns error @S-DM-N6
     #[test]
     fn missing_front_matter_errors() {
         let result = parse_note_content("# just content\nno front matter");
@@ -261,7 +261,7 @@ Content."#;
         );
     }
 
-    // ── TC-DM-FM-02 — Missing optional fields default correctly [S-DM-N5] ───
+    // ── TC-DM-FM-02 — Missing optional fields default correctly @S-DM-N5 ───
 
     #[test]
     fn missing_optional_fields_default() {
@@ -293,7 +293,7 @@ Body."#;
         );
     }
 
-    // ── TC-DM-FM-09 — Draft flag serialises as boolean [S-DM-N5] ─────────────
+    // ── TC-DM-FM-09 — Draft flag serialises as boolean @S-DM-N5 ─────────────
 
     #[test]
     fn draft_flag_round_trip() {
@@ -313,7 +313,7 @@ Draft content."#;
         assert!(meta2.draft);
     }
 
-    // ── TC-DM-FM-04 — Multiple reference kinds serialised and parsed [S-DM-NR3]
+    // ── TC-DM-FM-04 — Multiple reference kinds serialised and parsed @S-DM-NR3
 
     #[test]
     fn multiple_reference_kinds_round_trip() {
@@ -369,7 +369,7 @@ Content."#;
         assert_eq!(meta.uuid, meta2.uuid);
     }
 
-    // ── TC-DM-NR-01 — Note reference with block IDs parsed [S-DM-NR5] ────────
+    // ── TC-DM-NR-01 — Note reference with block IDs parsed @S-DM-NR5 ────────
 
     #[test]
     fn note_reference_block_ids_parsed() {
@@ -393,7 +393,7 @@ Content."#;
         assert_eq!(r.source_block_id.as_deref(), Some("ref-1"));
     }
 
-    // ── TC-DM-NR-02 — External URL reference parsed [S-DM-NR3] ──────────────
+    // ── TC-DM-NR-02 — External URL reference parsed @S-DM-NR3 ──────────────
 
     #[test]
     fn external_url_reference_parsed() {
@@ -416,7 +416,7 @@ Content."#;
         ));
     }
 
-    // ── TC-DM-NR-03 — File reference parsed [S-DM-NR3] ───────────────────────
+    // ── TC-DM-NR-03 — File reference parsed @S-DM-NR3 ───────────────────────
 
     #[test]
     fn file_reference_parsed() {
@@ -439,7 +439,7 @@ Content."#;
         ));
     }
 
-    // ── TC-DM-NR-04 — Space reference parsed [S-DM-NR3] ─────────────────────
+    // ── TC-DM-NR-04 — Space reference parsed @S-DM-NR3 ─────────────────────
 
     #[test]
     fn space_reference_parsed() {
@@ -464,7 +464,7 @@ Content."#;
 
     // ── Markdown link references — test-first stubs (TC-DM-NR-05, TC-DM-NR-06)
 
-    /// TC-DM-NR-05 — Internal reference parsed from markdown link syntax [S-DM-NR2]
+    /// TC-DM-NR-05 — Internal reference parsed from markdown link syntax @S-DM-NR2
     #[test]
     #[ignore = "test-first: markdown link reference scanner is not implemented yet"]
     fn internal_reference_parsed_from_markdown_link_syntax() {
@@ -473,7 +473,7 @@ Content."#;
         );
     }
 
-    /// TC-DM-NR-06 — External URL preserved from markdown link syntax [S-DM-NR2]
+    /// TC-DM-NR-06 — External URL preserved from markdown link syntax @S-DM-NR2
     #[test]
     #[ignore = "test-first: markdown link reference scanner is not implemented yet"]
     fn external_url_preserved_from_markdown_link_syntax() {

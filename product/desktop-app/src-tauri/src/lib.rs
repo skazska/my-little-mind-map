@@ -11,14 +11,15 @@ use tauri::{Manager, State};
 
 // ── App config (data-folder persistence) ─────────────────────────────────────
 
-/// Minimal config persisted in app_config_dir/config.json. [S-CFG-1]
+/// Minimal config persisted in app_config_dir/config.json. @S-CFG-1
 #[derive(serde::Serialize, serde::Deserialize, Default)]
 struct AppConfig {
     data_folder: Option<String>,
 }
 
 fn app_config_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
-    Ok(app.path()
+    Ok(app
+        .path()
         .app_config_dir()
         .map_err(|e| e.to_string())?
         .join("config.json"))
@@ -47,7 +48,7 @@ fn save_data_folder_config(app: tauri::AppHandle, path: String) -> Result<(), St
     Ok(())
 }
 
-/// Return the default data folder path (~/MyLittleMindMapData). [S-CFG-2]
+/// Return the default data folder path (~/MyLittleMindMapData). @S-CFG-2
 #[tauri::command]
 fn get_default_data_folder(app: tauri::AppHandle) -> Result<String, String> {
     let home = app.path().home_dir().map_err(|e| e.to_string())?;
@@ -208,10 +209,10 @@ async fn execute_storage(req: StorageRequest, storage: &FsStorage) -> Event {
 
             // If the note has been given a title-based slug that differs from its
             // current id (e.g. created as "untitled-{ts}" but titled "test-note"),
-            // rename the file to match the title. [S-DM-N5]
+            // rename the file to match the title. @S-DM-N5
             if !title_slug.is_empty() && title_slug != id_name {
                 // Preserve the note's parent path (space + ancestor notes) when
-                // renaming, so child notes stay nested. [S-DM-N3]
+                // renaming, so child notes stay nested. @S-DM-N3
                 let segs = id.segments();
                 let prefix = segs[..segs.len() - 1].join("/");
                 let new_id_str = format!("{prefix}/{title_slug}");

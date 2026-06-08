@@ -17,7 +17,7 @@ export function useApp() {
         setBusy(true);
         setError(null);
         try {
-            // Persist the data-folder path when the user selects one. [S-CFG-1]
+            // Persist the data-folder path when the user selects one. @S-CFG-1
             if (event.type === "data_folder_selected") {
                 await invoke("save_data_folder_config", { path: event.path }).catch(() => { });
             }
@@ -38,7 +38,7 @@ export function useApp() {
     useEffect(() => {
         let cancelled = false;
         (async () => {
-            // Read the persisted data-folder from app config dir. [S-CFG-1]
+            // Read the persisted data-folder from app config dir. @S-CFG-1
             const dataFolder = await invoke<string | null>("get_data_folder_config").catch(() => null);
             if (!cancelled) {
                 await dispatch({ type: "app_started", data_folder: dataFolder ?? undefined });

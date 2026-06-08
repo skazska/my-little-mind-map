@@ -5,7 +5,7 @@ use crate::model::OverviewTab;
 
 // ── ViewModels ────────────────────────────────────────────────────────────────
 
-/// Serialisable view data sent to the shell for rendering. [S-ARCH-1]
+/// Serialisable view data sent to the shell for rendering. @S-ARCH-1
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "screen", rename_all = "snake_case")]
 pub enum ViewModel {
@@ -19,7 +19,7 @@ pub enum ViewModel {
 
 // ── Overview ──────────────────────────────────────────────────────────────────
 
-/// [S-UX-SA1, S-UX-MF1]
+/// @(S-UX-SA1,S-UX-MF1)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OverviewViewModel {
     pub active_tab: OverviewTab,
@@ -37,7 +37,7 @@ pub struct SpaceSummary {
     pub description: Option<String>,
     pub labels: Vec<String>,
     pub note_count: usize,
-    /// Parent space id; None for root spaces. [S-DM-S1]
+    /// Parent space id; None for root spaces. @S-DM-S1
     pub parent_id: Option<String>,
 }
 
@@ -49,7 +49,7 @@ pub struct LabelSummary {
 
 // ── Note list ─────────────────────────────────────────────────────────────────
 
-/// [S-UX-NVT1, S-UX-NVT2]
+/// @(S-UX-NVT1,S-UX-NVT2)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NoteListViewModel {
     pub space_id: String,
@@ -68,18 +68,18 @@ pub struct NoteListItem {
     pub labels: Vec<String>,
     pub draft: bool,
     pub updated_at: String,
-    /// Parent note id; None for notes directly under their space. [S-DM-N3]
+    /// Parent note id; None for notes directly under their space. @S-DM-N3
     pub parent_id: Option<String>,
 }
 
 // ── Note editor ───────────────────────────────────────────────────────────────
 
-/// [S-UX-NE1, S-UX-NE2]
+/// @(S-UX-NE1,S-UX-NE2)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NoteEditorViewModel {
     pub id: String,
     pub title: String,
-    /// First non-heading, non-empty line from content. [S-DM-N4]
+    /// First non-heading, non-empty line from content. @S-DM-N4
     pub description: Option<String>,
     pub content: String,
     pub labels: Vec<String>,

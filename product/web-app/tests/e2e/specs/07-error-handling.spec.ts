@@ -2,7 +2,7 @@
  * TC-E2E-ERR — Error Handling tests (web)
  *
  * Covers: TC-E2E-ERR-01, TC-E2E-ERR-02
- * Spec refs: [S-UX-ERR]
+ * Spec refs: @S-UX-ERR
  *
  * Web: no filesystem access. Error is triggered by corrupting the spaces index
  * localStorage key with invalid JSON so the storage layer fails to parse it on
@@ -17,7 +17,7 @@ describe('Error Handling', () => {
     })
 
     /**
-     * TC-E2E-ERR-01 — Corrupted storage triggers the error screen [S-UX-ERR]
+     * TC-E2E-ERR-01 — Corrupted storage triggers the error screen @S-UX-ERR
      *
      * Writes invalid JSON to the spaces index key so that the storage
      * initialisation path fails on the next page load.
@@ -47,7 +47,7 @@ describe('Error Handling', () => {
     })
 
     /**
-     * TC-E2E-ERR-02 — "Go home" button from error screen returns to overview [S-UX-ERR]
+     * TC-E2E-ERR-02 — "Go home" button from error screen returns to overview @S-UX-ERR
      */
     it('TC-E2E-ERR-02: Go Home button on error screen returns to overview', async () => {
         const screenEl = await $('[data-screen]')

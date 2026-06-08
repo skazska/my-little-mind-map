@@ -2,7 +2,7 @@
  * TC-E2E-ERR — Error Handling tests
  *
  * Covers: TC-E2E-ERR-01..02
- * Spec refs: [S-UX-ERR1]
+ * Spec refs: @S-UX-ERR1
  *
  * Note: TC-E2E-ERR-01 requires making the data folder inaccessible at runtime.
  * On Linux this is done by removing read permissions from the folder.

@@ -2,7 +2,7 @@
  * TC-E2E-OV — Overview screen tests (web)
  *
  * Covers: TC-E2E-OV-01..03
- * Spec refs: [S-UX-MF1], [S-UX-SA2]
+ * Spec refs: @(S-UX-MF1,S-UX-SA2)
  */
 
 import { helpers } from '../helpers/app.js'

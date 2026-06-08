@@ -2,7 +2,7 @@
  * TC-E2E-NE — Note Editor tests (web)
  *
  * Covers: TC-E2E-NE-01..14, TC-E2E-NE-17
- * Spec refs: [S-UX-NVT3], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4], [S-UX-NE6]
+ * Spec refs: @(S-UX-NVT3,S-UX-NE1,S-UX-NE2,S-UX-NE3,S-UX-NE4,S-UX-NE6)
  *
  * TC-E2E-NE-01, 03–05, 08–13 run via the shared scenario.
  * TC-E2E-NE-02, 06, 14, 17 are web-specific and live in the second describe block.
@@ -128,7 +128,7 @@ describe('Note Editor — web-specific', () => {
      * We verify the note content is persisted to a path-keyed localStorage file
      * whose path maps directly to the S-ST-DM4 folder-note layout.
      */
-    it('TC-E2E-NE-06-web/TC-ST-N-04/TC-ST-LI-01/TC-ST-LS3-01/TC-ST-LS3-02 [S-ST-LS3,S-ST-DM3,S-ST-DM4,S-ST-IX1]: autosave writes draft markdown and indexes', async () => {
+    it('TC-E2E-NE-06-web/TC-ST-N-04/TC-ST-LI-01/TC-ST-LS3-01/TC-ST-LS3-02 @(S-ST-LS3,S-ST-DM3,S-ST-DM4,S-ST-IX1): autosave writes draft markdown and indexes', async () => {
         await helpers.openNote('ws-test-note')
         const autosaveMarker = `autosave-web-${Date.now()}`
         await helpers.typeInEditor(autosaveMarker)
@@ -169,7 +169,7 @@ describe('Note Editor — web-specific', () => {
      * TC-E2E-NE-13 / TC-DM-FM-09 / TC-ST-LS3-04 — publishing removes the S-DM-N7 draft file
      * and writes the published S-ST-DM4 markdown file with `draft: false`.
      */
-    it('TC-E2E-NE-13/TC-DM-FM-09/TC-ST-LS3-04 [S-ST-LS3,S-DM-N7,S-ST-DM4]: publishing replaces draft file with published markdown', async () => {
+    it('TC-E2E-NE-13/TC-DM-FM-09/TC-ST-LS3-04 @(S-ST-LS3,S-DM-N7,S-ST-DM4): publishing replaces draft file with published markdown', async () => {
         await ensureWsEditorNoteList()
         await helpers.createNote('ws-publish-layout')
         await helpers.typeInEditor('\nPublished body for layout check.')
@@ -202,9 +202,9 @@ describe('Note Editor — web-specific', () => {
 
     /**
      * TC-ST-DI-01 — provisional definitions are derived from markdown content
-     * into definitions.json [S-ST-LS3], [S-ST-IX1].
+     * into definitions.json @(S-ST-LS3,S-ST-IX1).
      */
-    it('TC-ST-DI-01 [S-ST-LS3,S-ST-IX1]: definitions.json is derived from markdown note content', async () => {
+    it('TC-ST-DI-01 @(S-ST-LS3,S-ST-IX1): definitions.json is derived from markdown note content', async () => {
         await ensureWsEditorNoteList()
         await helpers.createNote('ws-definition-layout')
         await helpers.typeInEditor('\n**Term** Definition from web markdown.')
@@ -225,7 +225,7 @@ describe('Note Editor — web-specific', () => {
      * TC-E2E-NE-16 / TC-AL-N-12 / TC-ST-LS3-03 — clearing an existing draft removes the draft
      * markdown file from the S-ST-DM4 browser-local tree.
      */
-    it('TC-E2E-NE-16/TC-AL-N-12/TC-ST-LS3-03 [S-ST-LS3,S-DM-N7,S-ST-DM4]: clearing content deletes the draft file', async () => {
+    it('TC-E2E-NE-16/TC-AL-N-12/TC-ST-LS3-03 @(S-ST-LS3,S-DM-N7,S-ST-DM4): clearing content deletes the draft file', async () => {
         await ensureWsEditorNoteList()
         await helpers.createNote('ws-delete-draft-layout')
         await helpers.typeInEditor('\nDraft text to remove.')
@@ -253,9 +253,9 @@ describe('Note Editor — web-specific', () => {
 
     /**
      * TC-ST-N-02 / TC-ST-N-04 — the markdown note path is exact and no legacy
-     * flat JSON blob is used [S-ST-LS3], [S-ST-DM3], [S-ST-DM4].
+     * flat JSON blob is used @(S-ST-LS3,S-ST-DM3,S-ST-DM4).
      */
-    it('TC-ST-N-02/TC-ST-N-04 [S-ST-LS3,S-ST-DM3,S-ST-DM4]: saved note uses exact markdown file key', async () => {
+    it('TC-ST-N-02/TC-ST-N-04 @(S-ST-LS3,S-ST-DM3,S-ST-DM4): saved note uses exact markdown file key', async () => {
         await ensureWsEditorNoteList()
         await helpers.createNote('ws-exact-file-key')
         await helpers.typeInEditor('\nExact file key body.')
@@ -289,7 +289,7 @@ describe('Note Editor — web-specific', () => {
      * TC-ST-LS3-06 — nested note draft and published keys mirror the S-ST-DM4
      * folder-note layout in the S-ST-LS3 web local store.
      */
-    it('TC-ST-LS3-06 [S-ST-LS3,S-ST-DM4]: nested note draft and publish use folder-note keys', async () => {
+    it('TC-ST-LS3-06 @(S-ST-LS3,S-ST-DM4): nested note draft and publish use folder-note keys', async () => {
         await ensureWsEditorNoteList()
         await helpers.createNote('ws-nested-parent')
         await helpers.typeInEditor('\nParent body for nested layout.')
@@ -400,9 +400,9 @@ describe('Note Editor — web-specific', () => {
     })
 
     /**
-     * TC-E2E-NE-17-web — Editor command syntax is not persisted [S-UX-NE2], [S-DM-N2]
+     * TC-E2E-NE-17-web — Editor command syntax is not persisted @(S-UX-NE2,S-DM-N2)
      */
-    it('TC-E2E-NE-17-web [S-ST-LS3,S-ST-DM3,S-ST-DM4]: /:labels command syntax is stripped before markdown persistence', async () => {
+    it('TC-E2E-NE-17-web @(S-ST-LS3,S-ST-DM3,S-ST-DM4): /:labels command syntax is stripped before markdown persistence', async () => {
         await ensureWsEditorNoteList()
         await helpers.createNote('ws-command-syntax-note')
 

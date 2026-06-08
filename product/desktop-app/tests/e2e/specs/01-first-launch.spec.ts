@@ -2,7 +2,7 @@
  * TC-E2E-FL — First Launch tests
  *
  * Covers: TC-E2E-FL-01..07
- * Spec refs: [S-UX-SA1], [S-UX-SA2], [S-UX-SA3], [S-UX-MF1], [S-CFG-1], [S-CFG-2]
+ * Spec refs: @(S-UX-SA1,S-UX-SA2,S-UX-SA3,S-UX-MF1,S-CFG-1,S-CFG-2)
  */
 
 import * as nodePath from 'node:path'
@@ -21,7 +21,7 @@ describe('First Launch', () => {
     })
 
     /**
-     * TC-E2E-FL-01 — First launch shows folder selection screen [S-UX-SA1]
+     * TC-E2E-FL-01 — First launch shows folder selection screen @S-UX-SA1
      */
     it('TC-E2E-FL-01: shows first_launch screen on fresh start', async () => {
         await assertScreen('first_launch')
@@ -32,7 +32,7 @@ describe('First Launch', () => {
     })
 
     /**
-     * TC-E2E-FL-02 — Selecting a data folder transitions to overview [S-UX-SA1]
+     * TC-E2E-FL-02 — Selecting a data folder transitions to overview @S-UX-SA1
      *
      * This test requires the system file-picker dialog; it is validated via the
      * "Use default folder" code path which bypasses the native dialog.
@@ -45,7 +45,7 @@ describe('First Launch', () => {
     })
 
     /**
-     * TC-E2E-FL-03 — Using default data folder transitions to overview [S-CFG-2]
+     * TC-E2E-FL-03 — Using default data folder transitions to overview @S-CFG-2
      */
     it('TC-E2E-FL-03: using default folder transitions to overview and creates folder', async () => {
         await useDefaultFolder()
@@ -56,7 +56,7 @@ describe('First Launch', () => {
     })
 
     /**
-     * TC-E2E-FL-04 — Selected folder persisted across app restarts [S-CFG-1]
+     * TC-E2E-FL-04 — Selected folder persisted across app restarts @S-CFG-1
      *
      * Full restart verification requires re-launching the Tauri process.
      * This test validates the persistence artifact on disk instead.
@@ -74,7 +74,7 @@ describe('First Launch', () => {
     })
 
     /**
-     * TC-E2E-FL-05 — Status bar shows correct data folder path [S-UX-MF1]
+     * TC-E2E-FL-05 — Status bar shows correct data folder path @S-UX-MF1
      */
     it('TC-E2E-FL-05: status bar displays data folder path', async () => {
         await useDefaultFolder()
@@ -84,7 +84,7 @@ describe('First Launch', () => {
     })
 
     /**
-     * TC-E2E-FL-06 — Default space "My" is created when no space exists [S-UX-SA2]
+     * TC-E2E-FL-06 — Default space "My" is created when no space exists @S-UX-SA2
      */
     it('TC-E2E-FL-06: default space "My" is created in a fresh data folder', async () => {
         await useDefaultFolder()
@@ -110,7 +110,7 @@ describe('First Launch', () => {
     })
 
     /**
-     * TC-E2E-FL-07 — App opens new note when no prior context [S-UX-SA3]
+     * TC-E2E-FL-07 — App opens new note when no prior context @S-UX-SA3
      */
     it('TC-E2E-FL-07: app shows notes view with a new note editor on first launch', async () => {
         await useDefaultFolder({ stayOnStartupDestination: true })

@@ -18,7 +18,7 @@ use crate::{
 
 // ── FsStorage ─────────────────────────────────────────────────────────────────
 
-/// File-system backed storage using the folder-note layout. [S-ST-LS2, S-ST-DM4]
+/// File-system backed storage using the folder-note layout. @(S-ST-LS2,S-ST-DM4)
 ///
 /// Layout under `root/`:
 /// ```text
@@ -44,7 +44,7 @@ pub struct FsStorage {
 
 /// Returns the space whose root-first path is the longest prefix of `id` — the
 /// space that owns the note, distinguishing nested child spaces from notes that
-/// merely share a leading path segment. [S-DM-S1, S-DM-N3]
+/// merely share a leading path segment. @(S-DM-S1,S-DM-N3)
 fn owning_space_in_index(id: &NoteId, index: &SpacesIndex) -> Option<SpaceId> {
     let segs = id.segments();
     index
@@ -114,7 +114,7 @@ impl FsStorage {
     /// The current POC recognizes candidate definition lines in the form
     /// `**Term** Definition text` and returns `(term, definition, block_id)`
     /// tuples for indexing. Block-id extraction is still deferred while
-    /// [S-DM-NR5] and the note-definition reference details in [S-DM-ND3]
+    /// @S-DM-NR5 and the note-definition reference details in @S-DM-ND3
     /// remain TBD.
     fn extract_definitions(note: &Note) -> Vec<(String, String, Option<String>)> {
         note.content
@@ -127,13 +127,13 @@ impl FsStorage {
                 let definition = rest
                     .get(term_end + Self::MARKDOWN_STRONG_DELIMITER_LEN..)?
                     .trim();
-                // [S-DM-ND1] Candidate definitions require non-empty term and
+                // @S-DM-ND1 Candidate definitions require non-empty term and
                 // definition text after trimming markdown delimiters/whitespace.
                 if term.is_empty() || definition.is_empty() {
                     return None;
                 }
-                // Block-id extraction is still deferred while [S-DM-NR5] and
-                // the note-definition reference details in [S-DM-ND3] remain TBD.
+                // Block-id extraction is still deferred while @S-DM-NR5 and
+                // the note-definition reference details in @S-DM-ND3 remain TBD.
                 Some((term.to_string(), definition.to_string(), None))
             })
             .collect()
@@ -220,7 +220,7 @@ impl Storage for FsStorage {
             child_ids: vec![],
             note_count: 0,
         });
-        // [TC-ST-SP-08] update parent's child_ids when a child space is created
+        // @TC-ST-SP-08 update parent's child_ids when a child space is created
         if let Some(parent_id) = &space.parent_id {
             if let Some(parent_entry) = index.spaces.iter_mut().find(|e| &e.id == parent_id) {
                 if !parent_entry.child_ids.contains(&space.id) {
@@ -262,7 +262,7 @@ impl Storage for FsStorage {
 
     async fn delete_space(&self, id: &SpaceId) -> Result<()> {
         let mut index: SpacesIndex = self.read_index("spaces.json").await?;
-        // [TC-ST-SP-07] return NotFound if space is not in the index
+        // @TC-ST-SP-07 return NotFound if space is not in the index
         if index.get(id).is_none() {
             return Err(StorageError::NotFound(id.to_string()));
         }
@@ -285,7 +285,7 @@ impl Storage for FsStorage {
         let content = serialize_note_content(&note.metadata, &note.content)?;
         fs::write(&path, content).await?;
 
-        // Bump note_count in the owning space. [S-DM-S4]
+        // Bump note_count in the owning space. @S-DM-S4
         let mut idx: SpacesIndex = self.read_index("spaces.json").await?;
         let owner = owning_space_in_index(&note.id, &idx)
             .or_else(|| SpaceId::new(note.id.space_segment()).ok());
@@ -309,7 +309,7 @@ impl Storage for FsStorage {
         let (metadata, content) = parse_note_content(&raw)?;
 
         // A note's parent is the next path segment up, but only when that path is
-        // itself a note (a sibling `.md` exists); otherwise it is the space dir. [S-DM-N3]
+        // itself a note (a sibling `.md` exists); otherwise it is the space dir. @S-DM-N3
         let parent_id = id.parent().filter(|p| self.note_path(p).exists());
         Ok(Some(Note {
             id: id.clone(),
@@ -328,7 +328,7 @@ impl Storage for FsStorage {
         let mut ids = Vec::new();
         // Walk the space subtree. Notes are `<name>.md`; a subdirectory belongs to
         // a note (recurse) only when a sibling `<name>.md` exists, otherwise it is
-        // a nested child space and is excluded. [S-DM-N3, S-DM-S1]
+        // a nested child space and is excluded. @(S-DM-N3,S-DM-S1)
         let mut stack = vec![(base, base_prefix)];
         while let Some((dir, prefix)) = stack.pop() {
             let mut entries = fs::read_dir(&dir).await?;
@@ -375,10 +375,10 @@ impl Storage for FsStorage {
         if folder.exists() {
             fs::remove_dir_all(&folder).await?;
         }
-        // [TC-ST-ERR-04] decrement note_count in spaces index
+        // @TC-ST-ERR-04 decrement note_count in spaces index
         let mut idx: SpacesIndex = self.read_index("spaces.json").await?;
-        let owner = owning_space_in_index(id, &idx)
-            .or_else(|| SpaceId::new(id.space_segment()).ok());
+        let owner =
+            owning_space_in_index(id, &idx).or_else(|| SpaceId::new(id.space_segment()).ok());
         if let Some(space_id) = owner {
             if let Some(entry) = idx.spaces.iter_mut().find(|e| e.id == space_id) {
                 entry.note_count = entry.note_count.saturating_sub(1);
@@ -392,7 +392,7 @@ impl Storage for FsStorage {
     /// Removes a draft note (and its subnote tree) without preserving any
     /// published counterpart. In `FsStorage` each note has a single backing
     /// file regardless of draft status, so this simply delegates to
-    /// `delete_note`. [S-UX-NE4]
+    /// `delete_note`. @S-UX-NE4
     async fn delete_draft(&self, id: &NoteId) -> Result<()> {
         self.delete_note(id).await
     }

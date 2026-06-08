@@ -183,7 +183,7 @@ function parentNoteId(id: string): string | null {
     const parts = id.split("/");
     if (parts.length <= 2) return null;
     // The parent is the next path segment up, but only when that path is itself a
-    // note; otherwise it is the space directory of a nested child space. [S-DM-N3]
+    // note; otherwise it is the space directory of a nested child space. @S-DM-N3
     const candidate = parts.slice(0, -1).join("/");
     return noteFileExists(candidate) ? candidate : null;
 }
@@ -585,7 +585,7 @@ function sortRecordEntries<T>(entries: Record<string, T[]>): Record<string, T[]>
 
 function noteIdsForSpace(spaceId: string): string[] {
     // Return the full note subtree owned by this space (descendants included for
-    // tree rendering), excluding notes owned by nested child spaces. [S-DM-N3, S-DM-S1]
+    // tree rendering), excluding notes owned by nested child spaces. @(S-DM-N3,S-DM-S1)
     const spacesIndex = readJson<SpacesIndex>("spaces.json", { spaces: [] });
     return readAllNotes()
         .map((note) => note.id)

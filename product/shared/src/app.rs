@@ -14,7 +14,7 @@ use crate::viewmodel::{
 /// Pure update function: `(Event, &mut Model) → Vec<Effect>`.
 ///
 /// No I/O is performed here. Effects are returned for the shell to execute,
-/// whose results come back as response events. [S-ARCH-1]
+/// whose results come back as response events. @S-ARCH-1
 pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
     match event {
         // ── Lifecycle ─────────────────────────────────────────────────────────
@@ -74,7 +74,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
             let current_screen = model.screen.clone();
             model.current_note = None;
             model.current_note_persisted = false;
-            model.error = None; // [S-UX-ERR] dismiss error on back navigation
+            model.error = None; // @S-UX-ERR dismiss error on back navigation
             model.cross_space_view = false;
             model.note_opening = false; // cancel any in-flight note open
             model.startup_open_default_note = false;
@@ -108,7 +108,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
             description,
             parent_id,
         } => {
-            // Child space ids are reverse-domain, leaf-first: `leaf.parent`. [S-DM-S1]
+            // Child space ids are reverse-domain, leaf-first: `leaf.parent`. @S-DM-S1
             let leaf = slug(&name);
             let id_result = match &parent_id {
                 Some(parent) => SpaceId::new(format!("{leaf}.{}", parent.as_str())),
@@ -150,7 +150,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         } => {
             if let Some(note) = model.current_note.as_mut() {
                 if note.id == id {
-                    // [S-UX-NE4] no empty drafts: do not persist empty content.
+                    // @S-UX-NE4 no empty drafts: do not persist empty content.
                     if content.is_empty() {
                         if note.metadata.draft && model.current_note_persisted {
                             // An existing draft must be deleted from storage.
@@ -161,10 +161,10 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                     }
                     // Start from labels provided by the UI metadata panel.
                     let mut effective_labels = labels_from_strings(&labels);
-                    // Apply /:labels commands from content (may override panel labels). [S-UX-NE2]
+                    // Apply /:labels commands from content (may override panel labels). @S-UX-NE2
                     note.content = apply_label_commands(&content, &mut effective_labels);
                     note.metadata.labels = effective_labels;
-                    // Sync title from first # heading in content. [S-DM-N5]
+                    // Sync title from first # heading in content. @S-DM-N5
                     if let Some(title) = extract_title(&note.content) {
                         note.metadata.title = slug(&title);
                     }
@@ -197,7 +197,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         // ── Filtering ─────────────────────────────────────────────────────────
         Event::SetActiveView { labels } => {
             model.active_view_labels = labels;
-            // Cross-space mode: show matching notes from ALL spaces. [S-DM-L2]
+            // Cross-space mode: show matching notes from ALL spaces. @S-DM-L2
             model.cross_space_view = true;
             // Do NOT clear model.notes — show already-cached notes immediately.
             // Fire LoadNotes for all spaces to bring in any notes not yet cached.
@@ -261,7 +261,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
 
         Event::NoteListLoaded { space_id, note_ids } => {
             if model.cross_space_view {
-                // Cross-space mode: accumulate notes from multiple spaces. [S-DM-L2]
+                // Cross-space mode: accumulate notes from multiple spaces. @S-DM-L2
                 // Do not overwrite current_space or clear notes from other spaces.
             } else {
                 model.current_space = model.spaces.iter().find(|s| s.id == space_id).cloned();
@@ -271,7 +271,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
                     .retain(|n| owning_space_id(&n.id, &spaces) == space_id.as_str());
             }
             model.loading = false;
-            // Load each note into the list cache. [S-UX-NVT1]
+            // Load each note into the list cache. @S-UX-NVT1
             let mut effects: Vec<Effect> = note_ids
                 .into_iter()
                 .map(|id| Effect::Storage(StorageRequest::LoadNoteForList { id }))
@@ -283,7 +283,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
         Event::NoteLoaded { note } => {
             model.loading = false;
             if model.note_opening {
-                // Explicit navigation: open the editor. [S-UX-NE1]
+                // Explicit navigation: open the editor. @S-UX-NE1
                 if let Some(existing) = model.notes.iter_mut().find(|n| n.id == note.id) {
                     *existing = note.clone();
                 } else {
@@ -399,7 +399,7 @@ pub fn update(event: Event, model: &mut Model) -> Vec<Effect> {
     }
 }
 
-/// Build the `ViewModel` from the current `Model` (pure, no I/O). [S-ARCH-1]
+/// Build the `ViewModel` from the current `Model` (pure, no I/O). @S-ARCH-1
 pub fn view(model: &Model) -> ViewModel {
     if model.loading {
         return ViewModel::Loading;
@@ -417,7 +417,7 @@ pub fn view(model: &Model) -> ViewModel {
         Screen::Overview(tab) => ViewModel::Overview(OverviewViewModel {
             active_tab: tab.clone(),
             spaces: model.spaces.iter().map(SpaceSummary::from).collect(),
-            // Use loaded label index if available, fall back to deriving from cached notes. [S-DM-L1]
+            // Use loaded label index if available, fall back to deriving from cached notes. @S-DM-L1
             labels: if model.labels.is_empty() {
                 derive_label_summaries(&model.notes)
             } else {
@@ -456,7 +456,7 @@ pub fn view(model: &Model) -> ViewModel {
                     .collect()
             };
 
-            // Apply label filter. [S-DM-V1]
+            // Apply label filter. @S-DM-V1
             if !model.active_view_labels.is_empty() {
                 notes.retain(|n| {
                     let note_labels: Vec<&str> =
@@ -536,7 +536,7 @@ fn labels_from_strings(labels: &[String]) -> Vec<Label> {
         .collect()
 }
 
-/// Extract the first `# Heading` from markdown content. [S-DM-N5]
+/// Extract the first `# Heading` from markdown content. @S-DM-N5
 fn extract_title(content: &str) -> Option<String> {
     content
         .lines()
@@ -545,7 +545,7 @@ fn extract_title(content: &str) -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
-/// Process inline `/:labels tag1 tag2;` commands in content. [S-UX-NE2]
+/// Process inline `/:labels tag1 tag2;` commands in content. @S-UX-NE2
 ///
 /// Labels from the command are **merged** (union) with the panel labels already
 /// in `labels`. Duplicates are removed while preserving order (panel labels first,
@@ -563,7 +563,7 @@ fn apply_label_commands(content: &str, labels: &mut Vec<Label>) -> String {
         }
         if let Some(rest) = trimmed.strip_prefix("/:labels ") {
             if let Some(args) = rest.strip_suffix(';') {
-                // Merge command labels into panel labels (union, deduplicated). [S-UX-NE2]
+                // Merge command labels into panel labels (union, deduplicated). @S-UX-NE2
                 for s in args.split_whitespace().filter(|s| !s.is_empty()) {
                     let lbl = Label(s.to_string());
                     if !labels.contains(&lbl) {
@@ -578,7 +578,7 @@ fn apply_label_commands(content: &str, labels: &mut Vec<Label>) -> String {
         result.push_str(line);
         result.push('\n');
     }
-    result // [S-UX-NE5] preserve trailing whitespace; no normalization during editing
+    result // @S-UX-NE5 preserve trailing whitespace; no normalization during editing
 }
 
 fn derive_label_summaries(notes: &[Note]) -> Vec<LabelSummary> {
@@ -613,7 +613,7 @@ fn default_space() -> Space {
 
 /// Returns the id of the space that owns `note_id`: the known space whose
 /// root-first path is the longest prefix of the note id. Falls back to the
-/// note's first path segment when no known space matches. [S-DM-S1]
+/// note's first path segment when no known space matches. @S-DM-S1
 fn owning_space_id(note_id: &NoteId, spaces: &[Space]) -> String {
     let segs = note_id.segments();
     spaces
@@ -641,7 +641,7 @@ fn default_space_id_from(spaces: &[Space]) -> SpaceId {
 
 fn open_new_note(model: &mut Model, space_id: SpaceId, parent_id: Option<NoteId>) -> Vec<Effect> {
     // Mint the id under the parent note when nesting, else under the space root
-    // path (root-first slash notation). [S-DM-N3]
+    // path (root-first slash notation). @S-DM-N3
     let prefix = match &parent_id {
         Some(parent) => parent.as_str().to_string(),
         None => space_id.segments_root_first().join("/"),
@@ -697,7 +697,7 @@ mod tests {
         Model::default()
     }
 
-    /// TC-AL-LIFE-02 — AppStarted without data_folder emits Render only [S-UX-SA1]
+    /// TC-AL-LIFE-02 — AppStarted without data_folder emits Render only @S-UX-SA1
     #[test]
     fn app_started_without_folder_shows_first_launch() {
         let mut model = fresh_model();
@@ -706,7 +706,7 @@ mod tests {
         assert!(effects.iter().any(|e| matches!(e, Effect::Render)));
     }
 
-    /// TC-AL-LIFE-01 — AppStarted with folder emits LoadSettings + LoadSpaces (partial: LoadSpaces) [S-UX-SA1]
+    /// TC-AL-LIFE-01 — AppStarted with folder emits LoadSettings + LoadSpaces (partial: LoadSpaces) @S-UX-SA1
     #[test]
     fn app_started_with_folder_requests_storage() {
         let mut model = fresh_model();
@@ -747,7 +747,7 @@ mod tests {
         assert!(effects.iter().any(|e| matches!(e, Effect::Render)));
     }
 
-    /// TC-AL-SP-01 — CreateSpace emits StorageRequest::CreateSpace [S-UX-ST3]
+    /// TC-AL-SP-01 — CreateSpace emits StorageRequest::CreateSpace @S-UX-ST3
     #[test]
     fn create_space_produces_storage_effect() {
         let mut model = fresh_model();
@@ -764,7 +764,7 @@ mod tests {
             .any(|e| matches!(e, Effect::Storage(StorageRequest::CreateSpace { .. }))));
     }
 
-    /// TC-AL-N-01 — CreateNote opens unsaved local draft editor (local-draft-first design) [S-UX-NVT2], [S-DM-N7]
+    /// TC-AL-N-01 — CreateNote opens unsaved local draft editor (local-draft-first design) @(S-UX-NVT2,S-DM-N7)
     #[test]
     fn create_note_opens_unsaved_editor_without_storage_effect() {
         let mut model = fresh_model();
@@ -796,7 +796,7 @@ mod tests {
         );
     }
 
-    /// TC-AL-N-14 — CreateNote with parent_id mints a nested note id under the parent [S-DM-N3]
+    /// TC-AL-N-14 — CreateNote with parent_id mints a nested note id under the parent @S-DM-N3
     #[test]
     fn create_child_note_mints_id_under_parent() {
         let mut model = fresh_model();
@@ -826,7 +826,7 @@ mod tests {
         );
     }
 
-    /// TC-AL-SP-04 — CreateSpace with parent_id mints a nested reverse-domain id [S-DM-S1]
+    /// TC-AL-SP-04 — CreateSpace with parent_id mints a nested reverse-domain id @S-DM-S1
     #[test]
     fn create_child_space_mints_nested_id() {
         let mut model = fresh_model();
@@ -850,7 +850,7 @@ mod tests {
         assert_eq!(space.parent_id.as_ref(), Some(&parent));
     }
 
-    /// TC-AL-N-01 — CreateNote opens local draft with no StorageRequest (local-draft-first design) [S-UX-NVT2], [S-DM-N7]
+    /// TC-AL-N-01 — CreateNote opens local draft with no StorageRequest (local-draft-first design) @(S-UX-NVT2,S-DM-N7)
     #[test]
     fn create_note_opens_local_draft_no_storage_request() {
         let mut model = fresh_model();
@@ -870,7 +870,7 @@ mod tests {
             },
             &mut model,
         );
-        // Local-draft-first design: no StorageRequest on CreateNote. [S-DM-N7]
+        // Local-draft-first design: no StorageRequest on CreateNote. @S-DM-N7
         assert!(
             !effects.iter().any(|e| matches!(e, Effect::Storage(_))),
             "CreateNote must not emit any StorageRequest; note is a local unsaved draft"
@@ -923,7 +923,7 @@ mod tests {
         assert!(effects.iter().any(|e| matches!(e, Effect::Render)));
     }
 
-    /// TC-AL-NAV-03 — NavigateBack without space goes to overview [S-UX-MF1]
+    /// TC-AL-NAV-03 — NavigateBack without space goes to overview @S-UX-MF1
     #[test]
     fn navigate_back_without_space_goes_to_overview() {
         let mut model = fresh_model();
@@ -936,7 +936,7 @@ mod tests {
         assert!(effects.iter().any(|e| matches!(e, Effect::Render)));
     }
 
-    /// TC-AL-N-13 — Editor command syntax is stripped before save [S-UX-NE2], [S-DM-N2]
+    /// TC-AL-N-13 — Editor command syntax is stripped before save @(S-UX-NE2,S-DM-N2)
     #[test]
     fn label_command_applied_and_stripped_from_content() {
         let content = "# My Note\n\n/:labels rust learning;\n\nReal content.";
@@ -950,14 +950,14 @@ mod tests {
 
     #[test]
     fn trailing_newlines_preserved_during_autosave() {
-        // [S-UX-NE5] Content fidelity: trailing whitespace must not be stripped.
+        // @S-UX-NE5 Content fidelity: trailing whitespace must not be stripped.
         let content = "# My Note\n\nSome content.\n\n";
         let mut labels = vec![];
         let result = apply_label_commands(content, &mut labels);
         assert!(result.ends_with('\n'), "trailing newline must be preserved");
     }
 
-    /// TC-AL-SF-01 — SearchChanged filters note list by title [S-UX-NVT1]
+    /// TC-AL-SF-01 — SearchChanged filters note list by title @S-UX-NVT1
     #[test]
     fn search_filter_applied_in_view() {
         let mut model = fresh_model();
@@ -1097,7 +1097,7 @@ mod tests {
         )));
     }
 
-    /// TC-AL-NAV-03 — NavigateBack returns to previous screen [S-UX-MF1]
+    /// TC-AL-NAV-03 — NavigateBack returns to previous screen @S-UX-MF1
     #[test]
     fn navigate_back_from_editor_returns_to_note_list() {
         let mut model = fresh_model();
@@ -1152,7 +1152,7 @@ mod tests {
 
     // ── Space management (TC-AL-SP-01..03) ──────────────────────────────────
 
-    /// TC-AL-SP-02 — SpaceCreated does optimistic local insert, no LoadSpaces roundtrip [S-UX-ST3]
+    /// TC-AL-SP-02 — SpaceCreated does optimistic local insert, no LoadSpaces roundtrip @S-UX-ST3
     #[test]
     fn space_created_inserts_and_renders() {
         let mut model = fresh_model();
@@ -1182,7 +1182,7 @@ mod tests {
         );
     }
 
-    /// TC-AL-SP-02 — SpaceCreated does optimistic local insert, no LoadSpaces roundtrip [S-UX-ST3]
+    /// TC-AL-SP-02 — SpaceCreated does optimistic local insert, no LoadSpaces roundtrip @S-UX-ST3
     #[test]
     fn space_created_optimistic_local_insert() {
         let mut model = fresh_model();
@@ -1242,7 +1242,7 @@ mod tests {
         model
     }
 
-    /// TC-AL-N-02 — UpdateNote syncs title from first heading [S-DM-N5]
+    /// TC-AL-N-02 — UpdateNote syncs title from first heading @S-DM-N5
     #[test]
     fn update_note_syncs_title_from_heading() {
         let space_id = SpaceId::new("space1").unwrap();
@@ -1266,7 +1266,7 @@ mod tests {
         }
     }
 
-    /// TC-AL-N-03 — UpdateNote without heading leaves title unchanged [S-DM-N5]
+    /// TC-AL-N-03 — UpdateNote without heading leaves title unchanged @S-DM-N5
     #[test]
     fn update_note_no_heading_preserves_title() {
         let space_id = SpaceId::new("space1").unwrap();
@@ -1290,7 +1290,7 @@ mod tests {
         }
     }
 
-    /// TC-AL-N-03b — UpdateNote with multiple headings uses the first [S-DM-N5]
+    /// TC-AL-N-03b — UpdateNote with multiple headings uses the first @S-DM-N5
     #[test]
     fn update_note_multiple_headings_uses_first() {
         let space_id = SpaceId::new("space1").unwrap();
@@ -1314,7 +1314,7 @@ mod tests {
         }
     }
 
-    /// TC-AL-N-03c — UpdateNote with malformed heading leaves title unchanged [S-DM-N5]
+    /// TC-AL-N-03c — UpdateNote with malformed heading leaves title unchanged @S-DM-N5
     #[test]
     fn update_note_malformed_heading_preserves_title() {
         let space_id = SpaceId::new("space1").unwrap();
@@ -1338,7 +1338,7 @@ mod tests {
         }
     }
 
-    /// TC-AL-N-04 — UpdateNote applies panel labels [S-DM-N5]
+    /// TC-AL-N-04 — UpdateNote applies panel labels @S-DM-N5
     #[test]
     fn update_note_applies_panel_labels() {
         let space_id = SpaceId::new("space1").unwrap();
@@ -1364,7 +1364,7 @@ mod tests {
         }
     }
 
-    /// TC-AL-N-05 — Content command `/:labels` sets labels [S-UX-NE2]
+    /// TC-AL-N-05 — Content command `/:labels` sets labels @S-UX-NE2
     #[test]
     fn label_command_sets_save_note_labels() {
         let space_id = SpaceId::new("space1").unwrap();
@@ -1394,7 +1394,7 @@ mod tests {
         }
     }
 
-    /// TC-AL-N-06 — `/:labels` in content merges with panel labels [S-UX-NE2]
+    /// TC-AL-N-06 — `/:labels` in content merges with panel labels @S-UX-NE2
     #[test]
     fn label_command_merges_with_panel_labels() {
         let content = "# My Note\n\n/:labels content-tag;\n\nReal content.";
@@ -1423,7 +1423,7 @@ mod tests {
         );
     }
 
-    /// TC-AL-N-13 — Editor command syntax is stripped before save [S-UX-NE2], [S-DM-N2]
+    /// TC-AL-N-13 — Editor command syntax is stripped before save @(S-UX-NE2,S-DM-N2)
     #[test]
     fn label_command_syntax_stripped_before_save() {
         let space_id = SpaceId::new("space1").unwrap();
@@ -1448,7 +1448,7 @@ mod tests {
         }
     }
 
-    /// TC-AL-N-07 — PublishNote clears draft flag [S-DM-N5]
+    /// TC-AL-N-07 — PublishNote clears draft flag @S-DM-N5
     #[test]
     fn publish_note_clears_draft() {
         let space_id = SpaceId::new("space1").unwrap();
@@ -1477,7 +1477,7 @@ mod tests {
         )));
     }
 
-    /// TC-AL-N-11 — UpdateNote with empty content does not emit SaveNote [S-UX-NE4]
+    /// TC-AL-N-11 — UpdateNote with empty content does not emit SaveNote @S-UX-NE4
     #[test]
     fn update_note_empty_content_no_draft_does_not_save() {
         let space_id = SpaceId::new("space1").unwrap();
@@ -1516,7 +1516,7 @@ mod tests {
         );
     }
 
-    /// TC-AL-N-12 — UpdateNote with empty content when draft exists emits DeleteDraft [S-UX-NE4]
+    /// TC-AL-N-12 — UpdateNote with empty content when draft exists emits DeleteDraft @S-UX-NE4
     #[test]
     fn update_note_empty_content_with_draft_emits_delete_draft() {
         let space_id = SpaceId::new("space1").unwrap();
@@ -1594,7 +1594,7 @@ mod tests {
         model
     }
 
-    /// TC-AL-ND-01 — Note description is first non-heading, non-empty line [S-DM-N4]
+    /// TC-AL-ND-01 — Note description is first non-heading, non-empty line @S-DM-N4
     #[test]
     fn note_description_is_first_paragraph() {
         let model =
@@ -1606,7 +1606,7 @@ mod tests {
         }
     }
 
-    /// TC-AL-ND-02 — Note with only heading has empty/None description [S-DM-N4]
+    /// TC-AL-ND-02 — Note with only heading has empty/None description @S-DM-N4
     #[test]
     fn note_description_only_heading_is_empty() {
         let model = model_with_note_content("# My Note\n");
@@ -1659,7 +1659,7 @@ mod tests {
         }
     }
 
-    /// TC-AL-SF-01 — SearchChanged filters note list by title [S-UX-NVT1]
+    /// TC-AL-SF-01 — SearchChanged filters note list by title @S-UX-NVT1
     #[test]
     fn search_changed_filters_note_list_by_title() {
         let mut model = notes_in_model(&[
@@ -1681,7 +1681,7 @@ mod tests {
         assert!(!titles.contains(&"learning-python".to_string()));
     }
 
-    /// TC-AL-SF-02 — SetActiveView filters notes by label [S-DM-V1]
+    /// TC-AL-SF-02 — SetActiveView filters notes by label @S-DM-V1
     #[test]
     fn set_active_view_filters_by_label() {
         let mut model = notes_in_model(&[
@@ -1701,7 +1701,7 @@ mod tests {
         assert!(!titles.contains(&"note-b".to_string()));
     }
 
-    /// TC-AL-SF-03 — SetActiveView with multiple labels requires ALL labels [S-DM-V1]
+    /// TC-AL-SF-03 — SetActiveView with multiple labels requires ALL labels @S-DM-V1
     #[test]
     fn set_active_view_requires_all_labels() {
         let mut model = notes_in_model(&[
@@ -1773,7 +1773,7 @@ mod tests {
         assert_eq!(titles.len(), 2);
     }
 
-    /// TC-AL-SF-07 — Available labels derived from cached notes [S-DM-L2]
+    /// TC-AL-SF-07 — Available labels derived from cached notes @S-DM-L2
     #[test]
     fn label_summaries_derived_from_notes() {
         let mut model = notes_in_model(&[
@@ -1796,7 +1796,7 @@ mod tests {
         }
     }
 
-    /// TC-AL-SF-08 — SaveView persists named view to storage [S-DM-V1]
+    /// TC-AL-SF-08 — SaveView persists named view to storage @S-DM-V1
     #[test]
     #[ignore = "test-first [post-POC]: SaveView event and storage request are not implemented yet"]
     fn save_view_persists_named_view_to_storage() {
@@ -1805,14 +1805,14 @@ mod tests {
         );
     }
 
-    /// TC-AL-SF-09 — LoadView retrieves and applies saved filter [S-DM-V1]
+    /// TC-AL-SF-09 — LoadView retrieves and applies saved filter @S-DM-V1
     #[test]
     #[ignore = "test-first [post-POC]: ViewLoaded event is not implemented yet"]
     fn view_loaded_applies_saved_filter() {
         panic!("blocked: add a ViewLoaded event/result path before enabling this test");
     }
 
-    /// TC-AL-SF-10 — Empty view emits no-results indicator [S-DM-V1], [S-UX-NVT1]
+    /// TC-AL-SF-10 — Empty view emits no-results indicator @(S-DM-V1,S-UX-NVT1)
     #[test]
     #[ignore = "test-first [post-POC]: NoteListViewModel has no explicit empty-state indicator yet"]
     fn empty_view_emits_no_results_indicator() {

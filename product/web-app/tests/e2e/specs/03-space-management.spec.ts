@@ -2,7 +2,7 @@
  * TC-E2E-SP — Space Management tests (web)
  *
  * Covers: TC-E2E-SP-01..04
- * Spec refs: [S-UX-SA2], [S-UX-NVT1]
+ * Spec refs: @(S-UX-SA2,S-UX-NVT1)
  *
  * UI assertions run via the shared scenario. Web-specific S-ST-LS3 file-tree
  * verification runs in the second describe block.
@@ -23,7 +23,7 @@ describe('Space Management — localStorage verification', () => {
      * TC-E2E-SP-01-ls / TC-ST-SP-02 / TC-ST-LS3-05 — creating a space persists the S-ST-DM4
      * spaces index in the web S-ST-LS3 local store.
      */
-    it('TC-E2E-SP-01-ls/TC-ST-SP-02/TC-ST-LS3-05 [S-ST-LS3,S-ST-DM4]: creating a space updates spaces.json', async () => {
+    it('TC-E2E-SP-01-ls/TC-ST-SP-02/TC-ST-LS3-05 @(S-ST-LS3,S-ST-DM4): creating a space updates spaces.json', async () => {
         await helpers.createSpace('ls-space')
         await browser.waitUntil(() => helpers.isSpaceVisible('ls-space'), { timeout: UI_TIMEOUT_MS })
 
@@ -41,9 +41,9 @@ describe('Space Management — localStorage verification', () => {
 
     /**
      * TC-ST-SP-03 / TC-ST-SP-08 — nested spaces use the root-first folder path
-     * and derived hierarchy in spaces.json [S-ST-LS3], [S-ST-DM4], [S-ST-IX1].
+     * and derived hierarchy in spaces.json @(S-ST-LS3,S-ST-DM4,S-ST-IX1).
      */
-    it('TC-ST-SP-03/TC-ST-SP-08 [S-ST-LS3,S-ST-DM4,S-ST-IX1]: nested spaces map to root-first folder paths', async () => {
+    it('TC-ST-SP-03/TC-ST-SP-08 @(S-ST-LS3,S-ST-DM4,S-ST-IX1): nested spaces map to root-first folder paths', async () => {
         await browser.execute(() => {
             const parentIndex = {
                 spaces: [
@@ -89,7 +89,7 @@ describe('Space Management — localStorage verification', () => {
      * TC-E2E-SP-04-ls / TC-ST-SP-06 — deleting a space removes its S-ST-DM4
      * subtree and spaces.json entry from the web S-ST-LS3 local store.
      */
-    it('TC-E2E-SP-04-ls/TC-ST-SP-06 [S-ST-LS3,S-ST-DM4]: deleting a space removes its file subtree', async () => {
+    it('TC-E2E-SP-04-ls/TC-ST-SP-06 @(S-ST-LS3,S-ST-DM4): deleting a space removes its file subtree', async () => {
         await helpers.createSpace('ls-temp')
         await browser.waitUntil(() => helpers.isSpaceVisible('ls-temp'), { timeout: UI_TIMEOUT_MS })
 

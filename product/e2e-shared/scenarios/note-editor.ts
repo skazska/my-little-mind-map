@@ -9,7 +9,7 @@
  *   TC-E2E-NE-07  Content-preservation check (requires storage read)
  *   TC-E2E-NE-14  Publish confirmation dialog (custom React dialog vs native confirm())
  *
- * Spec refs: [S-UX-NVT2], [S-UX-NE1], [S-UX-NE2], [S-UX-NE3], [S-UX-NE4]
+ * Spec refs: @(S-UX-NVT2,S-UX-NE1,S-UX-NE2,S-UX-NE3,S-UX-NE4)
  *
  * Call inside a `describe('Note Editor', ...)` block.
  * Wrapper's `before()` should:
@@ -26,7 +26,7 @@ export function runNoteEditorSpec(h: E2eHelpers): void {
     // ── Navigation & Display ─────────────────────────────────────────────────
 
     /**
-     * TC-E2E-NE-01 — Clicking note opens editor [S-UX-NVT2]
+     * TC-E2E-NE-01 — Clicking note opens editor @S-UX-NVT2
      */
     it('TC-E2E-NE-01: clicking a note in the list opens the note editor', async () => {
         await h.openNote('test-note')
@@ -47,7 +47,7 @@ export function runNoteEditorSpec(h: E2eHelpers): void {
     // ── Editing ──────────────────────────────────────────────────────────────
 
     /**
-     * TC-E2E-NE-04 — Typing content marks note as dirty [S-UX-NE3]
+     * TC-E2E-NE-04 — Typing content marks note as dirty @S-UX-NE3
      */
     it('TC-E2E-NE-04: typing in the editor shows the dirty indicator', async () => {
         await h.openNote('test-note')
@@ -61,7 +61,7 @@ export function runNoteEditorSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-NE-05 — Manual save clears dirty indicator [S-UX-NE3]
+     * TC-E2E-NE-05 — Manual save clears dirty indicator @S-UX-NE3
      */
     it('TC-E2E-NE-05: clicking Save clears the dirty indicator', async () => {
         await h.saveNote()
@@ -74,21 +74,21 @@ export function runNoteEditorSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-NE-06b — Continuous typing debounces autosave [S-UX-NE4]
-     * [BLOCKED] The shared helper API has no way to observe save calls/timestamps.
+     * TC-E2E-NE-06b — Continuous typing debounces autosave @S-UX-NE4
+     * @BLOCKED The shared helper API has no way to observe save calls/timestamps.
      */
     it.skip('TC-E2E-NE-06b: continuous typing debounces autosave', async () => undefined)
 
     /**
-     * TC-E2E-NE-06c — Autosave failure surfaces error and allows retry [S-UX-NE4], [S-UX-ERR]
-     * [BLOCKED] The shared helper API has no fault-injection hook for storage failures.
+     * TC-E2E-NE-06c — Autosave failure surfaces error and allows retry @(S-UX-NE4,S-UX-ERR)
+     * @BLOCKED The shared helper API has no fault-injection hook for storage failures.
      */
     it.skip('TC-E2E-NE-06c: autosave failure surfaces error and allows retry', async () => undefined)
 
     // ── Labels ───────────────────────────────────────────────────────────────
 
     /**
-     * TC-E2E-NE-08 — Add label via metadata panel [S-UX-NE1]
+     * TC-E2E-NE-08 — Add label via metadata panel @S-UX-NE1
      */
     it('TC-E2E-NE-08: adding a label via the metadata panel shows it in the label list', async () => {
         await h.openNote('test-note')
@@ -99,7 +99,7 @@ export function runNoteEditorSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-NE-09 — Remove label via metadata panel [S-UX-NE1]
+     * TC-E2E-NE-09 — Remove label via metadata panel @S-UX-NE1
      */
     it('TC-E2E-NE-09: removing a label via the metadata panel updates the label list', async () => {
         // Ensure label exists.
@@ -115,7 +115,7 @@ export function runNoteEditorSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-NE-10 — Content command `/:labels` sets labels [S-UX-NE2]
+     * TC-E2E-NE-10 — Content command `/:labels` sets labels @S-UX-NE2
      */
     it('TC-E2E-NE-10: /:labels command adds labels to the note', async () => {
         await h.openNote('test-note')
@@ -132,7 +132,7 @@ export function runNoteEditorSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-NE-11 — Delete note removes it from list [S-UX-NE3]
+     * TC-E2E-NE-11 — Delete note removes it from list @S-UX-NE3
      */
     it('TC-E2E-NE-11: deleting a note removes it from the note list', async () => {
         await h.clickBack()
@@ -152,7 +152,7 @@ export function runNoteEditorSpec(h: E2eHelpers): void {
     // ── Draft and Publish ────────────────────────────────────────────────────
 
     /**
-     * TC-E2E-NE-12 — New note created as draft [S-UX-NE1]
+     * TC-E2E-NE-12 — New note created as draft @S-UX-NE1
      */
     it('TC-E2E-NE-12: new note is created as a draft', async () => {
         await h.createNote('draft-note')
@@ -162,7 +162,7 @@ export function runNoteEditorSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-NE-13 — Publish clears draft indicator [S-UX-NE1]
+     * TC-E2E-NE-13 — Publish clears draft indicator @S-UX-NE1
      */
     it('TC-E2E-NE-13: publishing a note clears the draft indicator', async () => {
         await h.saveNote()

@@ -1,6 +1,6 @@
 # UX Expectations
 
-Detailed UX expectations for [E-UX](../expectations.md) ("Minimalistic, intuitive, responsive UI/UX"). This document refines `E-UX` into themed `E-UX-*` sub-codes and captures **screen wireframes** and **user flows** that illustrate the intended experience.
+Detailed UX expectations for @E-UX ("Minimalistic, intuitive, responsive UI/UX"). This document refines `E-UX` into themed `E-UX-*` sub-codes and captures **screen wireframes** and **user flows** that illustrate the intended experience.
 
 These wireframes and flows are **illustrative expectations**, not authoritative specifications. The authoritative, codified UX behaviour lives in the [UX spec](../specs/ux.md) (`S-UX-*`). Where a sketch and a spec disagree, the spec wins. Wireframes and flows here are inferred from the current shell implementations (`product/desktop-app/`, `product/web-app/`) and the shared E2E scenarios (`product/e2e-shared/scenarios/`); they do not by themselves define test cases.
 
@@ -8,13 +8,27 @@ Status legend (as in [expectations](../expectations.md)): **In-POC** — expecte
 
 ## Sub-Expectations
 
-These sub-codes sit under [E-UX](../expectations.md) and are satisfied by `S-UX-*` specs in the [UX spec](../specs/ux.md).
+These sub-codes sit under @E-UX and are satisfied by `S-UX-*` specs in the [UX spec](../specs/ux.md).
 
-- [E-UX-FEEDBACK] **Visual feedback and affordances.** Every user action produces timely, visible feedback. Transient and persistent states (unsaved changes, draft, saving/saved, filtering active, loading, errors) are surfaced through clear indicators; interactive elements look interactive. Users are never left guessing whether an action took effect. *In-POC.*
-- [E-UX-CONSISTENCY] **Cross-platform UX consistency.** The same conceptual experience — screen structure, navigation model, terminology, and interaction patterns — is presented across desktop, web, and mobile shells, deviating only where platform conventions or constraints require (e.g. no folder picker on web). This refines [E-CROSS-PLATFORM](../expectations.md) at the UX surface. *In-POC.*
-- [E-UX-NAV] **Navigation and information architecture.** A predictable, shallow information architecture: a persistent app frame with primary navigation (spaces, labels, notes views, recent, search), breadcrumbs and back/forward, and context-based content. Users always know where they are and how to get home. *In-POC.*
-- [E-UX-INPUT] **Input and interaction.** Natural, low-friction input across modalities: keyboard-first interaction (shortcuts, Enter/Esc, in-content editor commands), pointer, and touch. Inline editor commands (e.g. `/:labels …;`) let users act without leaving the keyboard. This refines [E-MINIMAL-ACTIONS](../expectations.md). *In-POC.*
-- [E-UX-THEME] **Theming and appearance.** A clean, modern visual theme with light and dark appearances. Theming is consistent across screens and respects the platform/system appearance where available. This concern is **visual appearance only**; viewport/orientation **layout adaptation** is owned by [E-RESPONSIVE](../expectations.md) (in-POC). *Deferred (POC ships a single dark theme; light theme and system-appearance following are post-POC).*
+### E-UX-FEEDBACK
+
+**Visual feedback and affordances.** Every user action produces timely, visible feedback. Transient and persistent states (unsaved changes, draft, saving/saved, filtering active, loading, errors) are surfaced through clear indicators; interactive elements look interactive. Users are never left guessing whether an action took effect. *In-POC.*
+
+### E-UX-CONSISTENCY
+
+**Cross-platform UX consistency.** The same conceptual experience — screen structure, navigation model, terminology, and interaction patterns — is presented across desktop, web, and mobile shells, deviating only where platform conventions or constraints require (e.g. no folder picker on web). This refines @E-CROSS-PLATFORM at the UX surface. *In-POC.*
+
+### E-UX-NAV
+
+**Navigation and information architecture.** A predictable, shallow information architecture: a persistent app frame with primary navigation (spaces, labels, notes views, recent, search), breadcrumbs and back/forward, and context-based content. Users always know where they are and how to get home. *In-POC.*
+
+### E-UX-INPUT
+
+**Input and interaction.** Natural, low-friction input across modalities: keyboard-first interaction (shortcuts, Enter/Esc, in-content editor commands), pointer, and touch. Inline editor commands (e.g. `/:labels …;`) let users act without leaving the keyboard. This refines @E-MINIMAL-ACTIONS. *In-POC.*
+
+### E-UX-THEME
+
+**Theming and appearance.** A clean, modern visual theme with light and dark appearances. Theming is consistent across screens and respects the platform/system appearance where available. This concern is **visual appearance only**; viewport/orientation **layout adaptation** is owned by @E-RESPONSIVE (in-POC). *Deferred (POC ships a single dark theme; light theme and system-appearance following are post-POC).*
 
 ## Screen Wireframes
 
@@ -22,7 +36,7 @@ Lo-fi wireMD sketches of each screen, derived from the current shells. Annotatio
 
 ### First launch (`S-UX-SA1`)
 
-Desktop/mobile — choose or create a data folder:
+Desktop/mobile/web — choose or create a data folder:
 
 ```wireMD
 +--------------------------------------------------+
@@ -35,18 +49,6 @@ Desktop/mobile — choose or create a data folder:
 |        [ Choose Data Folder… ]   (primary)       |
 |        [ Use Default (~/MyLittleMindMapData) ]   |
 |                                                  |
-+--------------------------------------------------+
-```
-
-Web — no filesystem access, single entry action (`S-UX-SA1` platform exception, `S-CFG-1`):
-
-```wireMD
-+--------------------------------------------------+
-|             # My Little Mind Map                 |
-|   Your notes are stored in this browser's        |
-|   local storage.                                 |
-|                                                  |
-|              [ Get Started ]   (primary)         |
 +--------------------------------------------------+
 ```
 
@@ -193,7 +195,7 @@ Publish confirmation overlay (`S-UX-NE6`):
         +--------------------------------------+
 ```
 
-Platform note (`S-UX-NE1`, [E-UX-CONSISTENCY]): narrow viewports MAY hide `uuid`, `created_at`, `updated_at` from the panel; they remain available in the expanded view.
+Platform note (`S-UX-NE1`, @E-UX-CONSISTENCY): narrow viewports MAY hide `uuid`, `created_at`, `updated_at` from the panel; they remain available in the expanded view.
 
 ### Error screen (`S-UX-ERR`)
 

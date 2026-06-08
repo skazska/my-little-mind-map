@@ -84,7 +84,7 @@ Inspired by personal knowledge management, note-taking, and project management t
 - Clear purpose (code items and files):
   - name: short, descriptive, concise, purpose-aligned.
   - header comment: short, describe, purpose.
-  - spec references: if directly impacted by a spec.
+  - spec references: if directly impacted by a spec, cite as `@CODE` (e.g. `@S-DM-N5`).
 - no code errors
 - no code warnings in main branches
 - CI must pass before merge
@@ -131,6 +131,20 @@ Inspired by personal knowledge management, note-taking, and project management t
   - file / folder layouts → plain code-block tree (kept as text, not a diagram).
 - Excluded: notations requiring rendering infrastructure or external tools (e.g. PlantUML/Salt, design-tool-only exports).
 - Traceability is unaffected: `E-*`/`S-*`/`TC-*` codes stay in prose and diagram captions, not encoded in diagram syntax.
+
+### Codification notation
+
+Each codified unit (`E-*`, `S-*`, `TC-*`) is defined as a Markdown heading at the level appropriate to its context:
+
+- first level under a `##` section → `###`
+- nested under a `###` subsection → `####`
+
+**Cross-references** in specs, docs, tests, and code:
+
+- single code: `@CODE` (e.g. `@S-DM-L1`, `@E-TEXT`)
+- multiple codes: `@(CODE1,CODE2)` (e.g. `@(S-DM-L1,S-DM-L2)`)
+
+**Deferred items**: use backtick-wrapped `TBD`, `TBD post-POC`, or `TBD post-POC: detail` — no square brackets.
 
 ### Track spec coverage
 

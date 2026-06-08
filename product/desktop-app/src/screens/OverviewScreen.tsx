@@ -7,7 +7,7 @@ interface SpaceRow {
 }
 
 // Flatten spaces into a depth-first ordered tree using parent_id so child spaces
-// render indented under their parent. [S-DM-S1]
+// render indented under their parent. @S-DM-S1
 function orderSpaceTree(spaces: SpaceSummary[]): SpaceRow[] {
     const ids = new Set(spaces.map((s) => s.id));
     const byParent = new Map<string, SpaceSummary[]>();

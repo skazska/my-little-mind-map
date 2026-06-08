@@ -7,7 +7,7 @@ interface TreeRow {
 }
 
 // Flatten the note list into a depth-first ordered tree using parent_id, so the
-// note list can render nested child notes indented. [S-DM-N3, S-UX-NVT1]
+// note list can render nested child notes indented. @(S-DM-N3,S-UX-NVT1)
 function orderNoteTree(notes: NoteListItem[]): TreeRow[] {
   const ids = new Set(notes.map((n) => n.id));
   const byParent = new Map<string, NoteListItem[]>();

@@ -5,7 +5,7 @@
  * checks — disk layout on desktop, localStorage on web — belong in the
  * platform wrapper describe block alongside the shared call).
  *
- * Spec refs: [S-UX-SA2], [S-UX-NVT1]
+ * Spec refs: @(S-UX-SA2,S-UX-NVT1)
  *
  * Call inside a `describe('Space Management', ...)` block:
  *   describe('Space Management', () => runSpaceManagementSpec(h))
@@ -20,7 +20,7 @@ export function runSpaceManagementSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-SP-01 — Create space with name only [S-UX-SA2]
+     * TC-E2E-SP-01 — Create space with name only @S-UX-SA2
      */
     it('TC-E2E-SP-01: creating a space adds it to the list', async () => {
         await h.createSpace('my-space')
@@ -48,7 +48,7 @@ export function runSpaceManagementSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-SP-03 — Navigate into a space opens note list [S-UX-NVT1]
+     * TC-E2E-SP-03 — Navigate into a space opens note list @S-UX-NVT1
      */
     it('TC-E2E-SP-03: clicking a space opens the note list screen', async () => {
         await h.navigateIntoSpace('my-space')
@@ -82,7 +82,7 @@ export function runSpaceManagementSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-SP-06 — Create a nested child space [S-DM-S1], [S-DM-S3]
+     * TC-E2E-SP-06 — Create a nested child space @(S-DM-S1,S-DM-S3)
      */
     it('TC-E2E-SP-06: creating a child space nests it indented under its parent', async () => {
         await h.createSpace('parent-space')
@@ -104,8 +104,8 @@ export function runSpaceManagementSpec(h: E2eHelpers): void {
     })
 
     /**
-     * TC-E2E-SP-05 — Space view shows statistics [S-UX-ST2], [S-DM-S4]
-     * [BLOCKED] The app does not expose a dedicated space statistics view yet.
+     * TC-E2E-SP-05 — Space view shows statistics @(S-UX-ST2,S-DM-S4)
+     * @BLOCKED The app does not expose a dedicated space statistics view yet.
      */
     it.skip('TC-E2E-SP-05: space view shows name, description, labels, and statistics', async () => undefined)
 }

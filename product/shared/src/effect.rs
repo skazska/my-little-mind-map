@@ -5,7 +5,7 @@ use shared_types::model::{Note, Settings, Space};
 // ── Effects ───────────────────────────────────────────────────────────────────
 
 /// Side-effect requests produced by `update()`. Shells execute these and feed
-/// the result back as response `Event`s. [S-ARCH-1]
+/// the result back as response `Event`s. @S-ARCH-1
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Effect {
@@ -50,7 +50,7 @@ pub enum StorageRequest {
     DeleteNote {
         id: NoteId,
     },
-    /// Delete a draft note without affecting a published version. [S-UX-NE4]
+    /// Delete a draft note without affecting a published version. @S-UX-NE4
     DeleteDraft {
         id: NoteId,
     },

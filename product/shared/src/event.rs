@@ -4,7 +4,7 @@ use shared_types::model::{Note, Settings, Space};
 
 // ── Events ────────────────────────────────────────────────────────────────────
 
-/// All events that can be dispatched to the core. [S-ARCH-1]
+/// All events that can be dispatched to the core. @S-ARCH-1
 ///
 /// Two categories:
 /// - *User-initiated* — originate from shell UI interactions.
@@ -38,7 +38,7 @@ pub enum Event {
     CreateSpace {
         name: String,
         description: Option<String>,
-        /// Parent space for nested (child) spaces; None for root spaces. [S-DM-S1]
+        /// Parent space for nested (child) spaces; None for root spaces. @S-DM-S1
         #[serde(default)]
         parent_id: Option<SpaceId>,
     },
@@ -47,7 +47,7 @@ pub enum Event {
     },
 
     // ── Notes ─────────────────────────────────────────────────────────────────
-    /// Create a new draft note; title is derived from content later. [S-DM-N5]
+    /// Create a new draft note; title is derived from content later. @S-DM-N5
     CreateNote {
         space_id: SpaceId,
         parent_id: Option<NoteId>,

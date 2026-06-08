@@ -4,12 +4,12 @@ use uuid::Uuid;
 
 use crate::ids::{NoteId, SpaceId, ViewId};
 
-/// A label: single lowercase alphanumeric+hyphens word. [S-DM-L1]
+/// A label: single lowercase alphanumeric+hyphens word. @S-DM-L1
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Label(pub String);
 
 impl Label {
-    /// Construct a validated label. [S-DM-L1]
+    /// Construct a validated label. @S-DM-L1
     pub fn new(s: impl Into<String>) -> Result<Self, crate::ids::IdError> {
         let s = s.into();
         crate::ids::validate_label(&s)?;
@@ -17,7 +17,7 @@ impl Label {
     }
 }
 
-/// A space: hierarchical container for notes. [S-DM-S1]
+/// A space: hierarchical container for notes. @S-DM-S1
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Space {
     pub id: SpaceId,
@@ -26,19 +26,19 @@ pub struct Space {
     pub labels: Vec<Label>,
     /// None for root-level spaces.
     pub parent_id: Option<SpaceId>,
-    /// Number of notes directly in this space (from index). [S-DM-S4]
+    /// Number of notes directly in this space (from index). @S-DM-S4
     #[serde(default)]
     pub note_count: usize,
 }
 
-/// A view: a set of labels defining a perspective filter. [S-DM-V1]
+/// A view: a set of labels defining a perspective filter. @S-DM-V1
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct View {
     pub id: ViewId,
     pub labels: Vec<Label>,
 }
 
-/// Kind of artifact a note reference points to. [S-DM-NR3]
+/// Kind of artifact a note reference points to. @S-DM-NR3
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum NoteReferenceKind {
@@ -49,17 +49,17 @@ pub enum NoteReferenceKind {
     External { url: String },
 }
 
-/// A reference from a note to another artifact. [S-DM-NR1]
+/// A reference from a note to another artifact. @S-DM-NR1
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NoteReference {
     pub target: NoteReferenceKind,
-    /// Block-level anchor within the target note. [S-DM-NR5]
+    /// Block-level anchor within the target note. @S-DM-NR5
     pub block_id: Option<String>,
     /// Block in the *source* note where this reference appears.
     pub source_block_id: Option<String>,
 }
 
-/// A term definition extracted from note content. [S-DM-ND1]
+/// A term definition extracted from note content. @S-DM-ND1
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NoteDefinition {
     pub term: String,
@@ -68,7 +68,7 @@ pub struct NoteDefinition {
     pub block_id: Option<String>,
 }
 
-/// Front-matter metadata for a note. [S-DM-N5]
+/// Front-matter metadata for a note. @S-DM-N5
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NoteMetadata {
     pub uuid: Uuid,
@@ -102,22 +102,22 @@ impl NoteMetadata {
     }
 }
 
-/// A note: primary content unit. [S-DM-N1]
+/// A note: primary content unit. @S-DM-N1
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Note {
-    /// Full path id, e.g. `space1/parent-note/this-note`. [S-DM-N3]
+    /// Full path id, e.g. `space1/parent-note/this-note`. @S-DM-N3
     pub id: NoteId,
     pub metadata: NoteMetadata,
-    /// Markdown body (front matter excluded). [S-DM-N2]
+    /// Markdown body (front matter excluded). @S-DM-N2
     pub content: String,
     /// Parent note id, None for space-root notes.
     pub parent_id: Option<NoteId>,
 }
 
-/// Application settings stored in `settings.json`. [S-CFG-2]
+/// Application settings stored in `settings.json`. @S-CFG-2
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Settings {
-    /// Absolute path to the current data folder. [S-CFG-1]
+    /// Absolute path to the current data folder. @S-CFG-1
     pub data_folder: Option<String>,
     pub default_space: Option<SpaceId>,
     pub theme: Option<String>,

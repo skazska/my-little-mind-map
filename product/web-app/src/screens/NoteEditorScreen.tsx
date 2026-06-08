@@ -90,7 +90,7 @@ export function NoteEditorScreen({
   }
 
   // Create a child note under the current one, saving pending edits first so the
-  // parent persists before the child is opened. [S-DM-N3]
+  // parent persists before the child is opened. @S-DM-N3
   function handleAddChild() {
     if (!spaceId) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -161,7 +161,7 @@ export function NoteEditorScreen({
 
       {error && <div className="banner banner--error">{error}</div>}
 
-      {/* Publish confirmation dialog [S-UX-NE6] */}
+      {/* Publish confirmation dialog @S-UX-NE6 */}
       {confirmPublish && (
         <div
           role="dialog"
