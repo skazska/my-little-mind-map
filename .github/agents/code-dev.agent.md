@@ -72,7 +72,7 @@ You are a CODE QUALITY AGENT. You fix intrinsic code-quality issues — how code
 3. Conform to code standards and existing style; avoid introducing new patterns.
 
 ## Verify
-1. Run the relevant static analysis and tests for the scope (`cargo clippy --all-targets --all-features`, `cargo fmt --check`, `cargo test`, `eslint`, `tsc --noEmit`); capture results.
+1. Run the relevant static analysis and tests for the scope (`cargo clippy --workspace --all-targets -- -D warnings`, `cargo fmt --check`, `cargo test`, `eslint`, `tsc --noEmit`); capture results.
 2. Confirm no behavioural regressions (tests stay green; same assertions).
 3. Recommend re-asserting with CodeQA.
 </workflow>

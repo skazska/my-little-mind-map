@@ -36,7 +36,7 @@ just e2e-desktop      # desktop only  (or: cd product/desktop-app && npx wdio ru
 just e2e-web          # web only      (or: cd product/web-app    && npx wdio run tests/e2e/wdio.conf.ts)
 
 # Static analysis
-cargo clippy --all-targets --all-features
+cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --check
 cd product/desktop-app && npx eslint src
 ```
